@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+orienteer-test.properties
+orienteer.properties
+target/
+databases/
+Orienteer/
+libs/
+.idea/
+*.iml
