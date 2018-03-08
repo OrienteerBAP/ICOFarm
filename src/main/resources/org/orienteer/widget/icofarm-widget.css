@@ -1,0 +1,9 @@
+
+.registration > .form-group > .form-control {
+    text-align: center;
+}
+
+.registration-container {
+    margin-top: 50px;
+    margin-bottom: 50px;
+}

@@ -10,6 +10,7 @@ public class ICOFarmApplication extends OrienteerWebApplication
 	{
 		super.init();
 		mountPages("org.orienteer.web");
+		registerWidgets("org.orienteer.widget");
 		registerModule(ICOFarmModule.class);
 	}
 
