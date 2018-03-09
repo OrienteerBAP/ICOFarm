@@ -10,6 +10,16 @@ import org.orienteer.core.util.OSchemaHelper;
 
 public class ICOFarmModule extends AbstractOrienteerModule {
 
+	public static final String TRANSACTION = "Transaction";
+	public static final String CURRENCY    = "Currency";
+
+	public static final String OPROPERTY_TRANSACTION_DATETIME      = "dateTime";
+	public static final String OPROPERTY_TRANSACTION_FROM_CURRENCY = "fromCurrency";
+	public static final String OPROPERTY_TRANSACTION_FROM_VALUE    = "fromValue";
+	public static final String OPROPERTY_TRANSACTION_TO_CURRENCY   = "toCurrency";
+	public static final String OPROPERTY_TRANSACTION_TO_VALUE      = "toValue";
+	public static final String OPROPERTY_TRANSACTION_OWNER         = "owner";
+
 	protected ICOFarmModule() {
 		super("ICOFarm", 11);
 	}
@@ -21,6 +31,16 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(OUser.CLASS_NAME)
 				.oProperty("firstName", OType.STRING, 40)
 				.oProperty("lastName", OType.STRING, 50);
+
+		helper.oClass(CURRENCY, "OEnum");
+
+		helper.oClass(TRANSACTION)
+				.oProperty(OPROPERTY_TRANSACTION_DATETIME, OType.DATETIME, 0).notNull()
+				.oProperty(OPROPERTY_TRANSACTION_FROM_CURRENCY, OType.LINK, 10).notNull().linkedClass(CURRENCY)
+				.oProperty(OPROPERTY_TRANSACTION_FROM_VALUE, OType.DOUBLE, 20).notNull()
+				.oProperty(OPROPERTY_TRANSACTION_TO_CURRENCY, OType.LINK, 30).notNull().linkedClass(CURRENCY)
+				.oProperty(OPROPERTY_TRANSACTION_TO_VALUE, OType.DOUBLE, 40).notNull()
+				.oProperty(OPROPERTY_TRANSACTION_OWNER, OType.LINK, 10).notNull().linkedClass(OUser.CLASS_NAME);
 		return null;
 	}
 
