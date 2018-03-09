@@ -10,6 +10,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.orienteer.ICOFarmModule;
 import org.orienteer.component.TransactionPanel;
 import org.orienteer.component.TransactionsPanel;
 import org.orienteer.core.OrienteerWebSession;
@@ -26,7 +27,7 @@ import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.Date;
 
-@Widget(id = "transactions", domain = "browse", selector = "Transaction")
+@Widget(id = "transactions", domain = "browse", selector = ICOFarmModule.TRANSACTION)
 public class ICOFarmTransactionsWidget extends AbstractICOFarmWidget<OClass> {
 
     private Component currentComponent;

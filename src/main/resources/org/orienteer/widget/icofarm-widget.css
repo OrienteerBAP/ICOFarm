@@ -12,3 +12,11 @@
     background: #ffffff !important;
     margin-top: 50px !important;
 }
+
+.copy-link:hover {
+    cursor: pointer !important;
+}
+
+.copy-link:active {
+    background-color: #9E9E9E;
+}
