@@ -2,7 +2,7 @@ FROM orienteer/orienteer:latest
 
 WORKDIR /tmp/src/
 ADD . /tmp/src/
-RUN mvn -s /usr/share/maven/ref/settings-docker.xml clean install && \
+RUN mvn -s /usr/share/maven/ref/settings-docker.xml -DskipTests clean install && \
     mv target/ICOFarm.war /app/ && \
     cp orienteer.properties /app/ && \
     rm -rf /tmp/src/ && \
