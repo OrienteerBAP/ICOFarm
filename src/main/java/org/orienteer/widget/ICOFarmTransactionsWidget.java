@@ -120,7 +120,7 @@ public class ICOFarmTransactionsWidget extends AbstractICOFarmWidget<OClass> {
     }
 
     private Command<ODocument> newCancelCommand(TransactionPanel transactionPanel) {
-        return new AjaxCommand<ODocument>(new ResourceModel("widget.transaction.cancel"), transactionPanel.getStructureTable()) {
+        return new AjaxCommand<ODocument>(new ResourceModel("widget.cancel"), transactionPanel.getStructureTable()) {
 
             @Override
             public void onClick(AjaxRequestTarget target) {

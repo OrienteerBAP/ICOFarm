@@ -13,6 +13,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String TRANSACTION = "Transaction";
 	public static final String CURRENCY    = "Currency";
 	public static final String REFERRAL    = "Referral";
+	public static final String WALLET      = "Wallet";
 
 	public static final String OPROPERTY_TRANSACTION_DATETIME      = "dateTime";
 	public static final String OPROPERTY_TRANSACTION_FROM_CURRENCY = "fromCurrency";
@@ -24,6 +25,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String OPROPERTY_REFERRAL_CREATED = "created";
 	public static final String OPROPERTY_REFERRAL_USER    = "user";
 	public static final String OPROPERTY_REFERRAL_BY      = "by";
+
+	public static final String OPROPERTY_WALLET_OWNER    = "owner";
+	public static final String OPROPERTY_WALLET_CURRENCY = "currency";
 
 	protected ICOFarmModule() {
 		super("ICOFarm", 12 );
@@ -52,6 +56,10 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OPROPERTY_REFERRAL_CREATED, OType.DATETIME, 0).notNull().markAsDocumentName()
 				.oProperty(OPROPERTY_REFERRAL_USER, OType.LINK, 10).notNull().linkedClass(OUser.CLASS_NAME)
 				.oProperty(OPROPERTY_REFERRAL_BY, OType.LINK, 20).notNull().linkedClass(OUser.CLASS_NAME);
+
+		helper.oClass(WALLET)
+				.oProperty(OPROPERTY_WALLET_OWNER, OType.LINK, 0).linkedClass(OUser.CLASS_NAME)
+				.oProperty(OPROPERTY_WALLET_CURRENCY, OType.LINK, 10).linkedClass(CURRENCY);
 		return null;
 	}
 
