@@ -74,6 +74,11 @@
 			<artifactId>orienteer-architect</artifactId>
 			<version>${orienteer.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4.7</version>
+		</dependency>
 		<!-- ORIENTEER TESTS for TESTING -->
 		<dependency>
 			<groupId>org.orienteer</groupId>
