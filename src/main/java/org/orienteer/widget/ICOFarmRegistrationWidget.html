@@ -1,9 +1,9 @@
 <wicket:extend xmlns:wicket="http://www.w3.org/1999/xhtml">
 	<div class="container row center-block registration-container">
 		<div class="col-md-offset-4 col-md-4">
-			<h2 class="text-center"><strong>ICOFarm</strong></h2>
-			<h4 class="text-center">Please log in or register for continue on</h4>
 			<form class="registration" wicket:id="form">
+				<h2 class="text-center"><strong wicket:id="title"></strong></h2>
+				<h4 class="text-center" wicket:id="content"></h4>
 				<div class="form-group">
 					<input class="form-control" type="text" placeholder="First Name" wicket:id="firstName"/>
 				</div>
@@ -21,6 +21,10 @@
 				</div>
 				<button type="submit" class="center-block btn btn-primary" wicket:id="submit">REGISTER</button>
 			</form>
+			<div wicket:id="feedback" class="panel panel-success">
+				<div class="panel-heading" wicket:id="title"></div>
+				<div class="panel-body" wicket:id="content"></div>
+			</div>
 		</div>
 	</div>
 </wicket:extend>

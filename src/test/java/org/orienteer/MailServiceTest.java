@@ -14,6 +14,7 @@ import org.orienteer.service.IMailService;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import javax.mail.MessagingException;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -68,7 +69,7 @@ public class MailServiceTest {
         try {
             mailService.sendMail(to, "Test", "<h1>Test ICOFarm mail service</h1>", doc.field(OPROPERTY_MAIL_CONFIG_TYPE));
             success = true;
-        } catch (MessagingException e) {
+        } catch (MessagingException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         assertTrue(success);

@@ -34,10 +34,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String OPROPERTY_MAIL_CONFIG_PASSWORD  = "password";
 	public static final String OPROPERTY_MAIL_CONFIG_SMTP_HOST = "smtpHost";
 	public static final String OPROPERTY_MAIL_CONFIG_SMTP_PORT = "smtpPort";
+	public static final String OPROPERTY_MAIL_CONFIG_FROM      = "from";
 	public static final String OPROPERTY_MAIL_CONFIG_TYPE      = "type";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 12 );
+		super("ICOFarm", 14);
 	}
 	
 	@Override
@@ -47,7 +48,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(OUser.CLASS_NAME)
 				.oProperty("firstName", OType.STRING, 40)
 				.oProperty("lastName", OType.STRING, 50)
-				.oProperty("id", OType.STRING, 60).notNull();
+				.oProperty("email", OType.STRING, 60).notNull()
+				.oProperty("id", OType.STRING, 70).notNull();
 
 		helper.oClass(CURRENCY, "OEnum");
 
@@ -73,7 +75,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OPROPERTY_MAIL_CONFIG_PASSWORD, OType.STRING, 10).notNull().assignVisualization("password")
 				.oProperty(OPROPERTY_MAIL_CONFIG_SMTP_HOST, OType.STRING, 20).notNull()
 				.oProperty(OPROPERTY_MAIL_CONFIG_SMTP_PORT, OType.INTEGER, 30).notNull()
-				.oProperty(OPROPERTY_MAIL_CONFIG_TYPE, OType.STRING, 40).notNull();
+				.oProperty(OPROPERTY_MAIL_CONFIG_FROM, OType.STRING, 40)
+				.oProperty(OPROPERTY_MAIL_CONFIG_TYPE, OType.STRING, 50).notNull();
 		return null;
 	}
 

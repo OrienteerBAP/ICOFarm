@@ -3,6 +3,9 @@ package org.orienteer.service;
 import com.google.common.base.Strings;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import org.apache.wicket.ThreadContext;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Properties;
 
@@ -20,9 +24,11 @@ public class MailServiceImpl implements IMailService {
     private static final Logger LOG = LoggerFactory.getLogger(MailServiceImpl.class);
 
     @Override
-    public void sendMail(String to, String subject, String text, String type) throws MessagingException {
+    public void sendMail(String to, String subject, String text, String type) throws MessagingException, UnsupportedEncodingException {
         ODocument doc = searchEmailSettings(type);
         Message message = new MimeMessage(createSession(doc));
+        InternetAddress from = new InternetAddress(doc.field(OPROPERTY_MAIL_CONFIG_EMAIL), doc.field(OPROPERTY_MAIL_CONFIG_FROM));
+        message.setFrom(from);
         message.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
         message.setSubject(subject);
         message.setContent(text, "text/html");
@@ -30,16 +36,22 @@ public class MailServiceImpl implements IMailService {
     }
 
     @Override
-    public void sendMail(String to, String subject, String text) throws MessagingException {
+    public void sendMail(String to, String subject, String text) throws MessagingException, UnsupportedEncodingException {
         sendMail(to, subject, text, null);
     }
 
     @Override
     public void sendMailAsync(String to, String subject, String text, String type) {
+        OrienteerWebApplication app = OrienteerWebApplication.get();
+        RequestCycle cycle = RequestCycle.get();
+        OrienteerWebSession session = OrienteerWebSession.get();
         new Thread(() -> {
             try {
+                ThreadContext.setApplication(app);
+                ThreadContext.setRequestCycle(cycle);
+                ThreadContext.setSession(session);
                 sendMail(to, subject, text, type);
-            } catch (MessagingException ex) {
+            } catch (MessagingException | UnsupportedEncodingException ex) {
                 LOG.error("Can't send message to: {}", to, ex);
             }
         }).start();
@@ -49,6 +61,7 @@ public class MailServiceImpl implements IMailService {
     public void sendMailAsync(String to, String subject, String text) {
         sendMailAsync(to, subject, text, null);
     }
+
 
     private Session createSession(ODocument doc) {
         Properties properties = getEmailProperties(doc);
