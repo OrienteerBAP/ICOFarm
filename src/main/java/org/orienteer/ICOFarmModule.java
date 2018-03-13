@@ -1,6 +1,7 @@
 package org.orienteer;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -38,7 +39,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String OPROPERTY_MAIL_CONFIG_TYPE      = "type";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 14);
+		super("ICOFarm", 15);
 	}
 	
 	@Override
@@ -63,7 +64,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		helper.oClass(REFERRAL)
 				.oProperty(OPROPERTY_REFERRAL_CREATED, OType.DATETIME, 0).notNull().markAsDocumentName()
-				.oProperty(OPROPERTY_REFERRAL_USER, OType.LINK, 10).notNull().linkedClass(OUser.CLASS_NAME)
+				.oProperty(OPROPERTY_REFERRAL_USER, OType.LINK, 10).notNull().linkedClass(OUser.CLASS_NAME).oIndex(OClass.INDEX_TYPE.UNIQUE)
 				.oProperty(OPROPERTY_REFERRAL_BY, OType.LINK, 20).notNull().linkedClass(OUser.CLASS_NAME);
 
 		helper.oClass(WALLET)
