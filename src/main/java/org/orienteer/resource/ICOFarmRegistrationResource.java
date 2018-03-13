@@ -14,6 +14,7 @@ import org.apache.wicket.request.resource.SharedResourceReference;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.web.HomePage;
+import org.orienteer.web.ICOFarmLoginPage;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import javax.servlet.http.HttpServletResponse;
@@ -61,22 +62,32 @@ public class ICOFarmRegistrationResource extends AbstractResource {
             @Override
             public void writeData(Attributes attributes) throws IOException {
                 String id = attributes.getParameters().get("id").toString("");
-                OSecurityUser user = activateUserAndGet(id);
-                OrienteerWebSession.get().invalidate();
-                OrienteerWebSession.get().authenticate(user.getName(), user.getPassword());
-                RequestCycle.get().setResponsePage(HomePage.class);
+                activateUser(id);
+                OrienteerWebSession.get().signOut();
+                redirectToLoginPage();
             }
 
-            private OSecurityUser activateUserAndGet(String id) {
-                return new DBClosure<OSecurityUser>() {
+            private void activateUser(String id) {
+                new DBClosure<Void>() {
                     @Override
-                    protected OSecurityUser execute(ODatabaseDocument db) {
+                    protected Void execute(ODatabaseDocument db) {
                         ODocument doc = getUserById(id);
                         doc.field("status", OUser.STATUSES.ACTIVE);
                         doc.save();
-                        return new OUser(doc);
+                        return null;
                     }
                 }.execute();
+            }
+
+            private void redirectToLoginPage() {
+                PageParameters params = createPageParameters();
+                RequestCycle.get().setResponsePage(ICOFarmLoginPage.class, params);
+            }
+
+            private PageParameters createPageParameters() {
+                PageParameters params = new PageParameters();
+                params.add("registration", "success");
+                return params;
             }
         };
     }

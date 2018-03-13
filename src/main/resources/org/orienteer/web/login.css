@@ -1,0 +1,31 @@
+
+.feedbackPanel {
+    font-size: 14px !important;
+    text-align: center;
+    list-style: none;
+    padding: 0;
+}
+
+.feedbackPanelSUCCESS {
+    color: green;
+}
+
+.feedbackPanelERROR {
+    color: red;
+}
+
+.form-control {
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.btn-container {
+    text-align: center;
+    margin-bottom: 0;
+    margin-top: 15px;
+}
+
+.btn-container > .btn-success {
+    margin-left: 10px;
+}

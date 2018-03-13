@@ -30,16 +30,12 @@ import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.Widget;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.service.IMailService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.*;
 
 @Widget(id = "registration", domain = "browse")
 public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUser> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ICOFarmRegistrationWidget.class);
 
     @Inject
     private IMailService mailService;
