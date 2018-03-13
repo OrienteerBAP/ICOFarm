@@ -16,13 +16,9 @@ import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
 import org.orienteer.core.MountPath;
 import org.orienteer.core.web.LoginPage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @MountPath("/login")
 public class ICOFarmLoginPage extends LoginPage {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ICOFarmLoginPage.class);
 
     public ICOFarmLoginPage() {
         super();
@@ -39,7 +35,6 @@ public class ICOFarmLoginPage extends LoginPage {
         configInputField(form, "password", "Password");
         form.add(AttributeModifier.replace("class", "center-block form-horizontal"));
         form.setOutputMarkupId(true);
-        LOG.info("params: ", getPageParameters());
     }
 
     private void configFeedbackPanel(SignInPanel signInPanel) {
