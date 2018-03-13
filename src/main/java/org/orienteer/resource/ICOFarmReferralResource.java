@@ -43,19 +43,24 @@ public class ICOFarmReferralResource extends AbstractResource {
         if (response.dataNeedsToBeWritten(attributes)) {
             PageParameters params = attributes.getParameters();
             String id = params.get("id").toString("");
-            if (!Strings.isNullOrEmpty(id) && isExistsInDatabase(id)) {
-                LOG.info("Referral from exists user");
-            } else LOG.info("Referral from non exists user");
-            response.setWriteCallback(new WriteCallback() {
-                @Override
-                public void writeData(Attributes attributes) throws IOException {
-                    RequestCycle.get().setResponsePage(HomePage.class);
-                }
-            });
+            WriteCallback callback = createCallback(!Strings.isNullOrEmpty(id) && isExistsInDatabase(id));
+            response.setWriteCallback(callback);
         }
         return response;
     }
 
+    private WriteCallback createCallback(boolean success) {
+        return new WriteCallback() {
+            @Override
+            public void writeData(Attributes attributes) throws IOException {
+                if (success) {
+                    PageParameters params = attributes.getParameters();
+                    OrienteerWebSession.get().setAttribute("referral", params.get("id").toString(""));
+                }
+                RequestCycle.get().setResponsePage(HomePage.class);
+            }
+        };
+    }
 
     private boolean isExistsInDatabase(String id) {
         List<ODocument> docs = OrienteerWebSession.get().getDatabase().query(new OSQLSynchQuery<>("select id from "
