@@ -1,4 +1,4 @@
 /**
- * Package for a project web pages
+ * Contains web pages for ICOFarm
  */
 package org.orienteer.web;

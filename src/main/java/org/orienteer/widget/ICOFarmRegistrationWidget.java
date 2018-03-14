@@ -21,9 +21,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.MapModel;
-import org.apache.wicket.validation.IValidatable;
-import org.apache.wicket.validation.IValidator;
-import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIcon;
@@ -31,6 +28,7 @@ import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.Widget;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.service.IMailService;
+import org.orienteer.util.EmailExistsValidator;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.*;
@@ -55,7 +53,7 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
         TextField<String> passwordTextField = new PasswordTextField("password", Model.<String>of());
         TextField<String> reEnterPassword = new PasswordTextField("repeatPassword", Model.<String>of());
         emailTextField.add(EmailAddressValidator.getInstance());
-        emailTextField.add(new UserExistsValidator());
+        emailTextField.add(new EmailExistsValidator(false));
         form.add(new EqualPasswordInputValidator(passwordTextField, reEnterPassword));
         form.add(new RequiredTextField<>("firstName", Model.<String>of()));
         form.add(new RequiredTextField<>("lastName", Model.<String>of()));
@@ -185,18 +183,4 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
         return Model.of("Registration");
     }
 
-    private static class UserExistsValidator implements IValidator<String> {
-
-        @Override
-        public void validate(IValidatable<String> validatable) {
-            String email = validatable.getValue();
-            List<ODocument> docs = OrienteerWebSession.get().getDatabase()
-                    .query(new OSQLSynchQuery<>("select from " + OUser.CLASS_NAME + " where name = ?", 1), email);
-            if (docs != null && !docs.isEmpty()) {
-                ValidationError error = new ValidationError(this);
-                error.setVariable("email", email);
-                validatable.error(error);
-            }
-        }
-    }
 }
