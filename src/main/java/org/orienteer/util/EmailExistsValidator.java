@@ -1,17 +1,12 @@
 package org.orienteer.util;
 
-import com.orientechnologies.orient.core.metadata.security.OUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.MapModel;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
-import org.orienteer.core.OrienteerWebSession;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class EmailExistsValidator implements IValidator<String> {
@@ -35,9 +30,7 @@ public class EmailExistsValidator implements IValidator<String> {
     }
 
     private boolean isUserExists(String email) {
-        List<ODocument> docs = OrienteerWebSession.get().getDatabase()
-                .query(new OSQLSynchQuery<>("select from " + OUser.CLASS_NAME + " where email = ?", 1), email);
-        return docs != null && !docs.isEmpty();
+        return ICOFarmUtils.getUserByEmail(email) != null;
     }
 
     private String getResource() {
