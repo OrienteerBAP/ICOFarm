@@ -1,0 +1,31 @@
+
+.icofarm-login-feedback > .feedbackPanel {
+    font-size: 14px !important;
+    text-align: center;
+    list-style: none;
+    padding: 0;
+}
+
+.icofarm-login-feedback > .feedbackPanel > .feedbackPanelSUCCESS {
+    color: green;
+}
+
+.icofarm-login-feedback > .feedbackPanel > .feedbackPanelERROR {
+    color: red;
+}
+
+.signin-panel >form>dl>dd> .form-control {
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.signin-panel >form>dl> .btn-container {
+    text-align: center;
+    margin-bottom: 0;
+    margin-top: 15px;
+}
+
+.signin-panel >form>dl> .btn-container > .btn-success {
+    margin-left: 10px;
+}

@@ -1,80 +1,65 @@
 package org.orienteer.web;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.authroles.authentication.panel.SignInPanel;
-import org.apache.wicket.markup.head.CssHeaderItem;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
-import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.request.resource.CssResourceReference;
-import org.apache.wicket.request.resource.JavaScriptResourceReference;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.orienteer.component.ICOFarmLoginPanel;
+import org.orienteer.component.ICOFarmRestorePasswordPanel;
 import org.orienteer.core.MountPath;
-import org.orienteer.core.web.LoginPage;
 
 @MountPath("/login")
-public class ICOFarmLoginPage extends LoginPage {
+public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
+
+    private Component currentPanel;
 
     public ICOFarmLoginPage() {
         super();
     }
 
+    public ICOFarmLoginPage(PageParameters parameters) {
+        super(parameters);
+    }
+
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        get("prompt").setDefaultModel(getPromptModel());
-        SignInPanel panel = (SignInPanel) get("signInPanel");
-        Form form = (Form) panel.get("signInForm");
-        configFeedbackPanel(panel);
-        configInputField(form, "username", "E-mail");
-        configInputField(form, "password", "Password");
-        form.add(AttributeModifier.replace("class", "center-block form-horizontal"));
-        form.setOutputMarkupId(true);
-    }
+        currentPanel = new ICOFarmLoginPanel("panel");
+        add(currentPanel);
+        add(new Label("loginTitle", new ResourceModel("login.title")));
+        add(new AjaxLink<String>("actionLink", new ResourceModel("login.action.restorePassword")) {
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                final boolean isLogin = currentPanel instanceof ICOFarmLoginPanel;
+                Component title = get("loginTitle");
+                title.setDefaultModelObject(getTitleKey(isLogin));
+                currentPanel = currentPanel.replaceWith(getNextPanel(isLogin));
+                setModelObject(getLabelKey(isLogin));
+                target.add(currentPanel);
+                target.add(title);
+                target.add(this);
+            }
 
-    private void configFeedbackPanel(SignInPanel signInPanel) {
-        FeedbackPanel panel = (FeedbackPanel) signInPanel.get("feedback");
-        panel.setMaxMessages(2);
-        panel.setEscapeModelStrings(false);
-        if (isActivateAccount()) {
-            success(new ResourceModel("login.registration").getObject());
-        }
-    }
+            private Component getNextPanel(boolean isLogin) {
+                return isLogin ? new ICOFarmRestorePasswordPanel(currentPanel.getId())
+                        : new ICOFarmLoginPanel(currentPanel.getId());
+            }
 
-    private void configInputField(Form form, String id, String placeholder) {
-        Component component = form.get(id);
-        component.add(AttributeModifier.replace("class", "form-control"));
-        component.add(AttributeModifier.replace("placeholder", placeholder));
-    }
+            private String getLabelKey(boolean isLogin) {
+                return isLogin ? "login.action.restorePassword" : "login.action.login";
+            }
 
-
-    private boolean isActivateAccount() {
-        return getPageParameters().get("registration").toString("").equals("success");
-    }
-
-    private IModel<String > getPromptModel() {
-        return Model.of("<h1 class='text-center'><strong>" + new ResourceModel("login.project.name").getObject()
-                + "</strong></h1>");
+            private String getTitleKey(boolean isLogin) {
+                return isLogin ? "restore.title" : "login.title";
+            }
+        });
     }
 
     @Override
-    public void renderHead(IHeaderResponse response) {
-        super.renderHead(response);
-        response.render(CssHeaderItem.forReference(new CssResourceReference(getClass(), "login.css")));
-        response.render(JavaScriptHeaderItem.forReference(new JavaScriptResourceReference(getClass(), "login.js")));
-        response.render(OnDomReadyHeaderItem.forScript(getFormConfigScript()));
-    }
-
-    private String getFormConfigScript() {
-        return "configSignInForm('" + getForm().getMarkupId() + "');";
-    }
-
-    private Form getForm() {
-        return (Form) get("signInPanel").get("signInForm");
+    public IModel<String> getTitleModel() {
+        return new ResourceModel("login.page.title");
     }
 }
