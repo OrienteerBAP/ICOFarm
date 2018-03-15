@@ -28,16 +28,31 @@ public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
     protected void onInitialize() {
         super.onInitialize();
         currentPanel = new ICOFarmLoginPanel("panel");
+        Label loginTitle = new Label("loginTitle", new ResourceModel("login.title"));
+        loginTitle.setOutputMarkupId(true);
         add(currentPanel);
-        add(new Label("loginTitle", new ResourceModel("login.title")));
-        add(new AjaxLink<String>("actionLink", new ResourceModel("login.action.restorePassword")) {
+        add(loginTitle);
+        add(createActionLink("actionLink"));
+        add(new Label("prompt", new ResourceModel("login.project.name")));
+    }
+
+    private AjaxLink<String> createActionLink(String id) {
+        return new AjaxLink<String>(id, new ResourceModel("login.action.forgotPassword")) {
+
             @Override
+            protected void onInitialize() {
+                super.onInitialize();
+                setBody(getModel());
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
             public void onClick(AjaxRequestTarget target) {
                 final boolean isLogin = currentPanel instanceof ICOFarmLoginPanel;
-                Component title = get("loginTitle");
-                title.setDefaultModelObject(getTitleKey(isLogin));
+                Component title = ICOFarmLoginPage.this.get("loginTitle");
+                title.setDefaultModel(new ResourceModel(getTitleKey(isLogin)));
                 currentPanel = currentPanel.replaceWith(getNextPanel(isLogin));
-                setModelObject(getLabelKey(isLogin));
+                setBody(new ResourceModel(getLabelKey(isLogin)));
                 target.add(currentPanel);
                 target.add(title);
                 target.add(this);
@@ -49,13 +64,13 @@ public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
             }
 
             private String getLabelKey(boolean isLogin) {
-                return isLogin ? "login.action.restorePassword" : "login.action.login";
+                return isLogin ? "login.action.login" : "login.action.forgotPassword";
             }
 
             private String getTitleKey(boolean isLogin) {
                 return isLogin ? "restore.title" : "login.title";
             }
-        });
+        };
     }
 
     @Override
