@@ -36,7 +36,7 @@ public class EmailExistsValidator implements IValidator<String> {
 
     private boolean isUserExists(String email) {
         List<ODocument> docs = OrienteerWebSession.get().getDatabase()
-                .query(new OSQLSynchQuery<>("select from " + OUser.CLASS_NAME + " where name = ?", 1), email);
+                .query(new OSQLSynchQuery<>("select from " + OUser.CLASS_NAME + " where email = ?", 1), email);
         return docs != null && !docs.isEmpty();
     }
 
