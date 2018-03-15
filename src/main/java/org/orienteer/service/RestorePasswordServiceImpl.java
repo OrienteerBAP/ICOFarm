@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.schedule.OScheduledEventBuilder;
 import com.orientechnologies.orient.core.schedule.OScheduler;
+import org.orienteer.ICOFarmApplication;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
@@ -48,19 +49,20 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
         new DBClosure<Void>() {
             @Override
             protected Void execute(ODatabaseDocument db) {
-                OScheduledEvent event = createEvent(db);
+                OScheduledEvent event = createEvent();
                 OScheduler scheduler = db.getMetadata().getScheduler();
                 scheduler.scheduleEvent(event);
                 return null;
             }
 
-            private OScheduledEvent createEvent(ODatabaseDocument db) {
+            private OScheduledEvent createEvent() {
                 OProperty property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.RESTORE_ID);
                 String name = "removeUserRestoreId" + user.getId();
                 OFunction f = ICOFarmUtils.getOFunctionByName(FUN_REMOVE_RESTORE_ID_BY_EMAIL);
                 Map<Object, Object> args = new HashMap<>(2);
                 args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EMAIL, user.getEmail());
                 args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME, name);
+                args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT, ICOFarmApplication.REMOVE_TIMEOUT.getValue(property));
                 return new OScheduledEventBuilder()
                         .setName(name)
                         .setFunction(f)

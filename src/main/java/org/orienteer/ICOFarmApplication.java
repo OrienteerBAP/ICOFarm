@@ -1,6 +1,8 @@
 package org.orienteer;
 
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.apache.wicket.markup.html.WebPage;
+import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.resource.ICOFarmReferralResource;
@@ -10,6 +12,9 @@ import org.orienteer.web.ICOFarmLoginPage;
 
 public class ICOFarmApplication extends OrienteerWebApplication
 {
+	public static final CustomAttribute REMOVE_CRON    = CustomAttribute.create("remove.cron", OType.STRING, "", false, false);
+	public static final CustomAttribute REMOVE_TIMEOUT = CustomAttribute.create("remove.timeout", OType.STRING, "0", false, false);
+
 	@Override
 	public void init()
 	{
