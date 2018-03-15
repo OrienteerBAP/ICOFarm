@@ -1,5 +1,6 @@
 package org.orienteer.component;
 
+import com.google.inject.Inject;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -9,10 +10,15 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
+import org.orienteer.model.ICOFarmUser;
+import org.orienteer.service.IRestorePasswordService;
 import org.orienteer.util.EmailExistsValidator;
+import org.orienteer.util.ICOFarmUtils;
 
 public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
 
+    @Inject
+    private IRestorePasswordService service;
 
     public ICOFarmRestorePasswordPanel(String id) {
         super(id);
@@ -37,6 +43,8 @@ public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
             @SuppressWarnings("unchecked")
             protected void onSubmit() {
                 String email = ((TextField<String>) get("email")).getModelObject();
+                ICOFarmUser user = ICOFarmUtils.getUserByEmail(email);
+                service.restoreUserPassword(user);
             }
         };
     }
