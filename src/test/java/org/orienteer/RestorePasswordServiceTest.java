@@ -46,10 +46,10 @@ public class RestorePasswordServiceTest {
                         .setPassword(UUID.randomUUID().toString())
                         .setAccountStatus(OSecurityUser.STATUSES.ACTIVE);
                 property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.RESTORE_ID);
-                cronValue = ICOFarmApplication.REMOVE_CRON.getValue(property);
-                timeoutValue = ICOFarmApplication.REMOVE_TIMEOUT.getValue(property);
-                ICOFarmApplication.REMOVE_CRON.setValue(property, "0 0/1 * 1/1 * ? *");
-                ICOFarmApplication.REMOVE_TIMEOUT.setValue(property, "0");
+                cronValue = ICOFarmApplication.REMOVE_CRON_RULE.getValue(property);
+                timeoutValue = ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property);
+                ICOFarmApplication.REMOVE_CRON_RULE.setValue(property, "0 0/1 * 1/1 * ? *");
+                ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(property, "3000");
                 user.save();
                 return null;
             }
@@ -62,8 +62,8 @@ public class RestorePasswordServiceTest {
             @Override
             protected Void execute(ODatabaseDocument db) {
                 db.command(new OCommandSQL("DELETE FROM ?")).execute(user.getDocument());
-                ICOFarmApplication.REMOVE_CRON.setValue(property, cronValue);
-                ICOFarmApplication.REMOVE_TIMEOUT.setValue(property, timeoutValue);
+                ICOFarmApplication.REMOVE_CRON_RULE.setValue(property, cronValue);
+                ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(property, timeoutValue);
                 return null;
             }
         }.execute();

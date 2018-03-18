@@ -7,7 +7,6 @@ import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.schedule.OScheduledEventBuilder;
 import com.orientechnologies.orient.core.schedule.OScheduler;
 import org.orienteer.ICOFarmApplication;
-import org.orienteer.core.CustomAttribute;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
 import org.orienteer.util.ICOFarmUtils;
@@ -62,13 +61,14 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
                 Map<Object, Object> args = new HashMap<>(2);
                 args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EMAIL, user.getEmail());
                 args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME, name);
-                args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT, ICOFarmApplication.REMOVE_TIMEOUT.getValue(property));
+                args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT, ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property));
+                long timeout = Long.parseLong(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property));
                 return new OScheduledEventBuilder()
                         .setName(name)
                         .setFunction(f)
                         .setArguments(args)
-                        .setRule(CustomAttribute.get("remove.cron").getValue(property))
-                        .setStartTime(new Date()).build();
+                        .setRule(ICOFarmApplication.REMOVE_CRON_RULE.getValue(property))
+                        .setStartTime(new Date(System.currentTimeMillis() + timeout)).build();
             }
         }.execute();
     }

@@ -12,8 +12,8 @@ import org.orienteer.web.ICOFarmLoginPage;
 
 public class ICOFarmApplication extends OrienteerWebApplication
 {
-	public static final CustomAttribute REMOVE_CRON    = CustomAttribute.create("remove.cron", OType.STRING, "", false, false);
-	public static final CustomAttribute REMOVE_TIMEOUT = CustomAttribute.create("remove.timeout", OType.STRING, "0", false, false);
+	public static final CustomAttribute REMOVE_CRON_RULE              = CustomAttribute.create("remove.cron", OType.STRING, "", false, false);
+	public static final CustomAttribute REMOVE_SCHEDULE_START_TIMEOUT = CustomAttribute.create("remove.timeout", OType.STRING, "0", false, false);
 
 	@Override
 	public void init()

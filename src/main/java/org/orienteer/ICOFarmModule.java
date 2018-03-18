@@ -6,15 +6,16 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.schedule.OScheduledEvent;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.ICOFarmUser;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class ICOFarmModule extends AbstractOrienteerModule {
 
@@ -45,14 +46,13 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String OPROPERTY_MAIL_CONFIG_FROM      = "from";
 	public static final String OPROPERTY_MAIL_CONFIG_TYPE      = "type";
 
-	public static final String FUN_REMOVE_RESTORE_ID_EVERY_DAY                = "removeRestoreIdEveryDay";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL                 = "removeRestoreIdByEmail";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EMAIL      = "email";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 34);
+		super("ICOFarm", 37);
 	}
 	
 	@Override
@@ -65,8 +65,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(ICOFarmUser.EMAIL, OType.STRING, 60).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE)
 				.oProperty(ICOFarmUser.ID, OType.STRING, 70).notNull()
                 .oProperty(ICOFarmUser.RESTORE_ID, OType.STRING).switchDisplayable(false)
-				.updateCustomAttribute(ICOFarmApplication.REMOVE_CRON, "0 0 0/1 1/1 * ? *")
-				.updateCustomAttribute(ICOFarmApplication.REMOVE_TIMEOUT, "3600000")
+				.updateCustomAttribute(ICOFarmApplication.REMOVE_CRON_RULE, "0 0/1 * * * ?")
+				.updateCustomAttribute(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT, "86400")
                 .oProperty(ICOFarmUser.RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false);
 
 		helper.oClass(CURRENCY, "OEnum");
@@ -97,7 +97,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OPROPERTY_MAIL_CONFIG_TYPE, OType.STRING, 50).notNull();
 
 		createRemoveRestoreIdFunction(helper);
-		createRemoveRestoreIdEveryDayScheduler(helper);
 		return null;
 	}
 
@@ -106,6 +105,10 @@ public class ICOFarmModule extends AbstractOrienteerModule {
      * @param helper {@link OSchemaHelper} Orienteer helper
      */
 	private void createRemoveRestoreIdFunction(OSchemaHelper helper) {
+		Consumer<ODocument> save = ODocument::save;
+		BiConsumer<ODatabaseDocument, String> removeFunc = (db, name) -> {
+			db.command(new OCommandSQL("DELETE FROM " + OFunction.CLASS_NAME + " WHERE name = ?")).execute(name);
+		};
 		String code = String.format("var res = db.command('UPDATE OUser SET %s = null, %s = null WHERE %s = ? AND %s <= (sysdate() - ?)', email, timeout);\n"
 				+ "if (res > 0) db.command('DELETE FROM OSchedule WHERE name = ?', eventName);",
                 ICOFarmUser.RESTORE_ID, ICOFarmUser.RESTORE_ID_CREATED, ICOFarmUser.EMAIL, ICOFarmUser.RESTORE_ID_CREATED
@@ -120,36 +123,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.field("code", code)
 				.field("parameters", params).getODocument();
 		try {
-			doc.save();
-		} catch (Exception e) {}
-	}
-
-	/**
-	 * Create function which will remove all restoreId function every midnight if scheduler which must execute
-	 * function `removeRestoreIdByEmail` don't executed it. (For example: in time when scheduler must execute function
-	 * Orienteer server reloads or was offline)
-	 * @param helper {@link OSchemaHelper} Orienteer helper
-	 */
-    private void createRemoveRestoreIdEveryDayScheduler(OSchemaHelper helper) {
-		String code = String.format("UPDATE OUser SET %s = null, %s = null WHERE NOT (%s IS null) AND %s <= (sysdate() - 86400000)",
-				ICOFarmUser.RESTORE_ID, ICOFarmUser.RESTORE_ID_CREATED, ICOFarmUser.RESTORE_ID, ICOFarmUser.RESTORE_ID_CREATED);
-
-		ODocument doc = helper.oClass(OFunction.CLASS_NAME).oDocument()
-				.field("name", FUN_REMOVE_RESTORE_ID_EVERY_DAY)
-				.field("language", "sql")
-				.field("code", code)
-				.getODocument();
-
-		ODocument scheduler = helper.oClass(OScheduledEvent.CLASS_NAME).oDocument()
-				.field(OScheduledEvent.PROP_NAME, "removeRestoreIdEveryMidnight")
-				.field(OScheduledEvent.PROP_FUNC, doc)
-				.field(OScheduledEvent.PROP_RULE, "0 0 0 1/1 * ? *")
-				.field(OScheduledEvent.PROP_STARTTIME, new Date())
-				.getODocument();
-		try {
-			doc.save();
-			scheduler.save();
-		} catch (Exception e) {}
+			save.accept(doc);
+		} catch (Exception e) {
+			removeFunc.accept(helper.getDatabase(), FUN_REMOVE_RESTORE_ID_BY_EMAIL);
+			save.accept(doc);
+		}
 	}
 
 	@Override
