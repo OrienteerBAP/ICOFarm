@@ -1,15 +1,18 @@
 package org.orienteer.web;
 
+import com.google.common.base.Strings;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.orienteer.component.ICOFarmLoginPanel;
 import org.orienteer.component.ICOFarmRestorePasswordPanel;
 import org.orienteer.core.MountPath;
+import org.orienteer.resource.ICOFarmRestorePasswordResource;
 
 @MountPath("/login")
 public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
@@ -27,7 +30,7 @@ public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        currentPanel = new ICOFarmLoginPanel("panel");
+        currentPanel = createCurrentPanel("panel");
         Label loginTitle = new Label("loginTitle", new ResourceModel("login.title"));
         loginTitle.setOutputMarkupId(true);
         add(currentPanel);
@@ -37,18 +40,18 @@ public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
     }
 
     private AjaxLink<String> createActionLink(String id) {
-        return new AjaxLink<String>(id, new ResourceModel("login.action.forgotPassword")) {
+        return new AjaxLink<String>(id) {
 
             @Override
             protected void onInitialize() {
                 super.onInitialize();
-                setBody(getModel());
+                setBody(new ResourceModel(getLabelKey(!isLoginPanel())));
             }
 
             @Override
             @SuppressWarnings("unchecked")
             public void onClick(AjaxRequestTarget target) {
-                final boolean isLogin = currentPanel instanceof ICOFarmLoginPanel;
+                final boolean isLogin = isLoginPanel();
                 Component title = ICOFarmLoginPage.this.get("loginTitle");
                 title.setDefaultModel(new ResourceModel(getTitleKey(isLogin)));
                 currentPanel = currentPanel.replaceWith(getNextPanel(isLogin));
@@ -70,7 +73,16 @@ public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
             private String getTitleKey(boolean isLogin) {
                 return isLogin ? "restore.title" : "login.title";
             }
+
+            private boolean isLoginPanel() {
+                return currentPanel instanceof ICOFarmLoginPanel;
+            }
         };
+    }
+
+    private Panel createCurrentPanel(String id) {
+        String restoreId = getPageParameters().get(ICOFarmRestorePasswordResource.RES_KEY).toString();
+        return Strings.isNullOrEmpty(restoreId) ? new ICOFarmLoginPanel(id) : new ICOFarmRestorePasswordPanel(id);
     }
 
     @Override

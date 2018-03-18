@@ -8,4 +8,5 @@ import javax.annotation.Nonnull;
 @ImplementedBy(RestorePasswordServiceImpl.class)
 public interface IRestorePasswordService {
     public void restoreUserPassword(@Nonnull ICOFarmUser user);
+    public void clearRestoring(@Nonnull ICOFarmUser user);
 }

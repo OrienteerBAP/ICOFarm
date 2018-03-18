@@ -36,11 +36,17 @@ public class ICOFarmLoginPanel extends AbstractICOFarmLoginPanel {
         super.configFeedbackPanel(panel);
         if (isActivateAccount()) {
             success(new ResourceModel("login.registration").getObject());
+        } else if (isRestorePasswordSuccess()) {
+            success(new ResourceModel("login.restore").getObject());
         }
     }
 
     private boolean isActivateAccount() {
         return getWebPage().getPageParameters().get("registration").toString("").equals("success");
+    }
+
+    private boolean isRestorePasswordSuccess() {
+        return getWebPage().getPageParameters().get("restore").toString("").equals("success");
     }
 
     @Override

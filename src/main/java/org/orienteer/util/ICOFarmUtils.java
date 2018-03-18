@@ -31,6 +31,13 @@ public final class ICOFarmUtils {
         return getFromDocs(docs, OFunction::new);
     }
 
+    public static ICOFarmUser getUserBy(String field, String value) {
+        List<ODocument> docs = OrienteerWebSession.get().getDatabase()
+                .query(new OSQLSynchQuery<>("select from " + OUser.CLASS_NAME + " where "
+                        + field + " = ?", 1), value);
+        return getFromDocs(docs, ICOFarmUser::new);
+    }
+
     private static <T> T getFromDocs(List<ODocument> docs, Function<ODocument, T> f) {
         return docs != null && !docs.isEmpty() ? f.apply(docs.get(0)) : null;
     }

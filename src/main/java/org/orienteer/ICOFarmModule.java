@@ -52,7 +52,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 37);
+		super("ICOFarm", 40);
 	}
 	
 	@Override
@@ -66,7 +66,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(ICOFarmUser.ID, OType.STRING, 70).notNull()
                 .oProperty(ICOFarmUser.RESTORE_ID, OType.STRING).switchDisplayable(false)
 				.updateCustomAttribute(ICOFarmApplication.REMOVE_CRON_RULE, "0 0/1 * * * ?")
-				.updateCustomAttribute(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT, "86400")
+				.updateCustomAttribute(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT, "86400000")
                 .oProperty(ICOFarmUser.RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false);
 
 		helper.oClass(CURRENCY, "OEnum");

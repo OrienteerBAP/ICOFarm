@@ -33,6 +33,20 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
        sendRestoreLink(user);
     }
 
+    @Override
+    public void clearRestoring(@Nonnull ICOFarmUser user) {
+        new DBClosure<Void>() {
+            @Override
+            protected Void execute(ODatabaseDocument db) {
+                user.setRestoreId(null);
+                user.setRestoreIdCreated(null);
+                db.getMetadata().getScheduler().removeEvent(getSchedulerEventName(user));
+                user.save();
+                return null;
+            }
+        }.execute();
+    }
+
     private void updateAndSaveUser(ICOFarmUser user) {
         user.setRestoreId(UUID.randomUUID().toString())
                 .setRestoreIdCreated(new Date())
@@ -48,21 +62,22 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
         new DBClosure<Void>() {
             @Override
             protected Void execute(ODatabaseDocument db) {
-                OScheduledEvent event = createEvent();
+                String name = getSchedulerEventName(user);
+                OScheduledEvent event = createEvent(name);
                 OScheduler scheduler = db.getMetadata().getScheduler();
+                scheduler.removeEvent(name);
                 scheduler.scheduleEvent(event);
                 return null;
             }
 
-            private OScheduledEvent createEvent() {
+            private OScheduledEvent createEvent(String name) {
                 OProperty property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.RESTORE_ID);
-                String name = "removeUserRestoreId" + user.getId();
                 OFunction f = ICOFarmUtils.getOFunctionByName(FUN_REMOVE_RESTORE_ID_BY_EMAIL);
+                long timeout = Long.parseLong(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property));
                 Map<Object, Object> args = new HashMap<>(2);
                 args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EMAIL, user.getEmail());
                 args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME, name);
-                args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT, ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property));
-                long timeout = Long.parseLong(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property));
+                args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT, timeout);
                 return new OScheduledEventBuilder()
                         .setName(name)
                         .setFunction(f)
@@ -71,5 +86,9 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
                         .setStartTime(new Date(System.currentTimeMillis() + timeout)).build();
             }
         }.execute();
+    }
+
+    private String getSchedulerEventName(ICOFarmUser user) {
+        return "removeUserRestoreId" + user.getRestoreId();
     }
 }
