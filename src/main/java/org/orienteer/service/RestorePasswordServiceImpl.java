@@ -1,5 +1,6 @@
 package org.orienteer.service;
 
+import com.google.inject.Inject;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -8,10 +9,9 @@ import com.orientechnologies.orient.core.schedule.OScheduledEventBuilder;
 import com.orientechnologies.orient.core.schedule.OScheduler;
 import org.orienteer.ICOFarmApplication;
 import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.OMail;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
 import org.orienteer.util.ICOFarmUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import javax.annotation.Nonnull;
@@ -24,7 +24,8 @@ import static org.orienteer.ICOFarmModule.*;
 
 public class RestorePasswordServiceImpl implements IRestorePasswordService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RestorePasswordServiceImpl.class);
+    @Inject
+    private IOMailService mailService;
 
     @Override
     public void restoreUserPassword(@Nonnull ICOFarmUser user) {
@@ -54,8 +55,11 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
     }
 
     private void sendRestoreLink(ICOFarmUser user) {
-        String link = ICOFarmRestorePasswordResource.getLinkForUser(user);
-        LOG.info("link for send: {}", link);
+        OMail mail = ICOFarmUtils.getOMailByName("restore");
+        Map<Object, Object> macros = ICOFarmUtils.getUserMacros(user);
+        macros.put("link", ICOFarmRestorePasswordResource.getLinkForUser(user));
+        mail.setMacros(macros);
+        mailService.sendMailAsync(user.getEmail(), mail);
     }
 
     private void executeScheduler(ICOFarmUser user) {

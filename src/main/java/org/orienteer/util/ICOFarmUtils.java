@@ -6,8 +6,11 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.OMail;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public final class ICOFarmUtils {
@@ -36,6 +39,25 @@ public final class ICOFarmUtils {
                 .query(new OSQLSynchQuery<>("select from " + OUser.CLASS_NAME + " where "
                         + field + " = ?", 1), value);
         return getFromDocs(docs, ICOFarmUser::new);
+    }
+
+    public static OMail getOMailByName(String name) {
+        List<ODocument> docs = OrienteerWebSession.get().getDatabase()
+                .query(new OSQLSynchQuery<>(String.format("select from %s where %s = ?", OMail.CLASS_NAME, OMail.NAME),
+                        1), name);
+        return getFromDocs(docs, OMail::new);
+    }
+
+    public static Map<Object, Object> getUserMacros(ICOFarmUser user) {
+        return getUserMacros(user.getDocument());
+    }
+
+    public static Map<Object, Object> getUserMacros(ODocument doc) {
+        Map<Object, Object> map = new HashMap<>(1);
+        map.put("firstName", doc.field(ICOFarmUser.FIRST_NAME));
+        map.put("lastName", doc.field(ICOFarmUser.LAST_NAME));
+        map.put("email", doc.field(ICOFarmUser.EMAIL));
+        return map;
     }
 
     private static <T> T getFromDocs(List<ODocument> docs, Function<ODocument, T> f) {

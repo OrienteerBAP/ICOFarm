@@ -19,16 +19,16 @@ import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.model.util.MapModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.Widget;
+import org.orienteer.model.OMail;
 import org.orienteer.resource.ICOFarmRegistrationResource;
-import org.orienteer.service.IMailService;
+import org.orienteer.service.IOMailService;
 import org.orienteer.util.EmailExistsValidator;
+import org.orienteer.util.ICOFarmUtils;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.*;
@@ -39,7 +39,7 @@ import static org.orienteer.ICOFarmModule.*;
 public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUser> {
 
     @Inject
-    private IMailService mailService;
+    private IOMailService mailService;
 
     public ICOFarmRegistrationWidget(String id, IModel<OSecurityUser> model, IModel<ODocument> widgetDocumentModel) {
         super(id, model, widgetDocumentModel);
@@ -120,19 +120,12 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
             }
 
             private void sendActivationEmail(ODocument doc) {
-                IModel<Map<String, String>> macros = createMacrosMap(doc);
+                Map<Object, Object> macros = ICOFarmUtils.getUserMacros(doc);
                 String email = doc.field("email");
-                String subject = new StringResourceModel("widget.registration.mail.subject", macros).getObject();
-                String text = new StringResourceModel("widget.registration.mail.text", macros).getObject();
-                mailService.sendMailAsync(email, subject, text, "registration");
-            }
-
-            private IModel<Map<String, String>> createMacrosMap(ODocument doc) {
-                Map<String, String> map = new HashMap<>(1);
-                map.put("firstName", doc.field("firstName"));
-                map.put("lastName", doc.field("lastName"));
-                map.put("link", ICOFarmRegistrationResource.genRegistrationLink(doc));
-                return new MapModel<>(map);
+                OMail oMail = ICOFarmUtils.getOMailByName("registration");
+                macros.put("link", ICOFarmRegistrationResource.genRegistrationLink(doc));
+                oMail.setMacros(macros);
+                mailService.sendMailAsync(email, oMail);
             }
 
             private ODocument getUserById(String id) {

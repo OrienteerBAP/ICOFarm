@@ -23,7 +23,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String CURRENCY    = "Currency";
 	public static final String REFERRAL    = "Referral";
 	public static final String WALLET      = "Wallet";
-	public static final String MAIL_CONFIG = "ICOFarmMailConfig";
 
 	public static final String OPROPERTY_TRANSACTION_DATETIME      = "dateTime";
 	public static final String OPROPERTY_TRANSACTION_FROM_CURRENCY = "fromCurrency";
@@ -87,14 +86,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(WALLET)
 				.oProperty(OPROPERTY_WALLET_OWNER, OType.LINK, 0).linkedClass(OUser.CLASS_NAME)
 				.oProperty(OPROPERTY_WALLET_CURRENCY, OType.LINK, 10).linkedClass(CURRENCY);
-
-		helper.oClass(MAIL_CONFIG)
-				.oProperty(OPROPERTY_MAIL_CONFIG_EMAIL, OType.STRING, 0).notNull().markAsDocumentName()
-				.oProperty(OPROPERTY_MAIL_CONFIG_PASSWORD, OType.STRING, 10).notNull().assignVisualization("password")
-				.oProperty(OPROPERTY_MAIL_CONFIG_SMTP_HOST, OType.STRING, 20).notNull()
-				.oProperty(OPROPERTY_MAIL_CONFIG_SMTP_PORT, OType.INTEGER, 30).notNull()
-				.oProperty(OPROPERTY_MAIL_CONFIG_FROM, OType.STRING, 40)
-				.oProperty(OPROPERTY_MAIL_CONFIG_TYPE, OType.STRING, 50).notNull();
 
 		createRemoveRestoreIdFunction(helper);
 		return null;
