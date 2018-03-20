@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
+import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
 import org.orienteer.core.util.OSchemaHelper;
@@ -38,12 +39,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String OPROPERTY_WALLET_OWNER    = "owner";
 	public static final String OPROPERTY_WALLET_CURRENCY = "currency";
 
-	public static final String OPROPERTY_MAIL_CONFIG_EMAIL     = "email";
-	public static final String OPROPERTY_MAIL_CONFIG_PASSWORD  = "password";
-	public static final String OPROPERTY_MAIL_CONFIG_SMTP_HOST = "smtpHost";
-	public static final String OPROPERTY_MAIL_CONFIG_SMTP_PORT = "smtpPort";
-	public static final String OPROPERTY_MAIL_CONFIG_FROM      = "from";
-	public static final String OPROPERTY_MAIL_CONFIG_TYPE      = "type";
 
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL                 = "removeRestoreIdByEmail";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EMAIL      = "email";
@@ -51,22 +46,22 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 40);
+		super("ICOFarm", 43);
 	}
 	
 	@Override
 	public ODocument onInstall(OrienteerWebApplication app, ODatabaseDocument db) {
 		super.onInstall(app, db);
 		OSchemaHelper helper = OSchemaHelper.bind(db);
-		helper.oClass(ICOFarmUser.CLASS_NAME)
-				.oProperty(ICOFarmUser.FIRST_NAME, OType.STRING, 40)
-				.oProperty(ICOFarmUser.LAST_NAME, OType.STRING, 50)
-				.oProperty(ICOFarmUser.EMAIL, OType.STRING, 60).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE)
-				.oProperty(ICOFarmUser.ID, OType.STRING, 70).notNull()
+		OClass user = helper.oClass(ICOFarmUser.CLASS_NAME)
+				.oProperty(ICOFarmUser.FIRST_NAME, OType.STRING, 0)
+				.oProperty(ICOFarmUser.LAST_NAME, OType.STRING, 10)
+				.oProperty(ICOFarmUser.EMAIL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE)
+				.oProperty(ICOFarmUser.ID, OType.STRING).notNull()
                 .oProperty(ICOFarmUser.RESTORE_ID, OType.STRING).switchDisplayable(false)
-				.updateCustomAttribute(ICOFarmApplication.REMOVE_CRON_RULE, "0 0/1 * * * ?")
-				.updateCustomAttribute(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT, "86400000")
-                .oProperty(ICOFarmUser.RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false);
+                .oProperty(ICOFarmUser.RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false).getOClass();
+
+		updateUserCustomAttributes(user);
 
 		helper.oClass(CURRENCY, "OEnum");
 
@@ -89,6 +84,22 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		createRemoveRestoreIdFunction(helper);
 		return null;
+	}
+
+
+	private void updateUserCustomAttributes(OClass user) {
+		ICOFarmApplication.REMOVE_CRON_RULE.setValue(user.getProperty(ICOFarmUser.RESTORE_ID), "0 0/1 * * * ?");
+		ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), "86400000");
+		CustomAttribute.ORDER.setValue(user.getProperty("locale"), "40");
+		CustomAttribute.HIDDEN.setValue(user.getProperty(ICOFarmUser.ID), "true");
+		CustomAttribute.HIDDEN.setValue(user.getProperty(ICOFarmUser.RESTORE_ID), "true");
+		CustomAttribute.HIDDEN.setValue(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), "true");
+		CustomAttribute.HIDDEN.setValue(user.getProperty("name"), "true");
+		CustomAttribute.HIDDEN.setValue(user.getProperty("online"), "true");
+		CustomAttribute.HIDDEN.setValue(user.getProperty("status"), "true");
+		CustomAttribute.HIDDEN.setValue(user.getProperty("perspective"), "true");
+		CustomAttribute.HIDDEN.setValue(user.getProperty("perspectiveItem"), "true");
+		CustomAttribute.HIDDEN.setValue(user.getProperty("lastSessionId"), "true");
 	}
 
     /**
