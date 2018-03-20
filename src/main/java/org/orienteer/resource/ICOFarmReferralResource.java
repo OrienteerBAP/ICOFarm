@@ -14,15 +14,11 @@ import org.apache.wicket.util.time.Time;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.web.HomePage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
 public class ICOFarmReferralResource extends AbstractResource {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ICOFarmReferralResource.class);
 
     public static final String MOUNT_PATH = "/referral/${id}/";
     public static final String RES_KEY    = ICOFarmReferralResource.class.getName();
