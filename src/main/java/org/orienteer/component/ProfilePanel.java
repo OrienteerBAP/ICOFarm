@@ -22,6 +22,7 @@ import ru.ydn.wicket.wicketorientdb.model.OPropertyModel;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class ProfilePanel extends AbstractICOFarmPanel<ODocument> {
 
@@ -67,9 +68,11 @@ public class ProfilePanel extends AbstractICOFarmPanel<ODocument> {
         table.addCommand(new AjaxCommand<ODocument>(new ResourceModel("widget.cancel"), table) {
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
-                modeModel.setObject(DisplayMode.VIEW);
-                target.add(table);
+            public void onClick(Optional<AjaxRequestTarget> target) {
+                if (target.isPresent()) {
+                    modeModel.setObject(DisplayMode.VIEW);
+                    target.get().add(table);
+                }
             }
 
             @Override

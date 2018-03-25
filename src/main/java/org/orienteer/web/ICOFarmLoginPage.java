@@ -89,4 +89,9 @@ public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
     public IModel<String> getTitleModel() {
         return new ResourceModel("login.page.title");
     }
+
+    @Override
+    protected String getBodyAppSubClasses() {
+        return "flex-row align-items-center footer-fixed";
+    }
 }

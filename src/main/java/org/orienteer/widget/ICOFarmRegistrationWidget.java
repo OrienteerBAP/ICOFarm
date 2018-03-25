@@ -71,7 +71,8 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
         return new AjaxSubmitLink(id) {
             @Override
             @SuppressWarnings("unchecked")
-            public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+            public void onSubmit(AjaxRequestTarget target) {
+                Form<?> form = getForm();
                 String firstName = ((TextField<String>) form.get("firstName")).getModelObject();
                 String lastName = ((TextField<String>) form.get("lastName")).getModelObject();
                 String email = ((TextField<String>) form.get("email")).getModelObject();
@@ -136,8 +137,8 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
         };
     }
 
-    private Form createForm(String id) {
-        return new Form(id) {
+    private Form<?> createForm(String id) {
+        return new Form<Object>(id) {
             @Override
             protected void onInitialize() {
                 super.onInitialize();

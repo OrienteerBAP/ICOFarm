@@ -1,40 +1,40 @@
 <wicket:extend xmlns:wicket="http://www.w3.org/1999/xhtml">
-	<div class="container">
-		<div class="row">
-			<div class="col-sm-offset-2 col-sm-8">
-				<h1 class="text-center"><strong wicket:id="referralTitle"></strong></h1>
-				<p>
-					This is your Orienteer referral link.
-					You can use it to share the project with your friends and other interested parties.
-					If any of them sign up with this link, they will get reward amounts to 2% from purchased amount and will be added to your referral program.
-					Your reward amounts to 5.0% of all Orienteer tokens purchased by your referrals.
-				</p>
-				<div class="input-group">
-					<input wicket:id="referralLink" id="referral-link" class="form-control disabled" type="text" readonly="readonly"/>
-					<div class="input-group-addon copy-link">
-						<i class="fa fa-1x fa-clone"></i>
-					</div>
+	<div class="referral-widget">
+		<div class="mx-auto col-sm-8">
+			<h1 class="text-center"><strong wicket:id="referralTitle"></strong></h1>
+			<p>
+				This is your Orienteer referral link.
+				You can use it to share the project with your friends and other interested parties.
+				If any of them sign up with this link, they will get reward amounts to 2% from purchased amount and will be added to your referral program.
+				Your reward amounts to 5.0% of all Orienteer tokens purchased by your referrals.
+			</p>
+			<div class="input-group">
+				<input wicket:id="referralLink" id="referral-link" class="form-control disabled" type="text" readonly="readonly"/>
+				<div class="input-group-addon copy-link">
+					<i class="fa fa-1x fa-clone"></i>
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-sm-offset-2 col-sm-8">
-				<h1 class="text-center"><strong>Your statistics</strong></h1>
-				<div class="col-sm-6 text-center">
+
+
+		<div class="mx-auto col-sm-8">
+			<h1 class="text-center"><strong>Your statistics</strong></h1>
+			<div class="row">
+				<div class="col text-center">
 					<p>Your total bonus</p>
 					<h3><strong wicket:id="totalBonus"></strong></h3>
 				</div>
-				<div class="col-sm-6 text-center">
+				<div class="col text-center">
 					<p>Your followers</p>
 					<h3><strong wicket:id="followers"></strong></h3>
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-sm-offset-2 col-sm-8">
-				<div wicket:id="followersTable"></div>
-			</div>
-		</div>
+
+
+	<div class="mx-auto col-sm-8">
+		<div wicket:id="followersTable"></div>
+	</div>
 	</div>
 	<script>
 		$('.copy-link').click(() => {
