@@ -60,7 +60,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 73);
+		super("ICOFarm", 76);
 	}
 	
 	@Override
@@ -202,7 +202,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 
 	private void updatePerspectivesPermissions(OSchemaHelper helper, ODatabaseDocument db) {
-		helper.oClass(PerspectivesModule.OCLASS_PERSPECTIVE, "ORestricted");
+		OClass restricted = helper.oClass("ORestricted").getOClass();
+		OClass perspectiveClass = helper.oClass(PerspectivesModule.OCLASS_PERSPECTIVE).getOClass();
+		if (!perspectiveClass.isSubClassOf(restricted)) perspectiveClass.addSuperClass(restricted);
 
 		OSecurity security = db.getMetadata().getSecurity();
 		PerspectivesModule perspectivesModule = OrienteerWebApplication.get().getServiceInstance(PerspectivesModule.class);
