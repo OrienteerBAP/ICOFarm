@@ -5,6 +5,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
+import org.orienteer.hook.RestrictedODocumentHook;
 import org.orienteer.resource.ICOFarmReferralResource;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
@@ -25,6 +26,7 @@ public class ICOFarmApplication extends OrienteerWebApplication
 		ICOFarmReferralResource.mount(this);
 		ICOFarmRegistrationResource.mount(this);
 		ICOFarmRestorePasswordResource.mount(this);
+		getOrientDbSettings().getORecordHooks().add(RestrictedODocumentHook.class);
 	}
 
 	@Override

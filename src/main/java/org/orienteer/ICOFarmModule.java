@@ -3,6 +3,7 @@ package org.orienteer;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -21,10 +22,7 @@ import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.ICOFarmUser;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -64,7 +62,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 79);
+		super("ICOFarm", 81);
 	}
 	
 	@Override
@@ -239,7 +237,13 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		OSchema schema = db.getMetadata().getSchema();
 		OClass restricted = schema.getClass("ORestricted");
 		Consumer<OClass> setRestricted = (c) -> {
-			if (!c.isSubClassOf(restricted)) c.addSuperClass(restricted);
+			if (!c.isSubClassOf(restricted)) {
+				c.addSuperClass(restricted);
+				Collection<OProperty> properties = restricted.properties();
+				c.properties().stream().filter(p -> !properties.contains(p))
+						.filter(p -> !(boolean) CustomAttribute.HIDDEN.getValue(p))
+						.forEach(p -> CustomAttribute.DISPLAYABLE.setValue(p, true));
+			}
 		};
 
 		setRestricted.accept(schema.getClass(TRANSACTION));
