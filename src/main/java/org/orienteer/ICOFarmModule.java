@@ -3,6 +3,7 @@ package org.orienteer;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
@@ -24,7 +25,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 
@@ -60,7 +64,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 76);
+		super("ICOFarm", 79);
 	}
 	
 	@Override
@@ -96,6 +100,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OPROPERTY_WALLET_OWNER, OType.LINK, 0).linkedClass(OUser.CLASS_NAME)
 				.oProperty(OPROPERTY_WALLET_CURRENCY, OType.LINK, 10).linkedClass(CURRENCY);
 
+		updateClassRestrictions(db);
 		createRemoveRestoreIdFunction(helper);
 		updatePermissions(db);
 		createPerspectives(helper);
@@ -127,13 +132,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 			investor.setParentRole(security.getRole("reader"));
 		}
 		investor.grant(ResourceGeneric.CLASS, TRANSACTION, 7);
-		investor.grant(ResourceGeneric.CLUSTER, TRANSACTION, 7);
 
 		investor.grant(ResourceGeneric.CLASS, WALLET, 7);
-		investor.grant(ResourceGeneric.CLUSTER, WALLET, 7);
 
 		investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);
-		investor.grant(ResourceGeneric.CLUSTER, OUser.CLASS_NAME, 6);
+
+		investor.grant(ResourceGeneric.CLUSTER, "*", 7);
 
 		investor.save();
 	}
@@ -229,6 +233,23 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		updateRole.accept(Arrays.asList(PerspectivesModule.DEFAULT_PERSPECTIVE, OUser.ADMIN, "_allow"));
 		updateUser.accept(Arrays.asList(ANONYMOUS_PERSPECTIVE, "reader", "_allowRead"));
 		updateRole.accept(Arrays.asList(INVESTOR_PERSPECTIVE, INVESTOR_ROLE, "_allowRead"));
+	}
+
+	private void updateClassRestrictions(ODatabaseDocument db) {
+		OSchema schema = db.getMetadata().getSchema();
+		OClass restricted = schema.getClass("ORestricted");
+		Consumer<OClass> setRestricted = (c) -> {
+			if (!c.isSubClassOf(restricted)) c.addSuperClass(restricted);
+		};
+
+		setRestricted.accept(schema.getClass(TRANSACTION));
+		setRestricted.accept(schema.getClass(REFERRAL));
+		setRestricted.accept(schema.getClass(WALLET));
+		setRestricted.accept(schema.getClass(OUser.CLASS_NAME));
+
+		OUser reader = db.getMetadata().getSecurity().getUser("reader");
+		reader.getDocument().field("_allowRead", reader.getDocument());
+		reader.save();
 	}
 
     /**
