@@ -1,6 +1,8 @@
 package org.orienteer.util;
 
 import com.orientechnologies.orient.core.metadata.function.OFunction;
+import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
+import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -58,6 +60,11 @@ public final class ICOFarmUtils {
         map.put("lastName", doc.field(ICOFarmUser.LAST_NAME));
         map.put("email", doc.field(ICOFarmUser.EMAIL));
         return map;
+    }
+
+    public static boolean isAdmin(OSecurityUser user) {
+        return user.getRoles().stream().map(OSecurityRole::getMode)
+                .anyMatch(mode -> mode == OSecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
     }
 
     private static <T> T getFromDocs(List<ODocument> docs, Function<ODocument, T> f) {

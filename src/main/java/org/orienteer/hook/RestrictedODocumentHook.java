@@ -4,14 +4,13 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.CustomAttribute;
+import org.orienteer.util.ICOFarmUtils;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.Arrays;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public class RestrictedODocumentHook extends ODocumentHookAbstract {
@@ -24,7 +23,7 @@ public class RestrictedODocumentHook extends ODocumentHookAbstract {
     @Override
     public RESULT onRecordBeforeRead(ODocument doc) {
         OSecurityUser user = doc.getDatabase().getUser();
-        switchCustomAttributes(doc, isAdmin(user.getRoles()));
+        switchCustomAttributes(doc, ICOFarmUtils.isAdmin(user));
         return super.onRecordBeforeRead(doc);
     }
 
@@ -51,10 +50,5 @@ public class RestrictedODocumentHook extends ODocumentHookAbstract {
     @Override
     public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
         return DISTRIBUTED_EXECUTION_MODE.BOTH;
-    }
-
-    private boolean isAdmin(Set<? extends OSecurityRole> roles) {
-        return roles.stream().map(OSecurityRole::getMode)
-                .anyMatch(mode -> mode == OSecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
     }
 }
