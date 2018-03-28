@@ -17,6 +17,7 @@ import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.module.AbstractOrienteerModule;
+import org.orienteer.core.module.OWidgetsModule;
 import org.orienteer.core.module.PerspectivesModule;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
@@ -32,10 +33,11 @@ import static com.orientechnologies.orient.core.metadata.security.ORule.Resource
 
 public class ICOFarmModule extends AbstractOrienteerModule {
 
-	public static final String TRANSACTION = "Transaction";
-	public static final String CURRENCY    = "Currency";
-	public static final String REFERRAL    = "Referral";
-	public static final String WALLET      = "Wallet";
+	public static final String TRANSACTION  = "Transaction";
+	public static final String CURRENCY     = "Currency";
+	public static final String REFERRAL     = "Referral";
+	public static final String WALLET       = "Wallet";
+	public static final String REGISTRATION = "Registration";
 
 	public static final String OPROPERTY_TRANSACTION_DATETIME      = "dateTime";
 	public static final String OPROPERTY_TRANSACTION_FROM_CURRENCY = "fromCurrency";
@@ -62,7 +64,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 81);
+		super("ICOFarm", 85);
 	}
 	
 	@Override
@@ -98,9 +100,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OPROPERTY_WALLET_OWNER, OType.LINK, 0).linkedClass(OUser.CLASS_NAME)
 				.oProperty(OPROPERTY_WALLET_CURRENCY, OType.LINK, 10).linkedClass(CURRENCY);
 
+		helper.oClass(REGISTRATION);
+
 		updateClassRestrictions(db);
 		createRemoveRestoreIdFunction(helper);
-		updatePermissions(db);
+		updateReaderPermissions(db);
+		updateInvestorPermissions(db);
 		createPerspectives(helper);
 		updatePerspectivesPermissions(helper, db);
 		return null;
@@ -122,22 +127,33 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		CustomAttribute.HIDDEN.setValue(user.getProperty("lastSessionId"), "true");
 	}
 
-	private void updatePermissions(ODatabaseDocument db) {
+	private void updateInvestorPermissions(ODatabaseDocument db) {
 		OSecurity security = db.getMetadata().getSecurity();
-		ORole investor = security.getRole(INVESTOR_ROLE);
-		if (investor == null) {
-			investor = security.createRole(INVESTOR_ROLE, OSecurityRole.ALLOW_MODES.DENY_ALL_BUT);
-			investor.setParentRole(security.getRole("reader"));
-		}
+
+		ORole investor = security.getRole(INVESTOR_ROLE) != null ? security.getRole(INVESTOR_ROLE) :
+				security.createRole(INVESTOR_ROLE, OSecurityRole.ALLOW_MODES.DENY_ALL_BUT).setParentRole(security.getRole("reader"));
+
 		investor.grant(ResourceGeneric.CLASS, TRANSACTION, 7);
-
 		investor.grant(ResourceGeneric.CLASS, WALLET, 7);
-
+		investor.grant(ResourceGeneric.CLASS, CURRENCY, 2);
+		investor.grant(ResourceGeneric.CLASS, REFERRAL, 2);
 		investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);
 
 		investor.grant(ResourceGeneric.CLUSTER, "*", 7);
 
 		investor.save();
+	}
+
+	private void updateReaderPermissions(ODatabaseDocument db) {
+		ORole reader = db.getMetadata().getSecurity().getRole("reader");
+		reader.grant(ResourceGeneric.CLASS, null, 0);
+		reader.grant(ResourceGeneric.CLASS, REGISTRATION, 2);
+		reader.grant(ResourceGeneric.CLASS, OWidgetsModule.OCLASS_WIDGET, 2);
+		reader.grant(ResourceGeneric.CLASS, OWidgetsModule.OCLASS_DASHBOARD, 2);
+		reader.grant(ResourceGeneric.CLASS, PerspectivesModule.OCLASS_ITEM, 2);
+		reader.grant(ResourceGeneric.CLASS, PerspectivesModule.OCLASS_PERSPECTIVE, 2);
+
+		reader.save();
 	}
 
 	private void createPerspectives(OSchemaHelper helper) {
