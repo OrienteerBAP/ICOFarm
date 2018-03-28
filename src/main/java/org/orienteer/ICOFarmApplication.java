@@ -5,20 +5,22 @@ import org.apache.wicket.markup.html.WebPage;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
+import org.orienteer.core.service.IFilterPredicateFactory;
+import org.orienteer.hook.ICOFarmOWidgetHook;
 import org.orienteer.hook.RestrictedODocumentHook;
 import org.orienteer.resource.ICOFarmReferralResource;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
+import org.orienteer.service.ICOFarmFilterPredicateFactory;
 import org.orienteer.web.ICOFarmLoginPage;
 
-public class ICOFarmApplication extends OrienteerWebApplication
-{
+public class ICOFarmApplication extends OrienteerWebApplication {
+
 	public static final CustomAttribute REMOVE_CRON_RULE              = CustomAttribute.create("remove.cron", OType.STRING, "", false, false);
 	public static final CustomAttribute REMOVE_SCHEDULE_START_TIMEOUT = CustomAttribute.create("remove.timeout", OType.STRING, "0", false, false);
 
 	@Override
-	public void init()
-	{
+	public void init() {
 		super.init();
 		mountPages("org.orienteer.web");
 		registerWidgets("org.orienteer.widget");
@@ -27,6 +29,16 @@ public class ICOFarmApplication extends OrienteerWebApplication
 		ICOFarmRegistrationResource.mount(this);
 		ICOFarmRestorePasswordResource.mount(this);
 		getOrientDbSettings().getORecordHooks().add(RestrictedODocumentHook.class);
+        getOrientDbSettings().getORecordHooks().add(ICOFarmOWidgetHook.class);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T> T getServiceInstance(Class<T> serviceType) {
+		if (IFilterPredicateFactory.class.equals(serviceType)) {
+			return (T) new ICOFarmFilterPredicateFactory();
+		}
+		return super.getServiceInstance(serviceType);
 	}
 
 	@Override
