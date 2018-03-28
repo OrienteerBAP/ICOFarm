@@ -64,7 +64,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 85);
+		super("ICOFarm", 86);
 	}
 	
 	@Override
@@ -138,6 +138,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		investor.grant(ResourceGeneric.CLASS, CURRENCY, 2);
 		investor.grant(ResourceGeneric.CLASS, REFERRAL, 2);
 		investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);
+		investor.grant(ResourceGeneric.CLASS, REGISTRATION, 0);
 
 		investor.grant(ResourceGeneric.CLUSTER, "*", 7);
 
@@ -147,6 +148,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	private void updateReaderPermissions(ODatabaseDocument db) {
 		ORole reader = db.getMetadata().getSecurity().getRole("reader");
 		reader.grant(ResourceGeneric.CLASS, null, 0);
+		reader.grant(ResourceGeneric.CLASS, ORole.CLASS_NAME, 0);
 		reader.grant(ResourceGeneric.CLASS, REGISTRATION, 2);
 		reader.grant(ResourceGeneric.CLASS, OWidgetsModule.OCLASS_WIDGET, 2);
 		reader.grant(ResourceGeneric.CLASS, OWidgetsModule.OCLASS_DASHBOARD, 2);
