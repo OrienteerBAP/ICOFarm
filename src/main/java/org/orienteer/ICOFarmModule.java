@@ -64,7 +64,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 86);
+		super("ICOFarm", 1);
 	}
 	
 	@Override
@@ -100,6 +100,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		updateInvestorPermissions(db);
 		createPerspectives(helper);
 		updatePerspectivesPermissions(helper, db);
+		adjustDashboard(helper);
 		return null;
 	}
 
@@ -322,6 +323,26 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		update.accept(security.getUser("reader").getDocument());
 		update.accept(security.getUser("writer").getDocument());
 	}
+
+	private void adjustDashboard(OSchemaHelper helper) {
+		Function<String , ODocument> dashboardFactory = (className) -> helper.oClass(OWidgetsModule.OCLASS_DASHBOARD)
+				.oDocument()
+				.field(OWidgetsModule.OPROPERTY_DOMAIN, "browse")
+				.field(OWidgetsModule.OPROPERTY_TAB, "list")
+				.field(OWidgetsModule.OPROPERTY_CLASS, className).saveDocument().getODocument();
+
+		BiConsumer<String, String> createWidget = (typeId, className) -> {
+			ODocument dashboard = dashboardFactory.apply(className);
+			helper.oClass(OWidgetsModule.OCLASS_WIDGET)
+					.oDocument()
+					.field(OWidgetsModule.OPROPERTY_TYPE_ID, typeId)
+					.field(OWidgetsModule.OPROPERTY_DASHBOARD, dashboard)
+					.saveDocument().getODocument();
+		};
+
+		createWidget.accept("registration", REGISTRATION);
+		createWidget.accept("referrals-widget", REFERRAL);
+    }
 
 	@Override
 	public void onUpdate(OrienteerWebApplication app, ODatabaseDocument db, int oldVersion, int newVersion) {

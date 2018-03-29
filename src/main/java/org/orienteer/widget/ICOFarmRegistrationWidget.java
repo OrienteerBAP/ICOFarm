@@ -20,6 +20,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
+import org.orienteer.ICOFarmModule;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
@@ -35,7 +36,7 @@ import java.util.*;
 
 import static org.orienteer.ICOFarmModule.*;
 
-@Widget(id = "registration", domain = "browse")
+@Widget(id = "registration", domain = "browse", selector = ICOFarmModule.REGISTRATION, autoEnable = true)
 public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUser> {
 
     @Inject

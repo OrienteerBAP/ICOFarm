@@ -30,7 +30,7 @@ import java.util.List;
 import static org.orienteer.ICOFarmModule.OPROPERTY_REFERRAL_CREATED;
 import static org.orienteer.ICOFarmModule.OPROPERTY_REFERRAL_USER;
 
-@Widget(id = "referrals-widget", domain = "browse", selector = ICOFarmModule.REFERRAL)
+@Widget(id = "referrals-widget", domain = "browse", selector = ICOFarmModule.REFERRAL, autoEnable = true)
 public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
     public ICOFarmReferralsWidget(String id, IModel<OClass> model, IModel<ODocument> widgetDocumentModel) {
         super(id, model, widgetDocumentModel);
