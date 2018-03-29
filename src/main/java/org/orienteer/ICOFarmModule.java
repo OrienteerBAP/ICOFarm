@@ -71,15 +71,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public ODocument onInstall(OrienteerWebApplication app, ODatabaseDocument db) {
 		super.onInstall(app, db);
 		OSchemaHelper helper = OSchemaHelper.bind(db);
-		OClass user = helper.oClass(ICOFarmUser.CLASS_NAME)
-				.oProperty(ICOFarmUser.FIRST_NAME, OType.STRING, 0)
-				.oProperty(ICOFarmUser.LAST_NAME, OType.STRING, 10)
-				.oProperty(ICOFarmUser.EMAIL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE).markAsDocumentName()
-				.oProperty(ICOFarmUser.ID, OType.STRING).notNull()
-                .oProperty(ICOFarmUser.RESTORE_ID, OType.STRING).switchDisplayable(false)
-                .oProperty(ICOFarmUser.RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false).getOClass();
-
-		updateUserCustomAttributes(user);
+		adjustOUserClass(helper);
 
 		helper.oClass(CURRENCY, "OEnum");
 
@@ -115,7 +107,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	private void updateUserCustomAttributes(OClass user) {
 		ICOFarmApplication.REMOVE_CRON_RULE.setValue(user.getProperty(ICOFarmUser.RESTORE_ID), "0 0/1 * * * ?");
 		ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), "86400000");
-		CustomAttribute.ORDER.setValue(user.getProperty("locale"), "40");
+		/*CustomAttribute.ORDER.setValue(user.getProperty("locale"), "40");
 		CustomAttribute.HIDDEN.setValue(user.getProperty(ICOFarmUser.ID), "true");
 		CustomAttribute.HIDDEN.setValue(user.getProperty(ICOFarmUser.RESTORE_ID), "true");
 		CustomAttribute.HIDDEN.setValue(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), "true");
@@ -124,7 +116,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		CustomAttribute.HIDDEN.setValue(user.getProperty("status"), "true");
 		CustomAttribute.HIDDEN.setValue(user.getProperty("perspective"), "true");
 		CustomAttribute.HIDDEN.setValue(user.getProperty("perspectiveItem"), "true");
-		CustomAttribute.HIDDEN.setValue(user.getProperty("lastSessionId"), "true");
+		CustomAttribute.HIDDEN.setValue(user.getProperty("lastSessionId"), "true");*/
 	}
 
 	private void updateInvestorPermissions(ODatabaseDocument db) {
@@ -246,7 +238,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 			perspective.save();
 		};
 
-		updateRole.accept(Arrays.asList(PerspectivesModule.DEFAULT_PERSPECTIVE, OUser.ADMIN, "_allow"));
 		updateUser.accept(Arrays.asList(ANONYMOUS_PERSPECTIVE, "reader", "_allowRead"));
 		updateRole.accept(Arrays.asList(INVESTOR_PERSPECTIVE, INVESTOR_ROLE, "_allowRead"));
 	}
@@ -302,6 +293,34 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 			removeFunc.accept(helper.getDatabase(), FUN_REMOVE_RESTORE_ID_BY_EMAIL);
 			save.accept(doc);
 		}
+	}
+
+	private void adjustOUserClass(OSchemaHelper helper) {
+		updateDefaultOrientDbUsers(helper.getDatabase());
+
+		OClass user = helper.oClass(ICOFarmUser.CLASS_NAME)
+				.oProperty(ICOFarmUser.FIRST_NAME, OType.STRING, 0)
+				.oProperty(ICOFarmUser.LAST_NAME, OType.STRING, 10)
+				.oProperty(ICOFarmUser.EMAIL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE).markAsDocumentName()
+				.oProperty(ICOFarmUser.ID, OType.STRING).oIndex(OClass.INDEX_TYPE.UNIQUE).notNull()
+				.oProperty(ICOFarmUser.RESTORE_ID, OType.STRING).switchDisplayable(false)
+				.oProperty(ICOFarmUser.RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false).getOClass();
+
+		updateUserCustomAttributes(user);
+
+	}
+
+	private void updateDefaultOrientDbUsers(ODatabaseDocument db) {
+		Consumer<ODocument> update = (doc) -> {
+			doc.field(ICOFarmUser.EMAIL, UUID.randomUUID().toString() + "@gmail.com");
+			doc.field(ICOFarmUser.ID, UUID.randomUUID().toString());
+			doc.save();
+		};
+		OSecurity security = db.getMetadata().getSecurity();
+
+		update.accept(security.getUser("admin").getDocument());
+		update.accept(security.getUser("reader").getDocument());
+		update.accept(security.getUser("writer").getDocument());
 	}
 
 	@Override
