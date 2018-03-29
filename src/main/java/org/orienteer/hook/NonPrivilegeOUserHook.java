@@ -34,22 +34,23 @@ public class NonPrivilegeOUserHook extends ODocumentHookAbstract {
         new DBClosure<Void>() {
             @Override
             protected Void execute(ODatabaseDocument db) {
-                updateHiddenAttribute(user.getProperty(ICOFarmUser.ID), hide);
-                updateHiddenAttribute(user.getProperty(ICOFarmUser.RESTORE_ID), hide);
-                updateHiddenAttribute(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), hide);
-                updateHiddenAttribute(user.getProperty("name"), hide);
-                updateHiddenAttribute(user.getProperty("online"), hide);
-                updateHiddenAttribute(user.getProperty("status"), hide);
-                updateHiddenAttribute(user.getProperty("perspective"), hide);
-                updateHiddenAttribute(user.getProperty("perspectiveItem"), hide);
-                updateHiddenAttribute(user.getProperty("lastSessionId"), hide);
-                updateHiddenAttribute(user.getProperty("roles"), hide);
+                updateVisibility(user.getProperty(ICOFarmUser.ID), hide);
+                updateVisibility(user.getProperty(ICOFarmUser.RESTORE_ID), hide);
+                updateVisibility(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), hide);
+                updateVisibility(user.getProperty("name"), hide);
+                updateVisibility(user.getProperty("online"), hide);
+                updateVisibility(user.getProperty("status"), hide);
+                updateVisibility(user.getProperty("perspective"), hide);
+                updateVisibility(user.getProperty("perspectiveItem"), hide);
+                updateVisibility(user.getProperty("lastSessionId"), hide);
+                updateVisibility(user.getProperty("roles"), hide);
                 return null;
             }
 
-            private void updateHiddenAttribute(OProperty property, boolean hide) {
+            private void updateVisibility(OProperty property, boolean hide) {
                 if (property != null) {
                     CustomAttribute.HIDDEN.setValue(property, hide);
+                    CustomAttribute.DISPLAYABLE.setValue(property, !hide);
                 }
             }
         }.execute();
