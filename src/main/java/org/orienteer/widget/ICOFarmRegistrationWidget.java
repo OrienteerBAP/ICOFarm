@@ -88,16 +88,15 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
             private ODocument createNewUser(String email, String password, String firstName, String lastName) {
                 ODocument doc = new ODocument(OUser.CLASS_NAME);
                 ODocument role = getRoleForNewUser();
-//                ODocument perspective = role != null ? new ODocument((ORID) role.field("perspective")) : null;
                 doc.field("name", email);
                 doc.field("email", email);
                 doc.field("password", password);
                 doc.field("firstName", firstName);
                 doc.field("lastName", lastName);
                 doc.field("status", OUser.STATUSES.SUSPENDED);
-//                doc.field("perspective", perspective);
                 doc.field("id", UUID.randomUUID().toString());
                 doc.field("roles", role != null ? Collections.singletonList(role) : Collections.emptyList());
+                doc.field("_allowUpdate", doc);
                 return doc;
             }
 
