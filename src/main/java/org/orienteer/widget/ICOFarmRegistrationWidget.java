@@ -2,7 +2,7 @@ package org.orienteer.widget;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
-import com.orientechnologies.orient.core.metadata.security.ORole;
+import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -97,6 +97,7 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
                 doc.field("status", OUser.STATUSES.SUSPENDED);
                 doc.field("id", UUID.randomUUID().toString());
                 doc.field("roles", role != null ? Collections.singletonList(role) : Collections.emptyList());
+                doc.field("_allowRead", doc);
                 doc.field("_allowUpdate", doc);
                 return doc;
             }
@@ -115,9 +116,12 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
             }
 
             private ODocument getRoleForNewUser() {
-                List<ODocument> docs = OrienteerWebSession.get().getDatabase()
-                        .query(new OSQLSynchQuery<>("select from " + ORole.CLASS_NAME + " where name = 'investor'", 1));
-                return docs != null && !docs.isEmpty() ? docs.get(0) : null;
+                return new DBClosure<ODocument>() {
+                    @Override
+                    protected ODocument execute(ODatabaseDocument db) {
+                        return db.getMetadata().getSecurity().getRole(ICOFarmModule.INVESTOR_ROLE).getDocument();
+                    }
+                }.execute();
             }
 
             private void sendActivationEmail(ODocument doc) {
