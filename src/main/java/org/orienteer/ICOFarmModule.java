@@ -108,16 +108,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	private void updateUserCustomAttributes(OClass user) {
 		ICOFarmApplication.REMOVE_CRON_RULE.setValue(user.getProperty(ICOFarmUser.RESTORE_ID), "0 0/1 * * * ?");
 		ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), "86400000");
-		/*CustomAttribute.ORDER.setValue(user.getProperty("locale"), "40");
-		CustomAttribute.HIDDEN.setValue(user.getProperty(ICOFarmUser.ID), "true");
-		CustomAttribute.HIDDEN.setValue(user.getProperty(ICOFarmUser.RESTORE_ID), "true");
-		CustomAttribute.HIDDEN.setValue(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), "true");
-		CustomAttribute.HIDDEN.setValue(user.getProperty("name"), "true");
-		CustomAttribute.HIDDEN.setValue(user.getProperty("online"), "true");
-		CustomAttribute.HIDDEN.setValue(user.getProperty("status"), "true");
-		CustomAttribute.HIDDEN.setValue(user.getProperty("perspective"), "true");
-		CustomAttribute.HIDDEN.setValue(user.getProperty("perspectiveItem"), "true");
-		CustomAttribute.HIDDEN.setValue(user.getProperty("lastSessionId"), "true");*/
+		CustomAttribute.ORDER.setValue(user.getProperty("locale"), "40");
 	}
 
 	private void updateInvestorPermissions(ODatabaseDocument db) {

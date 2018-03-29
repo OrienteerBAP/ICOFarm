@@ -1,5 +1,6 @@
 package org.orienteer;
 
+import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.apache.wicket.markup.html.WebPage;
 import org.orienteer.core.CustomAttribute;
@@ -7,12 +8,15 @@ import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.service.IFilterPredicateFactory;
 import org.orienteer.hook.ICOFarmOWidgetHook;
+import org.orienteer.hook.NonPrivilegeOUserHook;
 import org.orienteer.hook.RestrictedODocumentHook;
 import org.orienteer.resource.ICOFarmReferralResource;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
 import org.orienteer.service.ICOFarmFilterPredicateFactory;
 import org.orienteer.web.ICOFarmLoginPage;
+
+import java.util.List;
 
 public class ICOFarmApplication extends OrienteerWebApplication {
 
@@ -28,8 +32,11 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		ICOFarmReferralResource.mount(this);
 		ICOFarmRegistrationResource.mount(this);
 		ICOFarmRestorePasswordResource.mount(this);
-		getOrientDbSettings().getORecordHooks().add(RestrictedODocumentHook.class);
-        getOrientDbSettings().getORecordHooks().add(ICOFarmOWidgetHook.class);
+
+		List<Class<? extends ORecordHook>> hooks = getOrientDbSettings().getORecordHooks();
+		hooks.add(RestrictedODocumentHook.class);
+        hooks.add(ICOFarmOWidgetHook.class);
+        hooks.add(NonPrivilegeOUserHook.class);
 	}
 
 	@Override
