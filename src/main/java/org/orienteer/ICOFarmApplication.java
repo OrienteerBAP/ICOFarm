@@ -1,6 +1,5 @@
 package org.orienteer;
 
-import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.apache.wicket.markup.html.WebPage;
 import org.orienteer.core.CustomAttribute;
@@ -14,12 +13,12 @@ import org.orienteer.resource.ICOFarmRestorePasswordResource;
 import org.orienteer.service.ICOFarmFilterPredicateFactory;
 import org.orienteer.web.ICOFarmLoginPage;
 
-import java.util.List;
-
 public class ICOFarmApplication extends OrienteerWebApplication {
 
 	public static final CustomAttribute REMOVE_CRON_RULE              = CustomAttribute.create("remove.cron", OType.STRING, "", false, false);
 	public static final CustomAttribute REMOVE_SCHEDULE_START_TIMEOUT = CustomAttribute.create("remove.timeout", OType.STRING, "0", false, false);
+
+	private ICOFarmFilterPredicateFactory predicateFactory;
 
 	@Override
 	public void init() {
@@ -31,17 +30,15 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		ICOFarmRegistrationResource.mount(this);
 		ICOFarmRestorePasswordResource.mount(this);
 
-		List<Class<? extends ORecordHook>> hooks = getOrientDbSettings().getORecordHooks();
-//		hooks.add(RestrictedODocumentHook.class);
-        hooks.add(ICOFarmOWidgetHook.class);
-//        hooks.add(NonPrivilegeOUserHook.class);
+		getOrientDbSettings().getORecordHooks().add(ICOFarmOWidgetHook.class);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getServiceInstance(Class<T> serviceType) {
 		if (IFilterPredicateFactory.class.equals(serviceType)) {
-			return (T) new ICOFarmFilterPredicateFactory();
+			if (predicateFactory == null) predicateFactory = new ICOFarmFilterPredicateFactory();
+			return (T) predicateFactory;
 		}
 		return super.getServiceInstance(serviceType);
 	}

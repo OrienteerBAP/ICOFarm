@@ -63,8 +63,15 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String INVESTOR_PERSPECTIVE  = "Investor";
 	public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
+	/**
+	 * Contains hidden properties for investors.
+	 * key - class name
+	 * value - list with hidden properties
+	 */
+	public static final Map<String, List<String>> HIDDEN_PROPERTIES = new HashMap<>();
+
 	protected ICOFarmModule() {
-		super("ICOFarm", 1);
+		super("ICOFarm", 90);
 	}
 	
 	@Override
@@ -338,5 +345,29 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	@Override
 	public void onUpdate(OrienteerWebApplication app, ODatabaseDocument db, int oldVersion, int newVersion) {
 		onInstall(app, db);
+	}
+
+	@Override
+	public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db) {
+		List<String> userProperties = new LinkedList<>();
+		userProperties.add(ICOFarmUser.ID);
+		userProperties.add(ICOFarmUser.RESTORE_ID);
+		userProperties.add(ICOFarmUser.RESTORE_ID_CREATED);
+		userProperties.add("name");
+		userProperties.add("online");
+		userProperties.add("status");
+		userProperties.add("perspective");
+		userProperties.add("perspectiveItem");
+		userProperties.add("lastSessionId");
+		userProperties.add("roles");
+
+		List<String> restrictedProperties = new LinkedList<>();
+		restrictedProperties.add("_allow");
+		restrictedProperties.add("_allowRead");
+		restrictedProperties.add("_allowUpdate");
+		restrictedProperties.add("_allowDelete");
+
+		HIDDEN_PROPERTIES.put(ICOFarmUser.CLASS_NAME, userProperties);
+		HIDDEN_PROPERTIES.put("ORestricted", restrictedProperties);
 	}
 }
