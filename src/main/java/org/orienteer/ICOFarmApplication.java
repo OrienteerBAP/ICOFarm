@@ -8,8 +8,6 @@ import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.service.IFilterPredicateFactory;
 import org.orienteer.hook.ICOFarmOWidgetHook;
-import org.orienteer.hook.NonPrivilegeOUserHook;
-import org.orienteer.hook.RestrictedODocumentHook;
 import org.orienteer.resource.ICOFarmReferralResource;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
@@ -34,9 +32,9 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		ICOFarmRestorePasswordResource.mount(this);
 
 		List<Class<? extends ORecordHook>> hooks = getOrientDbSettings().getORecordHooks();
-		hooks.add(RestrictedODocumentHook.class);
+//		hooks.add(RestrictedODocumentHook.class);
         hooks.add(ICOFarmOWidgetHook.class);
-        hooks.add(NonPrivilegeOUserHook.class);
+//        hooks.add(NonPrivilegeOUserHook.class);
 	}
 
 	@Override
