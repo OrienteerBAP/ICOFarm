@@ -26,7 +26,7 @@ public class ICOFarmOUserHook extends ODocumentHookAbstract {
     @Override
     public RESULT onRecordBeforeRead(ODocument doc) {
         OSecurityUser user = doc.getDatabase().getUser();
-        if (user.hasRole(ICOFarmModule.INVESTOR_ROLE, true)) {
+        if (user.hasRole("reader", true)) {
             String docName = doc.field("name");
             return user.getName().equals(docName) ? RESULT.RECORD_NOT_CHANGED : RESULT.SKIP;
         }
