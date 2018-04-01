@@ -6,10 +6,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.metadata.security.OSecurity;
-import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.*;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -344,25 +341,28 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 	@Override
 	public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db) {
-		List<String> userProperties = new LinkedList<>();
+		List<String> userProperties = new ArrayList<>(9);
 		userProperties.add(ICOFarmUser.ID);
 		userProperties.add(ICOFarmUser.RESTORE_ID);
 		userProperties.add(ICOFarmUser.RESTORE_ID_CREATED);
 		userProperties.add("name");
 		userProperties.add("online");
 		userProperties.add("status");
-		userProperties.add("perspective");
-		userProperties.add("perspectiveItem");
 		userProperties.add("lastSessionId");
 		userProperties.add("roles");
 
-		List<String> restrictedProperties = new LinkedList<>();
+		List<String> restrictedProperties = new ArrayList<>(4);
 		restrictedProperties.add("_allow");
 		restrictedProperties.add("_allowRead");
 		restrictedProperties.add("_allowUpdate");
 		restrictedProperties.add("_allowDelete");
 
+		List<String> identityProperties = new ArrayList<>(2);
+		identityProperties.add("perspective");
+		identityProperties.add("perspectiveItem");
+
 		HIDDEN_PROPERTIES.put(ICOFarmUser.CLASS_NAME, userProperties);
 		HIDDEN_PROPERTIES.put("ORestricted", restrictedProperties);
+		HIDDEN_PROPERTIES.put(OIdentity.CLASS_NAME, identityProperties);
 	}
 }
