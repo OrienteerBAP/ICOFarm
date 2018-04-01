@@ -1,6 +1,6 @@
 <wicket:extend xmlns:wicket="http://www.w3.org/1999/xhtml">
-	<div class="container row center-block">
-		<div class="col-sm-8">
+	<div class="referral-widget">
+		<div class="mx-auto col-sm-8">
 			<h1 class="text-center"><strong wicket:id="referralTitle"></strong></h1>
 			<p>
 				This is your Orienteer referral link.
@@ -15,6 +15,26 @@
 				</div>
 			</div>
 		</div>
+
+
+		<div class="mx-auto col-sm-8">
+			<h1 class="text-center"><strong>Your statistics</strong></h1>
+			<div class="row">
+				<div class="col text-center">
+					<p>Your total bonus</p>
+					<h3><strong wicket:id="totalBonus"></strong></h3>
+				</div>
+				<div class="col text-center">
+					<p>Your followers</p>
+					<h3><strong wicket:id="followers"></strong></h3>
+				</div>
+			</div>
+		</div>
+
+
+	<div class="mx-auto col-sm-8">
+		<div wicket:id="followersTable"></div>
+	</div>
 	</div>
 	<script>
 		$('.copy-link').click(() => {

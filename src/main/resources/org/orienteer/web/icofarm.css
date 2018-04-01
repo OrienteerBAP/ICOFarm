@@ -1,0 +1,52 @@
+.login {
+    text-align: center;
+}
+
+.icofarm-login-feedback > .feedbackPanel {
+    font-size: 14px !important;
+    text-align: center;
+    list-style: none;
+    padding: 0;
+}
+
+.icofarm-login-feedback > .feedbackPanel > .feedbackPanelSUCCESS {
+    color: green;
+}
+
+.icofarm-login-feedback > .feedbackPanel > .feedbackPanelERROR {
+    color: red;
+}
+
+.signin-panel >form>dl>dd> .form-control {
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.restore-password-form > .form-group > .form-control {
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.btn-container {
+    text-align: center;
+    margin-bottom: 0;
+    margin-top: 15px;
+}
+
+.btn-container > .btn-success {
+    margin-left: 10px;
+}
+
+.btn-container.restore-password {
+    margin-bottom: 20px;
+}
+
+.login-footer {
+    position: absolute;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+    text-align: center;
+}

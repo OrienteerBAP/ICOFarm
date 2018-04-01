@@ -3,6 +3,10 @@
     text-align: center;
 }
 
+.registration {
+    text-align: center;
+}
+
 .registration-container {
     margin-top: 50px;
     margin-bottom: 50px;
@@ -19,4 +23,8 @@
 
 .copy-link:active {
     background-color: #9E9E9E;
+}
+
+.referral-widget {
+    overflow-y: hidden; !important;
 }
