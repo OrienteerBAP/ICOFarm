@@ -71,7 +71,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final Map<String, List<String>> HIDDEN_PROPERTIES = new HashMap<>();
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 90);
+		super("ICOFarm", 1);
 	}
 	
 	@Override
@@ -257,11 +257,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		setRestricted.accept(schema.getClass(TRANSACTION));
 		setRestricted.accept(schema.getClass(REFERRAL));
 		setRestricted.accept(schema.getClass(WALLET));
-		setRestricted.accept(schema.getClass(OUser.CLASS_NAME));
-
-		OUser reader = db.getMetadata().getSecurity().getUser("reader");
-		reader.getDocument().field("_allowRead", reader.getDocument());
-		reader.save();
 	}
 
     /**

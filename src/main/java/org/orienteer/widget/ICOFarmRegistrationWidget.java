@@ -97,8 +97,6 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
                 doc.field("status", OUser.STATUSES.SUSPENDED);
                 doc.field("id", UUID.randomUUID().toString());
                 doc.field("roles", role != null ? Collections.singletonList(role) : Collections.emptyList());
-                doc.field("_allowRead", doc);
-                doc.field("_allowUpdate", doc);
                 return doc;
             }
 
