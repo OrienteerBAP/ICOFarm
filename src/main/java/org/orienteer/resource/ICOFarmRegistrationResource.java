@@ -1,11 +1,10 @@
 package org.orienteer.resource;
 
 import com.google.common.base.Strings;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.google.inject.Inject;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -14,17 +13,21 @@ import org.apache.wicket.request.resource.SharedResourceReference;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.web.HomePage;
+import org.orienteer.model.ICOFarmUser;
+import org.orienteer.service.IICOFarmDbService;
 import org.orienteer.web.ICOFarmLoginPage;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 
 public class ICOFarmRegistrationResource extends AbstractResource {
 
     public static final String MOUNT_PATH = "/registration/${id}";
     public static final String RES_KEY = ICOFarmRegistrationResource.class.getName();
+
+    @Inject
+    private IICOFarmDbService dbService;
 
     public static String genRegistrationLink(OSecurityUser user) {
         return genRegistrationLink(user.getDocument());
@@ -68,15 +71,11 @@ public class ICOFarmRegistrationResource extends AbstractResource {
             }
 
             private void activateUser(String id) {
-                new DBClosure<Void>() {
-                    @Override
-                    protected Void execute(ODatabaseDocument db) {
-                        ODocument doc = getUserById(id);
-                        doc.field("status", OUser.STATUSES.ACTIVE);
-                        doc.save();
-                        return null;
-                    }
-                }.execute();
+                DBClosure.sudo((db) -> {
+                    ICOFarmUser user = getUserById(id);
+                    user.setAccountStatus(OUser.STATUSES.ACTIVE);
+                    user.save();
+                });
             }
 
             private void redirectToLoginPage() {
@@ -102,14 +101,12 @@ public class ICOFarmRegistrationResource extends AbstractResource {
     }
 
     private boolean isAccountNotActive(String id) {
-        ODocument user = getUserById(id);
-        return user != null && !user.field("status").equals(OUser.STATUSES.ACTIVE);
+        ICOFarmUser user = getUserById(id);
+        return user != null && user.getAccountStatus() != OUser.STATUSES.ACTIVE;
     }
 
-    private ODocument getUserById(String id) {
-        List<ODocument> docs = OrienteerWebSession.get().getDatabase()
-                .query(new OSQLSynchQuery<>("select from " + OUser.CLASS_NAME + " where id = ?", 1), id);
-        return docs != null && !docs.isEmpty() ? docs.get(0) : null;
+    private ICOFarmUser getUserById(String id) {
+        return dbService.getUserBy(ICOFarmUser.ID, id);
     }
 
     public static void mount(OrienteerWebApplication app) {

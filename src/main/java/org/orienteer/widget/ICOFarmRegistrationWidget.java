@@ -27,6 +27,7 @@ import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.Widget;
 import org.orienteer.model.OMail;
 import org.orienteer.resource.ICOFarmRegistrationResource;
+import org.orienteer.service.IICOFarmDbService;
 import org.orienteer.service.IOMailService;
 import org.orienteer.util.EmailExistsValidator;
 import org.orienteer.util.ICOFarmUtils;
@@ -41,6 +42,9 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
 
     @Inject
     private IOMailService mailService;
+
+    @Inject
+    private IICOFarmDbService dbService;
 
     public ICOFarmRegistrationWidget(String id, IModel<OSecurityUser> model, IModel<ODocument> widgetDocumentModel) {
         super(id, model, widgetDocumentModel);
@@ -125,7 +129,7 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
             private void sendActivationEmail(ODocument doc) {
                 Map<Object, Object> macros = ICOFarmUtils.getUserMacros(doc);
                 String email = doc.field("email");
-                OMail oMail = ICOFarmUtils.getOMailByName("registration");
+                OMail oMail = dbService.getMailByName("registration");
                 macros.put("link", ICOFarmRegistrationResource.genRegistrationLink(doc));
                 oMail.setMacros(macros);
                 mailService.sendMailAsync(email, oMail);

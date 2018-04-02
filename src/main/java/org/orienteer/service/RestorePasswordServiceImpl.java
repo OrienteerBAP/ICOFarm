@@ -27,6 +27,9 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
     @Inject
     private IOMailService mailService;
 
+    @Inject
+    private IICOFarmDbService dbService;
+
     @Override
     public void restoreUserPassword(@Nonnull ICOFarmUser user) {
        updateAndSaveUser(user);
@@ -55,7 +58,7 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
     }
 
     private void sendRestoreLink(ICOFarmUser user) {
-        OMail mail = ICOFarmUtils.getOMailByName("restore");
+        OMail mail = dbService.getMailByName("restore");
         Map<Object, Object> macros = ICOFarmUtils.getUserMacros(user);
         macros.put("link", ICOFarmRestorePasswordResource.getLinkForUser(user));
         mail.setMacros(macros);
@@ -68,6 +71,7 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
             protected Void execute(ODatabaseDocument db) {
                 String name = getSchedulerEventName(user);
                 OScheduledEvent event = createEvent(name);
+                event.save();
                 OScheduler scheduler = db.getMetadata().getScheduler();
                 scheduler.removeEvent(name);
                 scheduler.scheduleEvent(event);
@@ -76,7 +80,7 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
 
             private OScheduledEvent createEvent(String name) {
                 OProperty property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.RESTORE_ID);
-                OFunction f = ICOFarmUtils.getOFunctionByName(FUN_REMOVE_RESTORE_ID_BY_EMAIL);
+                OFunction f = dbService.getFunctionByName(FUN_REMOVE_RESTORE_ID_BY_EMAIL);
                 long timeout = Long.parseLong(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property));
                 Map<Object, Object> args = new HashMap<>(2);
                 args.put(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EMAIL, user.getEmail());

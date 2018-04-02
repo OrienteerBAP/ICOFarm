@@ -1,10 +1,8 @@
 package org.orienteer.resource;
 
 import com.google.common.base.Strings;
+import com.google.inject.Inject;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.OUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -14,11 +12,15 @@ import org.apache.wicket.util.time.Time;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.web.HomePage;
+import org.orienteer.model.ICOFarmUser;
+import org.orienteer.service.IICOFarmDbService;
 
 import java.io.IOException;
-import java.util.List;
 
 public class ICOFarmReferralResource extends AbstractResource {
+
+    @Inject
+    private IICOFarmDbService dbService;
 
     public static final String MOUNT_PATH = "/referral/${id}/";
     public static final String RES_KEY    = ICOFarmReferralResource.class.getName();
@@ -30,7 +32,6 @@ public class ICOFarmReferralResource extends AbstractResource {
         CharSequence url = RequestCycle.get().urlFor(new SharedResourceReference(RES_KEY), params);
         return RequestCycle.get().getUrlRenderer().renderFullUrl(Url.parse(url));
     }
-
 
     @Override
     protected ResourceResponse newResourceResponse(Attributes attributes) {
@@ -59,9 +60,7 @@ public class ICOFarmReferralResource extends AbstractResource {
     }
 
     private boolean isExistsInDatabase(String id) {
-        List<ODocument> docs = OrienteerWebSession.get().getDatabase().query(new OSQLSynchQuery<>("select id from "
-                + OUser.CLASS_NAME + " where id = ?", 1), id);
-        return docs != null && !docs.isEmpty();
+        return dbService.getUserBy(ICOFarmUser.ID, id) != null;
     }
 
     public static void mount(OrienteerWebApplication app) {

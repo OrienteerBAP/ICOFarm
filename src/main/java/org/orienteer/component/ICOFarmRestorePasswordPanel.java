@@ -13,9 +13,9 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
+import org.orienteer.service.IICOFarmDbService;
 import org.orienteer.service.IRestorePasswordService;
 import org.orienteer.util.EmailExistsValidator;
-import org.orienteer.util.ICOFarmUtils;
 import org.orienteer.web.ICOFarmLoginPage;
 
 import java.util.function.BiConsumer;
@@ -24,6 +24,9 @@ public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
 
     @Inject
     private IRestorePasswordService service;
+
+    @Inject
+    private IICOFarmDbService dbService;
 
     public ICOFarmRestorePasswordPanel(String id) {
         super(id);
@@ -42,7 +45,7 @@ public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
     }
 
     private Form createForm(String id) {
-        return new Form(id) {
+        return new Form<Object>(id) {
 
             @Override
             protected void onInitialize() {
@@ -70,7 +73,7 @@ public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
                 } else {
                     TextField<String> field = ((TextField<String>) get("email"));
                     String email = field.getModelObject();
-                    user = ICOFarmUtils.getUserByEmail(email);
+                    user = dbService.getUserBy(ICOFarmUser.EMAIL, email);
                     service.restoreUserPassword(user);
                     success(new ResourceModel("restore.check.email").getObject());
                 }
@@ -104,7 +107,7 @@ public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
 
             private ICOFarmUser getUser() {
                 String id = getWebPage().getPageParameters().get(ICOFarmRestorePasswordResource.RES_KEY).toString();
-                return ICOFarmUtils.getUserBy(ICOFarmUser.RESTORE_ID, id);
+                return dbService.getUserBy(ICOFarmUser.RESTORE_ID, id);
             }
         };
     }

@@ -1,6 +1,7 @@
 package org.orienteer.resource;
 
 import com.google.common.base.Strings;
+import com.google.inject.Inject;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -10,13 +11,16 @@ import org.apache.wicket.request.resource.SharedResourceReference;
 import org.apache.wicket.util.time.Time;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.ICOFarmUser;
-import org.orienteer.util.ICOFarmUtils;
+import org.orienteer.service.IICOFarmDbService;
 import org.orienteer.web.ICOFarmLoginPage;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class ICOFarmRestorePasswordResource extends AbstractResource {
+
+    @Inject
+    private IICOFarmDbService dbService;
 
     public static final String MOUNT_PATH = "/restore/${id}/";
     public static final String RES_KEY    = ICOFarmRestorePasswordResource.class.getName();
@@ -50,7 +54,7 @@ public class ICOFarmRestorePasswordResource extends AbstractResource {
             public void writeData(Attributes attributes) throws IOException {
                 String id = attributes.getParameters().get("id").toString();
                 PageParameters params = new PageParameters();
-                if (!Strings.isNullOrEmpty(id) && ICOFarmUtils.getUserBy(ICOFarmUser.RESTORE_ID, id) != null) {
+                if (!Strings.isNullOrEmpty(id) && dbService.getUserBy(ICOFarmUser.RESTORE_ID, id) != null) {
                     params.add(RES_KEY, id);
                 }
                 RequestCycle.get().setResponsePage(ICOFarmLoginPage.class, params);

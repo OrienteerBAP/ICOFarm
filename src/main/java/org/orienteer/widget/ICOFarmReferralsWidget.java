@@ -32,6 +32,7 @@ import static org.orienteer.ICOFarmModule.OPROPERTY_REFERRAL_USER;
 
 @Widget(id = "referrals-widget", domain = "browse", selector = ICOFarmModule.REFERRAL, autoEnable = true)
 public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
+
     public ICOFarmReferralsWidget(String id, IModel<OClass> model, IModel<ODocument> widgetDocumentModel) {
         super(id, model, widgetDocumentModel);
     }
@@ -74,13 +75,13 @@ public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
 
     private IModel<String> getTotalBonus(OSecurityUser user) {
         String sql = String.format("select sum(count(*)) as number from %s where @this['by'] = ?", getModelObject().getName());
-        List<ODocument> docs = OrienteerWebSession.get().getDatabase().query(new OSQLSynchQuery<>(sql), user.getDocument());
+        List<ODocument> docs = query(new OSQLSynchQuery<>(sql), user.getDocument());
         return Model.of(getNumberAsString(docs, "number"));
     }
 
     private IModel<String> getFollowers(OSecurityUser user) {
         String sql = String.format("select count(*) as number from %s where @this['by'] = ?", getModelObject().getName());
-        List<ODocument> docs = OrienteerWebSession.get().getDatabase().query(new OSQLSynchQuery<>(sql), user.getDocument());
+        List<ODocument> docs = query(new OSQLSynchQuery<>(sql), user.getDocument());
         return Model.of(getNumberAsString(docs, "number"));
     }
 
@@ -90,6 +91,10 @@ public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
             return obj.toString();
         }
         return "0";
+    }
+
+    private List<ODocument> query(OSQLSynchQuery<ODocument> sql, Object... args) {
+        return OrienteerWebSession.get().getDatabase().query(sql, args);
     }
 
     @Override

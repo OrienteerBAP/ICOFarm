@@ -5,6 +5,9 @@ import org.apache.wicket.model.util.MapModel;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
+import org.orienteer.core.OrienteerWebApplication;
+import org.orienteer.model.ICOFarmUser;
+import org.orienteer.service.IICOFarmDbService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +33,7 @@ public class EmailExistsValidator implements IValidator<String> {
     }
 
     private boolean isUserExists(String email) {
-        return ICOFarmUtils.getUserByEmail(email) != null;
+        return OrienteerWebApplication.get().getServiceInstance(IICOFarmDbService.class).getUserBy(ICOFarmUser.EMAIL, email) != null;
     }
 
     private String getResource() {
