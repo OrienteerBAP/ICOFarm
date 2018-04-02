@@ -71,7 +71,7 @@ public class ICOFarmRegistrationResource extends AbstractResource {
             }
 
             private void activateUser(String id) {
-                DBClosure.sudo((db) -> {
+                DBClosure.sudoConsumer((db) -> {
                     ICOFarmUser user = getUserById(id);
                     user.setAccountStatus(OUser.STATUSES.ACTIVE);
                     user.save();
