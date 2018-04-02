@@ -5,10 +5,12 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -20,9 +22,11 @@ import org.orienteer.core.component.property.DisplayMode;
 import org.orienteer.core.component.table.OPropertyValueColumn;
 import org.orienteer.core.component.table.component.GenericTablePanel;
 import org.orienteer.core.widget.Widget;
+import org.orienteer.model.ICOFarmUser;
 import org.orienteer.resource.ICOFarmReferralResource;
 import ru.ydn.wicket.wicketorientdb.model.ODocumentModel;
 import ru.ydn.wicket.wicketorientdb.model.OQueryDataProvider;
+import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -61,7 +65,15 @@ public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
     private List<IColumn<ODocument, String>> createColumns(OClass oClass, IModel<DisplayMode> mode) {
         List<IColumn<ODocument, String>> columns = new LinkedList<>();
         columns.add(new OPropertyValueColumn(oClass.getProperty(OPROPERTY_REFERRAL_CREATED), mode));
-        columns.add(new OPropertyValueColumn(oClass.getProperty(OPROPERTY_REFERRAL_USER), mode));
+        columns.add(new OPropertyValueColumn(oClass.getProperty(OPROPERTY_REFERRAL_USER), mode) {
+            @Override
+            public void populateItem(Item<ICellPopulator<ODocument>> item, String componentId, IModel<ODocument> docModel) {
+                ODocument user = DBClosure.sudo((db) -> docModel.getObject().field(OPROPERTY_REFERRAL_USER));
+                String firstName = user.field(ICOFarmUser.FIRST_NAME);
+                String lastName = user.field(ICOFarmUser.LAST_NAME);
+                item.add(new Label(componentId, firstName + " " + lastName));
+            }
+        });
         return columns;
     }
 
