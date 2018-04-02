@@ -64,6 +64,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REGISTRATION_WIDGET_ID   = "registration";
 	public static final String SCHEMA_CLASSES_WIDGET_ID = "list-oclasses";
 
+	public static final String ORESTRICTED_ALLOW        = "_allow";
+	public static final String ORESTRICTED_ALLOW_READ   = "_allowRead";
+	public static final String ORESTRICTED_ALLOW_UPDATE = "_allowUpdate";
+	public static final String ORESTRICTED_ALLOW_DELETE = "_allowDelete";
+
 	/**
 	 * Contains hidden properties for investors.
 	 * key - class name
@@ -245,8 +250,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 			perspective.save();
 		};
 
-		updateUser.accept(Arrays.asList(ANONYMOUS_PERSPECTIVE, "reader", "_allowRead"));
-		updateRole.accept(Arrays.asList(INVESTOR_PERSPECTIVE, INVESTOR_ROLE, "_allowRead"));
+		updateUser.accept(Arrays.asList(ANONYMOUS_PERSPECTIVE, "reader", ORESTRICTED_ALLOW_READ));
+		updateRole.accept(Arrays.asList(INVESTOR_PERSPECTIVE, INVESTOR_ROLE, ORESTRICTED_ALLOW_READ));
 	}
 
 	private void updateClassRestrictions(ODatabaseDocument db) {
@@ -368,10 +373,10 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		userProperties.add("roles");
 
 		List<String> restrictedProperties = new ArrayList<>(4);
-		restrictedProperties.add("_allow");
-		restrictedProperties.add("_allowRead");
-		restrictedProperties.add("_allowUpdate");
-		restrictedProperties.add("_allowDelete");
+		restrictedProperties.add(ORESTRICTED_ALLOW);
+		restrictedProperties.add(ORESTRICTED_ALLOW_READ);
+		restrictedProperties.add(ORESTRICTED_ALLOW_UPDATE);
+		restrictedProperties.add(ORESTRICTED_ALLOW_DELETE);
 
 		List<String> identityProperties = new ArrayList<>(2);
 		identityProperties.add("perspective");

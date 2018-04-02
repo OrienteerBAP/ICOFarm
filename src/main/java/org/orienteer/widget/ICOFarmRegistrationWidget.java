@@ -114,6 +114,7 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
                     doc.field(OPROPERTY_REFERRAL_CREATED, new Date());
                     doc.field(OPROPERTY_REFERRAL_USER, user.getDocument());
                     doc.field(OPROPERTY_REFERRAL_BY, by.getDocument());
+                    doc.field(ICOFarmModule.ORESTRICTED_ALLOW_READ, by.getDocument());
                     DBClosure.sudoSave(doc);
                 }
             }
