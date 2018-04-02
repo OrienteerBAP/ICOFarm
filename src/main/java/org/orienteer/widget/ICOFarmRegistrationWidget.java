@@ -38,7 +38,7 @@ import java.util.UUID;
 
 import static org.orienteer.ICOFarmModule.*;
 
-@Widget(id = "registration", domain = "browse", selector = ICOFarmModule.REGISTRATION, autoEnable = true)
+@Widget(id = ICOFarmModule.REGISTRATION_WIDGET_ID, domain = "browse", selector = ICOFarmModule.REGISTRATION, autoEnable = true)
 public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUser> {
 
     @Inject

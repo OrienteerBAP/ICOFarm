@@ -60,12 +60,23 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String INVESTOR_PERSPECTIVE  = "Investor";
 	public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
+	public static final String REFERRAL_WIDGET_ID       = "referrals-widget";
+	public static final String REGISTRATION_WIDGET_ID   = "registration";
+	public static final String SCHEMA_CLASSES_WIDGET_ID = "list-oclasses";
+
 	/**
 	 * Contains hidden properties for investors.
 	 * key - class name
 	 * value - list with hidden properties
 	 */
 	public static final Map<String, List<String>> HIDDEN_PROPERTIES = new HashMap<>();
+
+	/**
+	 * Contains hidden widgets for investors
+	 * key - class name
+	 * value - hidden widget
+	 */
+	public static final Map<String, List<String>> HIDDEN_WIDGETS = new HashMap<>();
 
 	protected ICOFarmModule() {
 		super("ICOFarm", 1);
@@ -330,8 +341,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 					.saveDocument().getODocument();
 		};
 
-		createWidget.accept("registration", REGISTRATION);
-		createWidget.accept("referrals-widget", REFERRAL);
+		createWidget.accept(REGISTRATION, REGISTRATION);
+		createWidget.accept(REFERRAL_WIDGET_ID, REFERRAL);
     }
 
 	@Override
@@ -341,6 +352,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 	@Override
 	public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db) {
+		initHiddenProperties();
+		initHiddenWidgets();
+	}
+
+	private void initHiddenProperties() {
 		List<String> userProperties = new ArrayList<>(9);
 		userProperties.add(ICOFarmUser.ID);
 		userProperties.add(ICOFarmUser.RESTORE_ID);
@@ -364,5 +380,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		HIDDEN_PROPERTIES.put(ICOFarmUser.CLASS_NAME, userProperties);
 		HIDDEN_PROPERTIES.put("ORestricted", restrictedProperties);
 		HIDDEN_PROPERTIES.put(OIdentity.CLASS_NAME, identityProperties);
+	}
+
+	private void initHiddenWidgets() {
+		HIDDEN_WIDGETS.put(REFERRAL, Collections.singletonList("list-all"));
 	}
 }
