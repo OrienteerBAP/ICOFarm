@@ -3,6 +3,7 @@ package org.orienteer.service;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
+import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -46,6 +47,11 @@ public class ICOFarmDbServiceImpl implements IICOFarmDbService {
         List<ODocument> docs = query(new OSQLSynchQuery<>(String.format("select from %s where %s = ?",
                 OMail.CLASS_NAME, OMail.NAME), 1), name);
         return getFromDocs(docs, OMail::new);
+    }
+
+    @Override
+    public ORole getRoleByName(String name) {
+        return DBClosure.sudo(db -> { return db.getMetadata().getSecurity().getRole(name); });
     }
 
     @Override

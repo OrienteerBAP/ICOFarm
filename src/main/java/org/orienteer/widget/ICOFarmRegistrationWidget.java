@@ -2,11 +2,9 @@ package org.orienteer.widget;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -25,6 +23,7 @@ import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.Widget;
+import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.service.IICOFarmDbService;
@@ -33,7 +32,9 @@ import org.orienteer.util.EmailExistsValidator;
 import org.orienteer.util.ICOFarmUtils;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.orienteer.ICOFarmModule.*;
 
@@ -82,64 +83,50 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
                 String lastName = ((TextField<String>) form.get("lastName")).getModelObject();
                 String email = ((TextField<String>) form.get("email")).getModelObject();
                 String password = ((TextField<String>) form.get("password")).getModelObject();
-                ODocument doc = createNewUser(email, password, firstName, lastName);
-                ODocument referral = createReferral(doc);
-                DBClosure.sudoSave(doc);
-                if (referral != null) DBClosure.sudoSave(referral);
-                sendActivationEmail(doc);
+
+                ICOFarmUser user = createNewUser(email, password, firstName, lastName);
+                createReferral(user);
+                sendActivationEmail(user);
+
                 target.add(ICOFarmRegistrationWidget.this);
             }
 
-            private ODocument createNewUser(String email, String password, String firstName, String lastName) {
-                ODocument doc = new ODocument(OUser.CLASS_NAME);
-                ODocument role = getRoleForNewUser();
-                doc.field("name", email);
-                doc.field("email", email);
-                doc.field("password", password);
-                doc.field("firstName", firstName);
-                doc.field("lastName", lastName);
-                doc.field("status", OUser.STATUSES.SUSPENDED);
-                doc.field("id", UUID.randomUUID().toString());
-                doc.field("roles", role != null ? Collections.singletonList(role) : Collections.emptyList());
-                return doc;
+            private ICOFarmUser createNewUser(String email, String password, String firstName, String lastName) {
+                ICOFarmUser user = new ICOFarmUser();
+                ORole role = dbService.getRoleByName(ICOFarmModule.INVESTOR_ROLE);
+                user.setEmail(email)
+                        .setId(UUID.randomUUID().toString())
+                        .setFirstName(firstName)
+                        .setLastName(lastName)
+                        .setName(email)
+                        .setPassword(password)
+                        .addRole(role)
+                        .setAccountStatus(OSecurityUser.STATUSES.SUSPENDED);
+                user.sudoSave();
+                return user;
             }
 
-            private ODocument createReferral(ODocument user) {
+            private void createReferral(ICOFarmUser user) {
                 String id = (String) OrienteerWebSession.get().getAttribute("referral");
-                ODocument by = !Strings.isNullOrEmpty(id) ? getUserById(id) : null;
-                ODocument doc = null;
+                ICOFarmUser by = !Strings.isNullOrEmpty(id) ? dbService.getUserBy(ICOFarmUser.ID, id) : null;
                 if (by != null) {
-                    doc = new ODocument(REFERRAL);
+                    ODocument doc = new ODocument(REFERRAL);
                     doc.field(OPROPERTY_REFERRAL_CREATED, new Date());
-                    doc.field(OPROPERTY_REFERRAL_USER, user);
-                    doc.field(OPROPERTY_REFERRAL_BY, by);
+                    doc.field(OPROPERTY_REFERRAL_USER, user.getDocument());
+                    doc.field(OPROPERTY_REFERRAL_BY, by.getDocument());
+                    DBClosure.sudoSave(doc);
                 }
-                return doc;
             }
 
-            private ODocument getRoleForNewUser() {
-                return new DBClosure<ODocument>() {
-                    @Override
-                    protected ODocument execute(ODatabaseDocument db) {
-                        return db.getMetadata().getSecurity().getRole(ICOFarmModule.INVESTOR_ROLE).getDocument();
-                    }
-                }.execute();
-            }
-
-            private void sendActivationEmail(ODocument doc) {
-                Map<Object, Object> macros = ICOFarmUtils.getUserMacros(doc);
-                String email = doc.field("email");
+            private void sendActivationEmail(ICOFarmUser user) {
+                Map<Object, Object> macros = ICOFarmUtils.getUserMacros(user);
+                String email = user.getEmail();
                 OMail oMail = dbService.getMailByName("registration");
-                macros.put("link", ICOFarmRegistrationResource.genRegistrationLink(doc));
+                macros.put("link", ICOFarmRegistrationResource.genRegistrationLink(user));
                 oMail.setMacros(macros);
                 mailService.sendMailAsync(email, oMail);
             }
 
-            private ODocument getUserById(String id) {
-                List<ODocument> docs = OrienteerWebSession.get().getDatabase()
-                        .query(new OSQLSynchQuery<>("select from " + OUser.CLASS_NAME + " where id = ?", 1), id);
-                return docs != null && !docs.isEmpty() ? docs.get(0) : null;
-            }
         };
     }
 

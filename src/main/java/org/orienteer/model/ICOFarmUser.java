@@ -14,6 +14,10 @@ public class ICOFarmUser extends OUser {
     public static final String RESTORE_ID         = "restoreId";
     public static final String RESTORE_ID_CREATED = "restoreIdCreated";
 
+    public ICOFarmUser() {
+        super(ICOFarmUser.CLASS_NAME);
+    }
+
     public ICOFarmUser(ODocument iSource) {
         super(iSource);
     }
