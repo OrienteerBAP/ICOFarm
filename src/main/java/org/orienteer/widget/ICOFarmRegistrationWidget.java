@@ -67,7 +67,7 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
         form.add(passwordTextField);
         form.add(reEnterPassword);
         form.add(newSubmitLink("submit"));
-        form.add(new Label("title", new ResourceModel("widget.registration.title")));
+        form.add(new Label("title", new ResourceModel("application.name")));
         form.add(new Label("content", new ResourceModel("widget.registration.content")));
         add(form);
         add(createSuccessPanel("feedback"));
@@ -168,7 +168,7 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
 
     @Override
     protected IModel<String> getDefaultTitleModel() {
-        return Model.of("Registration");
+        return new ResourceModel("widget.registration.title");
     }
 
 }
