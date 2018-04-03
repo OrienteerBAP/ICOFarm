@@ -3,8 +3,8 @@ orienteer-test.properties
 orienteer.properties
 target/
 databases/
-Orienteer/
 libs/
 plugins/
 .idea/
 *.iml
+/Orienteer

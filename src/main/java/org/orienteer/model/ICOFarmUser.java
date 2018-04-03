@@ -7,12 +7,15 @@ import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 import java.util.Date;
 
 public class ICOFarmUser extends OUser {
-    public static final String FIRST_NAME         = "firstName";
+	private static final long serialVersionUID = 1L;
+
+	public static final String FIRST_NAME         = "firstName";
     public static final String LAST_NAME          = "lastName";
     public static final String EMAIL              = "email";
     public static final String ID                 = "id";
     public static final String RESTORE_ID         = "restoreId";
     public static final String RESTORE_ID_CREATED = "restoreIdCreated";
+    public static final String ETH_WALLET = "ethereumWallet";
 
     public ICOFarmUser(ODocument iSource) {
         super(iSource);
@@ -70,6 +73,11 @@ public class ICOFarmUser extends OUser {
 
     public Date getRestoreIdCreated() {
         return document.field(RESTORE_ID_CREATED);
+    }
+
+    public EthereumWallet getMainETHWallet() {
+    	ODocument wallet = document.field(ETH_WALLET);
+        return wallet!=null?new EthereumWallet(wallet):null;
     }
 
     public void sudoSave() {
