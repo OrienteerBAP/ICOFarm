@@ -47,7 +47,7 @@ public class TestICOFarmApplication
 	    assertTrue(tester.getApplication() instanceof ICOFarmApplication);
 	}
 	
-	@Test
+	//@Test
 	public void ethereumTest(){
 		Web3j web3 = Web3j.build(new HttpService("https://rinkeby.infura.io/jQ5uVScqyIMjgP6ZSSMb"));
 		Web3ClientVersion web3ClientVersion=null;
