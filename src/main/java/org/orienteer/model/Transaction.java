@@ -16,7 +16,9 @@ import java.util.List;
 import static org.orienteer.ICOFarmModule.*;
 
 public class Transaction extends ODocumentWrapper {
-    public Transaction() {
+	private static final long serialVersionUID = 1L;
+
+	public Transaction() {
         super(ICOFarmModule.TRANSACTION);
     }
 

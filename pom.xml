@@ -79,6 +79,12 @@
 			<artifactId>orienteer-mail</artifactId>
 			<version>${orienteer.version}</version>
 		</dependency>
+		<!-- Ethereum dependencies-->
+		<dependency>
+		  <groupId>org.web3j</groupId>
+		  <artifactId>core</artifactId>
+		  <version>3.3.1</version>
+		</dependency>
 		<!-- ORIENTEER TESTS for TESTING -->
 		<dependency>
 			<groupId>org.orienteer</groupId>

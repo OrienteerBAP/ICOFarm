@@ -1,0 +1,14 @@
+<wicket:panel>
+<div class="container">
+<form wicket:id="popupForm" role="form">
+  <div class="form-group">
+    <p class="help-block"><wicket:message key="cryptocurrency.inputETHPasswordHelp">Please input main ETH wallet password and select ETH quantity</wicket:message></p>
+    <wicket:message key="cryptocurrency.inputETHPassword">ETH wallet password</wicket:message>
+    <input type="password" wicket:id="walletPassword"/>
+    <wicket:message key="cryptocurrency.inputETHQuantity">ETH quantity</wicket:message>
+    <input type="text" wicket:id="ethSumm"/>
+  </div>
+  <input type="submit" wicket:id="submitButton" class="btn btn-primary" />
+</form>
+</div>
+</wicket:panel>

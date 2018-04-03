@@ -9,7 +9,9 @@ import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 import java.util.Map;
 
 public class Currency extends ODocumentWrapper {
-    public Currency() {
+	private static final long serialVersionUID = 1L;
+
+	public Currency() {
         super(ICOFarmModule.CURRENCY);
     }
 
