@@ -8,10 +8,12 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.orienteer.component.ICOFarmLoginPanel;
 import org.orienteer.component.ICOFarmRestorePasswordPanel;
 import org.orienteer.core.MountPath;
+import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
 
 @MountPath("/login")
@@ -30,6 +32,9 @@ public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
     @Override
     protected void onInitialize() {
         super.onInitialize();
+        if (OrienteerWebSession.get().isSignedIn()) {
+            throw new RedirectToUrlException("/home");
+        }
         currentPanel = createCurrentPanel("panel");
         Label loginTitle = new Label("loginTitle", new ResourceModel("login.title"));
         loginTitle.setOutputMarkupId(true);
