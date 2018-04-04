@@ -2,13 +2,15 @@ package org.orienteer.method;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.concurrent.CompletableFuture;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.orienteer.component.BuyTokenPopupPanel;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIconType;
@@ -60,22 +62,29 @@ public class BuyToken extends AbstractModalOMethod {
 
 			@Override
 			public boolean onSubmitForm(AjaxRequestTarget target) {
-				String walletFile = doSaveWalletFile();
-				
-				IModel<String> password = getWalletPassword();
-				IModel<String> summ = getEthSumm();
-				IModel<?> currencyModel = getEnvData().getDisplayObjectModel();
-				ODocument currencyDoc = (ODocument) currencyModel.getObject();
-				if (currencyDoc!=null){
+				boolean Ok=false;
+				String walletAddress="";
+				try {
+					String walletFile = doSaveWalletFile();
+					
+					IModel<String> password = getWalletPassword();
+					IModel<String> summ = getEthSumm();
+					IModel<?> currencyModel = getEnvData().getDisplayObjectModel();
+					ODocument currencyDoc = (ODocument) currencyModel.getObject();
+					if (currencyDoc==null) throw new Exception("Please link buy button to 'currency' OClass");
 					String tokenAddress = new TokenCurrency(currencyDoc).getContractAddress();
-					try {
 
-						doBuyTokens(walletFile,password.getObject(),tokenAddress, new BigDecimal(summ.getObject()));
-					} catch (Exception e) {
-						LOG.error("Buy tokens error",e);
-					}
+					walletAddress = doBuyTokens(walletFile,password.getObject(),tokenAddress, new BigDecimal(summ.getObject()));
+					//https://rinkeby.etherscan.io/address/0xf8f3d3d326c78f0d274f91f2428305a89002660e
+					//AbstractWidgetDisplayModeAwarePage<ODocument> page = new ODocumentPage(new ODocumentModel(session.getOTaskSessionPersisted().getDocument())).setModeObject(DisplayMode.VIEW);
+					Ok = true;
+				} catch (Exception e) {
+					error(e.getMessage()+" ");
 				}
-				return true;
+				if (Ok){
+					throw new RedirectToUrlException("https://rinkeby.etherscan.io/address/"+walletAddress);
+				}
+				return Ok;
 			}
 
 			@Override
@@ -86,38 +95,33 @@ public class BuyToken extends AbstractModalOMethod {
 		};
 	}
 	
-
-	private String doSaveWalletFile(){
+	private String doSaveWalletFile() throws Exception{
 		OSecurityUser user = OrienteerWebSession.get().getUser();
-		if (user!=null){
-			ICOFarmUser icofarmUser = new ICOFarmUser(user.getDocument());
-			EthereumWallet wallet = icofarmUser.getMainETHWallet();
-			if (wallet!=null){
-				String walletSource = wallet.getWalletJSON();
-				if (walletSource!=null){
-		            try {
-						File file = new File(EthereumWallet.CACHE_FOLDER+"/"+wallet.getWalletJSONName());
-						file.getParentFile().mkdirs(); 
-						file.createNewFile();
-			            FileWriter fw = new FileWriter(file);
-						fw.write(walletSource);
-			            fw.close();
-			            return file.getAbsolutePath();
-					} catch (IOException e) {
-						LOG.error("ETH Wallet save error", e);
-					}
-				}
-			}
-		}
-		return null;
+		
+		if (user==null)	throw new Exception("Please autorize");
+		ICOFarmUser icofarmUser = new ICOFarmUser(user.getDocument());
+		
+		EthereumWallet wallet = icofarmUser.getMainETHWallet();
+		if (wallet==null) throw new Exception("Please link correct ETC wallet to your account");
+		
+		String walletSource = wallet.getWalletJSON();
+		if (walletSource==null) throw new Exception("Please set correct ETC wallet JSON");
+		
+		File file = new File(EthereumWallet.CACHE_FOLDER+"/"+wallet.getWalletJSONName());
+		file.getParentFile().mkdirs(); 
+		file.createNewFile();
+        FileWriter fw = new FileWriter(file);
+		fw.write(walletSource);
+        fw.close();
+        return file.getAbsolutePath();
 	}
 	
-	private TransactionReceipt doBuyTokens(String wallet,String password,String contractAddress,BigDecimal ETHquantity) throws Exception{
+	private String doBuyTokens(String wallet,String password,String contractAddress,BigDecimal ETHquantity) throws Exception{
 		Web3j web3 = Web3j.build(new HttpService("https://rinkeby.infura.io/jQ5uVScqyIMjgP6ZSSMb"));
 		Credentials credentials = WalletUtils.loadCredentials(password, wallet);
 		Buyable token = Buyable.load(contractAddress, web3, credentials, GAS_PRICE, GAS_LIMIT);
-		TransactionReceipt result = token.buy(ETHquantity.toBigInteger()).send();
-		return result;
+		CompletableFuture<TransactionReceipt> result = token.buy(ETHquantity.toBigInteger()).sendAsync();
+		return credentials.getAddress();
 	}
 
 }
