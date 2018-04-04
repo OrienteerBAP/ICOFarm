@@ -71,7 +71,6 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
             protected Void execute(ODatabaseDocument db) {
                 String name = getSchedulerEventName(user);
                 OScheduledEvent event = createEvent(name);
-                event.save();
                 OScheduler scheduler = db.getMetadata().getScheduler();
                 scheduler.removeEvent(name);
                 scheduler.scheduleEvent(event);
