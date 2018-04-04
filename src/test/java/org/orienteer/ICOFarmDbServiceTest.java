@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 
 @RunWith(OrienteerTestRunner.class)
 public class ICOFarmDbServiceTest {
-
     @Inject
     private IICOFarmDbService dbService;
 
@@ -27,7 +26,7 @@ public class ICOFarmDbServiceTest {
 
     @Before
     public void init() {
-        user = new ICOFarmUser(OrienteerWebSession.get().getUserAsODocument());
+        user = new ICOFarmUser(OrienteerWebSession.get().getEffectiveUser().getDocument());
     }
 
     @Test
