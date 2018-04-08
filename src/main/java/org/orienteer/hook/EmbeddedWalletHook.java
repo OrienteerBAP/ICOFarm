@@ -7,6 +7,7 @@ import org.orienteer.ICOFarmModule;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.EmbeddedOWallet;
 import org.orienteer.service.IEthereumService;
+import org.orienteer.service.IUpdateWalletService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
@@ -30,7 +31,7 @@ public class EmbeddedWalletHook extends ODocumentHookAbstract {
 
     @Override
     public RESULT onRecordBeforeCreate(ODocument doc) {
-        IEthereumService service = OrienteerWebApplication.get().getServiceInstance(IEthereumService.class);
+        IEthereumService service = OrienteerWebApplication.lookupApplication().getServiceInstance(IEthereumService.class);
         String password = UUID.randomUUID().toString();
         try {
             String fileName = service.createWallet(password);
@@ -45,17 +46,9 @@ public class EmbeddedWalletHook extends ODocumentHookAbstract {
         return RESULT.SKIP;
     }
 
-//    @Override
-//    public void onRecordAfterCreate(ODocument doc) {
-//        IEthereumService service = OrienteerWebApplication.get().getServiceInstance(IEthereumService.class);
-//        String password = doc.field(EmbeddedOWallet.OPROPERTY_PASSWORD);
-//        String fileName = doc.field(EmbeddedOWallet.OPROPERTY_NAME);
-//        service.requestWalletAsync(password, fileName, (err, credentials) -> {
-//            if (credentials != null) {
-//                DBClosure.sudoConsumer(db -> {
-//                    doc.field(EmbeddedOWallet.OPROPERTY_BALANCE, )
-//                });
-//            }
-//        });
-//    }
+    @Override
+    public void onRecordAfterCreate(ODocument doc) {
+        IUpdateWalletService service = OrienteerWebApplication.lookupApplication().getServiceInstance(IUpdateWalletService.class);
+        service.updateBalance(doc);
+    }
 }

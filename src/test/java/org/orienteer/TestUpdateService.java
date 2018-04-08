@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.orienteer.junit.OrienteerTestRunner;
 import org.orienteer.model.EmbeddedOWallet;
-import org.orienteer.service.IUpdateService;
+import org.orienteer.service.IUpdateWalletService;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.math.BigInteger;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 public class TestUpdateService {
 
     @Inject
-    private IUpdateService updateService;
+    private IUpdateWalletService updateService;
 
     private List<EmbeddedOWallet> wallets;
 

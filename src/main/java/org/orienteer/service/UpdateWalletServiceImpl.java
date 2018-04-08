@@ -2,14 +2,16 @@ package org.orienteer.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EmbeddedOWallet;
+import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Consumer;
 
 @Singleton
-public class UpdateServiceImpl implements IUpdateService {
+public class UpdateWalletServiceImpl implements IUpdateWalletService {
 
     @Inject
     private IEthereumService ethereumService;
@@ -28,5 +30,20 @@ public class UpdateServiceImpl implements IUpdateService {
                 wallet.sudoSave();
             }
         }));
+    }
+
+    @Override
+    public void updateBalance(EmbeddedOWallet wallet) {
+        updateBalance(wallet.getDocument());
+    }
+
+    @Override
+    public void updateBalance(ODocument doc) {
+        ethereumService.requestBalanceAsync(doc.field(EmbeddedOWallet.OPROPERTY_ADDRESS), (err, balance) -> {
+            if (balance != null) {
+                doc.field(EmbeddedOWallet.OPROPERTY_BALANCE, balance);
+                DBClosure.sudoSave(doc);
+            }
+        });
     }
 }

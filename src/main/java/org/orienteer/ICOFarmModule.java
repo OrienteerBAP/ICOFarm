@@ -21,9 +21,11 @@ import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.EmbeddedOWallet;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.service.IDbService;
-import org.orienteer.service.IUpdateService;
+import org.orienteer.service.IUpdateWalletService;
 
 import java.util.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -95,7 +97,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final Map<String, List<String>> HIDDEN_WIDGETS = new HashMap<>();
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 6);
+		super("ICOFarm", 8);
 	}
 	
 	@Override
@@ -415,10 +417,14 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		HIDDEN_WIDGETS.put(REFERRAL, Collections.singletonList("list-all"));
 	}
 
+	// TODO: Refactor this method
 	private void updateBalanceInWallets(OrienteerWebApplication app) {
 		IDbService dbService = app.getServiceInstance(IDbService.class);
-		IUpdateService updateService = app.getServiceInstance(IUpdateService.class);
-		List<EmbeddedOWallet> wallets = dbService.getEmbeddedWallets();
-		updateService.updateBalance(wallets);
+		IUpdateWalletService updateService = app.getServiceInstance(IUpdateWalletService.class);
+		ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors());
+		executor.scheduleAtFixedRate(() -> {
+			List<EmbeddedOWallet> wallets = dbService.getEmbeddedWallets();
+			updateService.updateBalance(wallets);
+		}, 0, 1, TimeUnit.MINUTES); // TODO: adjust timeout
 	}
 }
