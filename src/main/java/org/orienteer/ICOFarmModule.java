@@ -30,10 +30,14 @@ import static com.orientechnologies.orient.core.metadata.security.ORule.Resource
 
 public class ICOFarmModule extends AbstractOrienteerModule {
 
-	public static final String TRANSACTION  = "Transaction";
-	public static final String CURRENCY     = "Currency";
-	public static final String REFERRAL     = "Referral";
-	public static final String WALLET       = "Wallet";
+	public static final String TRANSACTION           = "Transaction";
+	public static final String CURRENCY              = "Currency";
+	public static final String REFERRAL              = "Referral";
+	public static final String WALLET                = "Wallet";
+	public static final String EXTERNAL_WALLET       = "ExternalWallet";
+	public static final String EMBEDDED_WALLET       = "EmbeddedWallet";
+	public static final String CRYPTOCURRENCY_WALLET = "CryptocurrencyWallet";
+	public static final String ETHEREUM_WALLET       = "EthereumWallet";
 	public static final String REGISTRATION = "Registration";
 
 	public static final String OPROPERTY_TRANSACTION_DATETIME      = "dateTime";
@@ -138,7 +142,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				security.createRole(INVESTOR_ROLE, OSecurityRole.ALLOW_MODES.DENY_ALL_BUT).setParentRole(security.getRole("reader"));
 
 		investor.grant(ResourceGeneric.CLASS, TRANSACTION, 7);
+
 		investor.grant(ResourceGeneric.CLASS, WALLET, 7);
+		investor.grant(ResourceGeneric.CLASS, EXTERNAL_WALLET, 7);
+		investor.grant(ResourceGeneric.CLASS, EMBEDDED_WALLET, 7);
+		investor.grant(ResourceGeneric.CLASS, CRYPTOCURRENCY_WALLET, 7);
+		investor.grant(ResourceGeneric.CLASS, ETHEREUM_WALLET, 7);
 		investor.grant(ResourceGeneric.CLASS, CURRENCY, 2);
 		investor.grant(ResourceGeneric.CLASS, REFERRAL, 2);
 		investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);
