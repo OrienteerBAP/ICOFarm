@@ -8,12 +8,17 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.resource.JavaScriptResourceReference;
 import org.orienteer.ICOFarmModule;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIcon;
@@ -37,6 +42,8 @@ import static org.orienteer.ICOFarmModule.OPROPERTY_REFERRAL_USER;
 @Widget(id = ICOFarmModule.REFERRAL_WIDGET_ID, domain = "browse", selector = ICOFarmModule.REFERRAL, autoEnable = true)
 public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
 
+    public static final JavaScriptResourceReference COPY_JS = new JavaScriptResourceReference(ICOFarmReferralsWidget.class, "copy.js");
+
     public ICOFarmReferralsWidget(String id, IModel<OClass> model, IModel<ODocument> widgetDocumentModel) {
         super(id, model, widgetDocumentModel);
     }
@@ -47,7 +54,8 @@ public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
         OSecurityUser user = OrienteerWebSession.get().getUser();
         String url = ICOFarmReferralResource.genReferralForUser(user);
         add(new Label("referralTitle", new ResourceModel("widget.referrals.title")));
-        add(new TextField<>("referralLink", Model.of(url)));
+        add(new TextField<>("referralLink", Model.of(url)).setOutputMarkupId(true));
+        add(new WebMarkupContainer("copyContainer").setOutputMarkupId(true));
         add(new Label("totalBonus", getTotalBonus(user)));
         add(new Label("followers", getFollowers(user)));
         add(createTablePanel("followersTable"));
@@ -117,5 +125,13 @@ public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
     @Override
     protected IModel<String> getDefaultTitleModel() {
         return new ResourceModel("widget.referrals.title");
+    }
+
+    @Override
+    public void renderHead(IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(JavaScriptHeaderItem.forReference(COPY_JS));
+        response.render(OnDomReadyHeaderItem.forScript(String.format("addAutoCopyOnElement('%s', '%s');",
+                get("referralLink").getMarkupId(), get("copyContainer").getMarkupId())));
     }
 }

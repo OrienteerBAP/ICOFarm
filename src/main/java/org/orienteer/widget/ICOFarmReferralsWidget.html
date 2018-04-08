@@ -10,7 +10,7 @@
 			</p>
 			<div class="input-group">
 				<input wicket:id="referralLink" id="referral-link" class="form-control disabled" type="text" readonly="readonly"/>
-				<div class="input-group-addon copy-link">
+				<div class="input-group-addon copy-link" wicket:id="copyContainer">
 					<i class="fa fa-1x fa-clone"></i>
 				</div>
 			</div>
@@ -36,10 +36,4 @@
 		<div wicket:id="followersTable"></div>
 	</div>
 	</div>
-	<script>
-		$('.copy-link').click(() => {
-		    $('#referral-link').select();
-		    document.execCommand("Copy");
-		});
-	</script>
 </wicket:extend>
