@@ -20,6 +20,7 @@ import org.apache.wicket.request.resource.ByteArrayResource;
 import org.orienteer.model.EmbeddedOWallet;
 import org.orienteer.widget.AbstractICOFarmWidget;
 import org.orienteer.widget.ICOFarmReferralsWidget;
+import org.web3j.utils.Strings;
 
 import java.io.ByteArrayOutputStream;
 
@@ -31,17 +32,58 @@ public class RefillWalletPopupPanel extends GenericPanel<ODocument> {
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        String address = getModelObject().field(EmbeddedOWallet.OPROPERTY_ADDRESS);
-        add(new Label("title", new ResourceModel("refill.wallet.title")));
-        add(new TextField<>("address", Model.of(address)).setOutputMarkupId(true));
-        add(new WebMarkupContainer("copyContainer").setOutputMarkupId(true));
-        add(createQrCode("qrCode", address));
+        add(new Label("title") {
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                this.setDefaultModelObject(new ResourceModel(!Strings.isEmpty(getAddress()) ?"refill.wallet.title" :
+                        "refill.wallet.empty.title").getObject());
+            }
+        });
+
+        add(new TextField<String>("address", Model.of()) {
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                if (Strings.isEmpty(getModel().getObject())) {
+                    String address = getAddress();
+                    if (!Strings.isEmpty(address)) {
+                        setVisible(true);
+                        setModelObject(address);
+                    } else setVisible(false);
+                }
+            }
+        }.setOutputMarkupId(true));
+
+        add(new WebMarkupContainer("copyContainer") {
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                setVisible(!Strings.isEmpty(getAddress()));
+            }
+        }.setOutputMarkupId(true));
+
+        add(createQrCode("qrCode"));
     }
 
-    private Image createQrCode(String id, String address) {
-        ByteArrayOutputStream qrCode = QRCode.from(address).to(ImageType.PNG).withSize(250, 250).stream();
-        byte [] bytes = qrCode.toByteArray();
-        return new Image(id, new ByteArrayResource(new Tika().detect(bytes), bytes));
+    private Image createQrCode(String id) {
+        return new Image(id) {
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                String address = getAddress();
+                if (!Strings.isEmpty(address)) {
+                    setVisible(true);
+                    ByteArrayOutputStream qrCode = QRCode.from(address).to(ImageType.PNG).withSize(250, 250).stream();
+                    byte[] bytes = qrCode.toByteArray();
+                    setImageResource(new ByteArrayResource(new Tika().detect(bytes), bytes));
+                } else setVisible(false);
+            }
+        };
+    }
+
+    private String getAddress() {
+        return getModel().getObject().field(EmbeddedOWallet.OPROPERTY_ADDRESS);
     }
 
     @Override

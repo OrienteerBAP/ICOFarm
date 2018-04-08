@@ -22,10 +22,11 @@ public class RefillWallet extends AbstractModalOMethod {
     @Override
     @SuppressWarnings("unchecked")
     public Component getModalContent(String componentId, ModalWindow modal, AbstractModalWindowCommand<?> command) {
+        IModel<ODocument> model = (IModel<ODocument>) getEnvData().getDisplayObjectModel();
         command.setIcon(FAIconType.dollar);
         command.setBootstrapType(BootstrapType.PRIMARY);
         modal.setMinimalWidth(580);
         modal.setMinimalHeight(370);
-        return new RefillWalletPopupPanel(componentId, (IModel<ODocument>) getEnvData().getDisplayObjectModel());
+        return new RefillWalletPopupPanel(componentId, model);
     }
 }

@@ -38,11 +38,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 	public static final String CURRENCY              = "Currency";
 	public static final String REFERRAL              = "Referral";
-	public static final String WALLET                = "OWallet";
-	public static final String EXTERNAL_WALLET       = "ExternalOWallet";
+	public static final String WALLET                = "Wallet";
+	public static final String EXTERNAL_WALLET       = "ExternalWallet";
 	public static final String EMBEDDED_WALLET       = "EmbeddedWallet";
-	public static final String CRYPTOCURRENCY_WALLET = "CryptocurrencyOWallet";
-	public static final String ETHEREUM_WALLET       = "EthereumOWallet";
+	public static final String CRYPTOCURRENCY_WALLET = "CryptocurrencyWallet";
+	public static final String ETHEREUM_WALLET       = "EthereumWallet";
 	public static final String REGISTRATION = "Registration";
 
 	public static final String OPROPERTY_REFERRAL_CREATED = "created";
@@ -90,7 +90,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final Map<String, List<String>> HIDDEN_WIDGETS = new HashMap<>();
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 8);
+		super("ICOFarm", 10);
 	}
 	
 	@Override
