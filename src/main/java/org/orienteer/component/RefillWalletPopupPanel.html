@@ -1,0 +1,14 @@
+<wicket:panel xmlns:wicket="http://www.w3.org/1999/xhtml">
+	<h1 class="text-center">
+		<strong wicket:id="title"></strong>
+	</h1>
+	<div class="container text-center">
+		<img class="img-fluid mx-auto" wicket:id="qrCode">
+		<div class="input-group">
+			<input wicket:id="address" class="form-control disabled" type="text" readonly="readonly"/>
+			<div class="input-group-addon copy-link" wicket:id="copyContainer">
+				<i class="fa fa-1x fa-clone"></i>
+			</div>
+		</div>
+	</div>
+</wicket:panel>
