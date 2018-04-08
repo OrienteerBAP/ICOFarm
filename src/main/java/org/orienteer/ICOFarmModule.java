@@ -18,8 +18,8 @@ import org.orienteer.core.module.OWidgetsModule;
 import org.orienteer.core.module.PerspectivesModule;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
+import org.orienteer.model.EmbeddedOWallet;
 import org.orienteer.model.ICOFarmUser;
-import org.orienteer.model.OEmbeddedOWallet;
 import org.orienteer.service.IDbService;
 import org.orienteer.service.IUpdateService;
 
@@ -127,9 +127,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(REGISTRATION);
 
 		helper.oClass(EMBEDDED_WALLET, WALLET)
-                .oProperty(OEmbeddedOWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
-                .oProperty(OEmbeddedOWallet.OPROPERTY_PASSWORD, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
-				.oProperty(OEmbeddedOWallet.OPROPERTY_ADDRESS, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
+                .oProperty(EmbeddedOWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
+                .oProperty(EmbeddedOWallet.OPROPERTY_PASSWORD, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
+				.oProperty(EmbeddedOWallet.OPROPERTY_ADDRESS, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
 
 		updateClassRestrictions(db);
 		createRemoveRestoreIdFunction(helper);
@@ -418,7 +418,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	private void updateBalanceInWallets(OrienteerWebApplication app) {
 		IDbService dbService = app.getServiceInstance(IDbService.class);
 		IUpdateService updateService = app.getServiceInstance(IUpdateService.class);
-		List<OEmbeddedOWallet> wallets = dbService.getEmbeddedWallets();
+		List<EmbeddedOWallet> wallets = dbService.getEmbeddedWallets();
 		updateService.updateBalance(wallets);
 	}
 }

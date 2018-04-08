@@ -2,7 +2,7 @@ package org.orienteer.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.orienteer.model.OEmbeddedOWallet;
+import org.orienteer.model.EmbeddedOWallet;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -15,12 +15,12 @@ public class UpdateServiceImpl implements IUpdateService {
     private IEthereumService ethereumService;
 
     @Override
-    public void updateBalance(List<OEmbeddedOWallet> wallets) {
+    public void updateBalance(List<EmbeddedOWallet> wallets) {
         updateBalance(wallets, null);
     }
 
     @Override
-    public void updateBalance(List<OEmbeddedOWallet> wallets, Consumer<BigInteger> balanceConsumer) {
+    public void updateBalance(List<EmbeddedOWallet> wallets, Consumer<BigInteger> balanceConsumer) {
         wallets.forEach(wallet -> ethereumService.requestBalanceAsync(wallet.getAddress(), (err, balance) -> {
             if (balance != null) {
                 if (balanceConsumer != null) balanceConsumer.accept(balance);

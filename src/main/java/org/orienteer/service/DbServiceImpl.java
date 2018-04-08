@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.orienteer.ICOFarmModule;
 import org.orienteer.model.ICOFarmUser;
-import org.orienteer.model.OEmbeddedOWallet;
+import org.orienteer.model.EmbeddedOWallet;
 import org.orienteer.model.OMail;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
@@ -57,9 +57,9 @@ public class DbServiceImpl implements IDbService {
     }
 
     @Override
-    public List<OEmbeddedOWallet> getEmbeddedWallets() {
+    public List<EmbeddedOWallet> getEmbeddedWallets() {
         List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + ICOFarmModule.EMBEDDED_WALLET));
-        return docs == null || docs.isEmpty() ? Collections.emptyList() : docs.stream().map(OEmbeddedOWallet::new)
+        return docs == null || docs.isEmpty() ? Collections.emptyList() : docs.stream().map(EmbeddedOWallet::new)
                 .collect(Collectors.toList());
     }
 

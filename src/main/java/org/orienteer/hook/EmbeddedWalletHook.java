@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.ICOFarmModule;
 import org.orienteer.core.OrienteerWebApplication;
-import org.orienteer.model.OEmbeddedOWallet;
+import org.orienteer.model.EmbeddedOWallet;
 import org.orienteer.service.IEthereumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +35,9 @@ public class EmbeddedWalletHook extends ODocumentHookAbstract {
         try {
             String fileName = service.createWallet(password);
             Credentials credentials = service.requestWallet(password, fileName);
-            doc.field(OEmbeddedOWallet.OPROPERTY_NAME, fileName);
-            doc.field(OEmbeddedOWallet.OPROPERTY_PASSWORD, password);
-            doc.field(OEmbeddedOWallet.OPROPERTY_ADDRESS, credentials.getAddress());
+            doc.field(EmbeddedOWallet.OPROPERTY_NAME, fileName);
+            doc.field(EmbeddedOWallet.OPROPERTY_PASSWORD, password);
+            doc.field(EmbeddedOWallet.OPROPERTY_ADDRESS, credentials.getAddress());
             return super.onRecordBeforeCreate(doc);
         } catch (Exception e) {
             LOG.error("Can't create new wallet: {}", doc, e);
@@ -48,12 +48,12 @@ public class EmbeddedWalletHook extends ODocumentHookAbstract {
 //    @Override
 //    public void onRecordAfterCreate(ODocument doc) {
 //        IEthereumService service = OrienteerWebApplication.get().getServiceInstance(IEthereumService.class);
-//        String password = doc.field(OEmbeddedOWallet.OPROPERTY_PASSWORD);
-//        String fileName = doc.field(OEmbeddedOWallet.OPROPERTY_NAME);
+//        String password = doc.field(EmbeddedOWallet.OPROPERTY_PASSWORD);
+//        String fileName = doc.field(EmbeddedOWallet.OPROPERTY_NAME);
 //        service.requestWalletAsync(password, fileName, (err, credentials) -> {
 //            if (credentials != null) {
 //                DBClosure.sudoConsumer(db -> {
-//                    doc.field(OEmbeddedOWallet.OPROPERTY_BALANCE, )
+//                    doc.field(EmbeddedOWallet.OPROPERTY_BALANCE, )
 //                });
 //            }
 //        });
