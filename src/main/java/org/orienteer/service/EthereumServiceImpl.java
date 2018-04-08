@@ -37,6 +37,11 @@ public class EthereumServiceImpl implements IEthereumService {
     }
 
     @Override
+    public void createTransaction(String password, String from, String to, BiConsumer<Exception, String> callback) {
+
+    }
+
+    @Override
     public void requestWalletAsync(String password, String fileName, BiConsumer<Exception, Credentials> callback) {
         wrapAndRunAsync(callback, () -> requestWallet(password, fileName));
     }

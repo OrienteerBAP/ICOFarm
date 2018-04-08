@@ -20,6 +20,7 @@ import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.EmbeddedOWallet;
 import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.OTransaction;
 import org.orienteer.service.IDbService;
 import org.orienteer.service.IUpdateWalletService;
 
@@ -35,7 +36,6 @@ import static com.orientechnologies.orient.core.metadata.security.ORule.Resource
 
 public class ICOFarmModule extends AbstractOrienteerModule {
 
-	public static final String TRANSACTION           = "Transaction";
 	public static final String CURRENCY              = "Currency";
 	public static final String REFERRAL              = "Referral";
 	public static final String WALLET                = "OWallet";
@@ -44,13 +44,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String CRYPTOCURRENCY_WALLET = "CryptocurrencyOWallet";
 	public static final String ETHEREUM_WALLET       = "EthereumOWallet";
 	public static final String REGISTRATION = "Registration";
-
-	public static final String OPROPERTY_TRANSACTION_DATETIME      = "dateTime";
-	public static final String OPROPERTY_TRANSACTION_FROM_CURRENCY = "fromCurrency";
-	public static final String OPROPERTY_TRANSACTION_FROM_VALUE    = "fromValue";
-	public static final String OPROPERTY_TRANSACTION_TO_CURRENCY   = "toCurrency";
-	public static final String OPROPERTY_TRANSACTION_TO_VALUE      = "toValue";
-	public static final String OPROPERTY_TRANSACTION_OWNER         = "owner";
 
 	public static final String OPROPERTY_REFERRAL_CREATED = "created";
 	public static final String OPROPERTY_REFERRAL_USER    = "user";
@@ -108,13 +101,13 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		helper.oClass(CURRENCY, "OEnum");
 
-		helper.oClass(TRANSACTION)
-				.oProperty(OPROPERTY_TRANSACTION_DATETIME, OType.DATETIME, 0).notNull().markAsDocumentName()
-				.oProperty(OPROPERTY_TRANSACTION_FROM_CURRENCY, OType.LINK, 10).notNull().linkedClass(CURRENCY)
-				.oProperty(OPROPERTY_TRANSACTION_FROM_VALUE, OType.DOUBLE, 20).notNull()
-				.oProperty(OPROPERTY_TRANSACTION_TO_CURRENCY, OType.LINK, 30).notNull().linkedClass(CURRENCY)
-				.oProperty(OPROPERTY_TRANSACTION_TO_VALUE, OType.DOUBLE, 40).notNull()
-				.oProperty(OPROPERTY_TRANSACTION_OWNER, OType.LINK, 10).notNull().linkedClass(OUser.CLASS_NAME);
+		helper.oClass(OTransaction.CLASS_NAME)
+				.oProperty(OTransaction.OPROPERTY_DATETIME, OType.DATETIME, 0).notNull().markAsDocumentName()
+				.oProperty(OTransaction.OPROPERTY_FROM_CURRENCY, OType.LINK, 10).notNull().linkedClass(CURRENCY)
+				.oProperty(OTransaction.OPROPERTY_FROM_VALUE, OType.DOUBLE, 20).notNull()
+				.oProperty(OTransaction.OPROPERTY_TO_CURRENCY, OType.LINK, 30).notNull().linkedClass(CURRENCY)
+				.oProperty(OTransaction.OPROPERTY_TO_VALUE, OType.DOUBLE, 40).notNull()
+				.oProperty(OTransaction.OPROPERTY_OWNER, OType.LINK, 10).notNull().linkedClass(OUser.CLASS_NAME);
 
 		helper.oClass(REFERRAL)
 				.oProperty(OPROPERTY_REFERRAL_CREATED, OType.DATETIME, 0).notNull().markAsDocumentName()
@@ -156,7 +149,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		ORole investor = security.getRole(INVESTOR_ROLE) != null ? security.getRole(INVESTOR_ROLE) :
 				security.createRole(INVESTOR_ROLE, OSecurityRole.ALLOW_MODES.DENY_ALL_BUT).setParentRole(security.getRole("reader"));
 
-		investor.grant(ResourceGeneric.CLASS, TRANSACTION, 7);
+		investor.grant(ResourceGeneric.CLASS, OTransaction.CLASS_NAME, 7);
 
 		investor.grant(ResourceGeneric.CLASS, WALLET, 15);
 		investor.grant(ResourceGeneric.CLASS, EXTERNAL_WALLET, 15);
@@ -210,13 +203,13 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		ODocument perspective = getOrCreatePerspective.apply(INVESTOR_PERSPECTIVE);
 		perspective.field("icon", FAIconType.usd.name());
-		perspective.field("homeUrl", "/browse/" + TRANSACTION);
+		perspective.field("homeUrl", "/browse/" + OTransaction.CLASS_NAME);
 		perspective.save();
 
 		ODocument item1 = getOrCreatePerspectiveItem.apply("Transactions", perspective);
 		item1.field("icon", FAIconType.usd.name());
 		item1.field("perspective", perspective);
-		item1.field("url", "/browse/" + TRANSACTION);
+		item1.field("url", "/browse/" + OTransaction.CLASS_NAME);
 		item1.save();
 
 		ODocument item2 = getOrCreatePerspectiveItem.apply("Referrals", perspective);
@@ -292,7 +285,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 			}
 		};
 
-		setRestricted.accept(schema.getClass(TRANSACTION));
+		setRestricted.accept(schema.getClass(OTransaction.CLASS_NAME));
 		setRestricted.accept(schema.getClass(REFERRAL));
 		setRestricted.accept(schema.getClass(WALLET));
 	}

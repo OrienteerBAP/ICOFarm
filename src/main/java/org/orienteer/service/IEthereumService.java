@@ -14,6 +14,8 @@ public interface IEthereumService {
 
     public void createWalletAsync(String password, BiConsumer<Exception, String> callback);
 
+    public void createTransaction(String password, String from, String to, BiConsumer<Exception, String> callback);
+
     public void requestWalletAsync(String password, String fileName, BiConsumer<Exception, Credentials> callback);
 
     public void requestBalanceAsync(String address, BiConsumer<Exception, BigInteger> callback);
