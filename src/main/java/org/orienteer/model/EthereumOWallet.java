@@ -4,7 +4,7 @@ import org.orienteer.core.component.property.BinaryEditPanel;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
-public class EthereumWallet extends CryptocurrencyWallet{
+public class EthereumOWallet extends CryptocurrencyOWallet {
 	private static final long serialVersionUID = 1L;
 
 	public static final String CACHE_FOLDER = System.getProperty("java.io.tmpdir")+"/ETHCache";//"temp/";
@@ -12,7 +12,7 @@ public class EthereumWallet extends CryptocurrencyWallet{
 	public static final String WALLET_JSON         = "walletJSON";
     
 	
-	public EthereumWallet(ODocument wallet) {
+	public EthereumOWallet(ODocument wallet) {
 		super(wallet);
 	}
 

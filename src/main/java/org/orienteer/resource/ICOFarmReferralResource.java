@@ -13,14 +13,14 @@ import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.web.HomePage;
 import org.orienteer.model.ICOFarmUser;
-import org.orienteer.service.IICOFarmDbService;
+import org.orienteer.service.IDbService;
 
 import java.io.IOException;
 
 public class ICOFarmReferralResource extends AbstractResource {
 
     @Inject
-    private IICOFarmDbService dbService;
+    private IDbService dbService;
 
     public static final String MOUNT_PATH = "/referral/${id}/";
     public static final String RES_KEY    = ICOFarmReferralResource.class.getName();

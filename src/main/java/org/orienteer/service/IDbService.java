@@ -7,12 +7,13 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.wicket.util.io.IClusterable;
 import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.OEmbeddedOWallet;
 import org.orienteer.model.OMail;
 
 import java.util.List;
 
-@ImplementedBy(ICOFarmDbServiceImpl.class)
-public interface IICOFarmDbService extends IClusterable {
+@ImplementedBy(DbServiceImpl.class)
+public interface IDbService extends IClusterable {
 
     public ICOFarmUser getUserBy(String field, String value);
 
@@ -24,5 +25,8 @@ public interface IICOFarmDbService extends IClusterable {
 
     public ORole getRoleByName(String name);
 
+    public List<OEmbeddedOWallet> getEmbeddedWallets();
+
     public List<ODocument> query(OSQLSynchQuery<ODocument> query, Object...args);
+
 }

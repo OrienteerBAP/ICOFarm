@@ -11,7 +11,7 @@ import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.junit.OrienteerTestRunner;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
-import org.orienteer.service.IICOFarmDbService;
+import org.orienteer.service.IDbService;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 @RunWith(OrienteerTestRunner.class)
 public class ICOFarmDbServiceTest {
     @Inject
-    private IICOFarmDbService dbService;
+    private IDbService dbService;
 
     private ICOFarmUser user;
 

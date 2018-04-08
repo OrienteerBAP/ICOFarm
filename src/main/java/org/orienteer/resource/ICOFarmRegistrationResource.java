@@ -14,7 +14,7 @@ import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.web.HomePage;
 import org.orienteer.model.ICOFarmUser;
-import org.orienteer.service.IICOFarmDbService;
+import org.orienteer.service.IDbService;
 import org.orienteer.web.ICOFarmLoginPage;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
@@ -27,7 +27,7 @@ public class ICOFarmRegistrationResource extends AbstractResource {
     public static final String RES_KEY = ICOFarmRegistrationResource.class.getName();
 
     @Inject
-    private IICOFarmDbService dbService;
+    private IDbService dbService;
 
     public static String genRegistrationLink(OSecurityUser user) {
         return genRegistrationLink(user.getDocument());

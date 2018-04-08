@@ -7,7 +7,9 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import org.orienteer.ICOFarmModule;
 import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.OEmbeddedOWallet;
 import org.orienteer.model.OMail;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
@@ -17,7 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Singleton
-public class ICOFarmDbServiceImpl implements IICOFarmDbService {
+public class DbServiceImpl implements IDbService {
 
     private transient final ICOFarmDBClosure dbClosure = new ICOFarmDBClosure();
 
@@ -51,7 +53,14 @@ public class ICOFarmDbServiceImpl implements IICOFarmDbService {
 
     @Override
     public ORole getRoleByName(String name) {
-        return DBClosure.sudo(db -> { return db.getMetadata().getSecurity().getRole(name); });
+        return DBClosure.sudo(db -> db.getMetadata().getSecurity().getRole(name));
+    }
+
+    @Override
+    public List<OEmbeddedOWallet> getEmbeddedWallets() {
+        List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + ICOFarmModule.EMBEDDED_WALLET));
+        return docs == null || docs.isEmpty() ? Collections.emptyList() : docs.stream().map(OEmbeddedOWallet::new)
+                .collect(Collectors.toList());
     }
 
     @Override

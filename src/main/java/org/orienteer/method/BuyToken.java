@@ -1,11 +1,7 @@
 package org.orienteer.method;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.concurrent.CompletableFuture;
-
+import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -20,7 +16,7 @@ import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
-import org.orienteer.model.EthereumWallet;
+import org.orienteer.model.EthereumOWallet;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.TokenCurrency;
 import org.orienteer.service.Buyable;
@@ -32,15 +28,17 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Convert;
-
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-
 import ru.ydn.wicket.wicketorientdb.model.SimpleNamingModel;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.concurrent.CompletableFuture;
 
 @OMethod(
 		filters={
-			@OFilter(fClass = ODocumentFilter.class, fData = "TokenCurrency"),
+				@OFilter(fClass = ODocumentFilter.class, fData = "TokenCurrency"),
 			@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
 		}
 )
@@ -101,13 +99,13 @@ public class BuyToken extends AbstractModalOMethod {
 		if (user==null)	throw new Exception("Please autorize");
 		ICOFarmUser icofarmUser = new ICOFarmUser(user.getDocument());
 		
-		EthereumWallet wallet = icofarmUser.getMainETHWallet();
+		EthereumOWallet wallet = icofarmUser.getMainETHWallet();
 		if (wallet==null) throw new Exception("Please link correct ETC wallet to your account");
 		
 		String walletSource = wallet.getWalletJSON();
 		if (walletSource==null) throw new Exception("Please set correct ETC wallet JSON");
 		
-		File file = new File(EthereumWallet.CACHE_FOLDER+"/"+wallet.getWalletJSONName());
+		File file = new File(EthereumOWallet.CACHE_FOLDER+"/"+wallet.getWalletJSONName());
 		file.getParentFile().mkdirs(); 
 		file.createNewFile();
         FileWriter fw = new FileWriter(file);

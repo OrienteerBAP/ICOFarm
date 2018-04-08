@@ -19,6 +19,9 @@ import org.orienteer.core.module.PerspectivesModule;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.OEmbeddedOWallet;
+import org.orienteer.service.IDbService;
+import org.orienteer.service.IUpdateService;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -33,11 +36,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String TRANSACTION           = "Transaction";
 	public static final String CURRENCY              = "Currency";
 	public static final String REFERRAL              = "Referral";
-	public static final String WALLET                = "Wallet";
-	public static final String EXTERNAL_WALLET       = "ExternalWallet";
+	public static final String WALLET                = "OWallet";
+	public static final String EXTERNAL_WALLET       = "ExternalOWallet";
 	public static final String EMBEDDED_WALLET       = "EmbeddedWallet";
-	public static final String CRYPTOCURRENCY_WALLET = "CryptocurrencyWallet";
-	public static final String ETHEREUM_WALLET       = "EthereumWallet";
+	public static final String CRYPTOCURRENCY_WALLET = "CryptocurrencyOWallet";
+	public static final String ETHEREUM_WALLET       = "EthereumOWallet";
 	public static final String REGISTRATION = "Registration";
 
 	public static final String OPROPERTY_TRANSACTION_DATETIME      = "dateTime";
@@ -53,6 +56,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 	public static final String OPROPERTY_WALLET_OWNER    = "owner";
 	public static final String OPROPERTY_WALLET_CURRENCY = "currency";
+	public static final String OPROPERTY_WALLET_BALANCE  = "balance";
 
 
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL                 = "removeRestoreIdByEmail";
@@ -73,6 +77,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String ORESTRICTED_ALLOW_UPDATE = "_allowUpdate";
 	public static final String ORESTRICTED_ALLOW_DELETE = "_allowDelete";
 
+
+	public static final String WALLETS_DIR = "/tmp/icofarm/";
+
 	/**
 	 * Contains hidden properties for investors.
 	 * key - class name
@@ -88,7 +95,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final Map<String, List<String>> HIDDEN_WIDGETS = new HashMap<>();
 
 	protected ICOFarmModule() {
-		super("ICOFarm", 1);
+		super("ICOFarm", 6);
 	}
 	
 	@Override
@@ -114,9 +121,15 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		helper.oClass(WALLET)
 				.oProperty(OPROPERTY_WALLET_OWNER, OType.LINK, 0).linkedClass(OUser.CLASS_NAME)
-				.oProperty(OPROPERTY_WALLET_CURRENCY, OType.LINK, 10).linkedClass(CURRENCY);
+				.oProperty(OPROPERTY_WALLET_CURRENCY, OType.LINK, 10).linkedClass(CURRENCY)
+				.oProperty(OPROPERTY_WALLET_BALANCE, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
 
 		helper.oClass(REGISTRATION);
+
+		helper.oClass(EMBEDDED_WALLET, WALLET)
+                .oProperty(OEmbeddedOWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
+                .oProperty(OEmbeddedOWallet.OPROPERTY_PASSWORD, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
+				.oProperty(OEmbeddedOWallet.OPROPERTY_ADDRESS, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
 
 		updateClassRestrictions(db);
 		createRemoveRestoreIdFunction(helper);
@@ -143,9 +156,10 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		investor.grant(ResourceGeneric.CLASS, TRANSACTION, 7);
 
-		investor.grant(ResourceGeneric.CLASS, WALLET, 7);
-		investor.grant(ResourceGeneric.CLASS, EXTERNAL_WALLET, 7);
-		investor.grant(ResourceGeneric.CLASS, EMBEDDED_WALLET, 7);
+		investor.grant(ResourceGeneric.CLASS, WALLET, 15);
+		investor.grant(ResourceGeneric.CLASS, EXTERNAL_WALLET, 15);
+		investor.grant(ResourceGeneric.CLASS, EMBEDDED_WALLET, 15);
+
 		investor.grant(ResourceGeneric.CLASS, CRYPTOCURRENCY_WALLET, 7);
 		investor.grant(ResourceGeneric.CLASS, ETHEREUM_WALLET, 7);
 		investor.grant(ResourceGeneric.CLASS, CURRENCY, 2);
@@ -153,7 +167,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);
 		investor.grant(ResourceGeneric.CLASS, REGISTRATION, 0);
 
-		investor.grant(ResourceGeneric.CLUSTER, "*", 7);
+		investor.grant(ResourceGeneric.CLUSTER, "*", 15);
 
 		investor.save();
 	}
@@ -368,6 +382,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db) {
 		initHiddenProperties();
 		initHiddenWidgets();
+		updateBalanceInWallets(app);
 	}
 
 	private void initHiddenProperties() {
@@ -398,5 +413,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 	private void initHiddenWidgets() {
 		HIDDEN_WIDGETS.put(REFERRAL, Collections.singletonList("list-all"));
+	}
+
+	private void updateBalanceInWallets(OrienteerWebApplication app) {
+		IDbService dbService = app.getServiceInstance(IDbService.class);
+		IUpdateService updateService = app.getServiceInstance(IUpdateService.class);
+		List<OEmbeddedOWallet> wallets = dbService.getEmbeddedWallets();
+		updateService.updateBalance(wallets);
 	}
 }
