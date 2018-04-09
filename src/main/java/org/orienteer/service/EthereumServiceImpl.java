@@ -1,5 +1,6 @@
 package org.orienteer.service;
 
+import com.google.common.base.Strings;
 import com.google.inject.Singleton;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.EthereumClientConfig;
@@ -77,6 +78,13 @@ public class EthereumServiceImpl implements IEthereumService {
         web3j = null;
         clientConfig = null;
     }
+
+
+    @Override
+    public boolean isAddressValid(String address) {
+        return !Strings.isNullOrEmpty(address) && WalletUtils.isValidAddress(address);
+    }
+
 
     private Web3j getOrCreateWeb3j() {
         if (web3j == null) {

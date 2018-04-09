@@ -32,8 +32,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 0;
-
+	public static final int VERSION = 3;
 
 	protected ICOFarmModule() {
 		super("ICOFarm", VERSION);
@@ -68,14 +67,16 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(Wallet.CLASS_NAME)
 				.oProperty(Wallet.OPROPERTY_OWNER, OType.LINK, 0).linkedClass(ICOFarmUser.CLASS_NAME)
 				.oProperty(Wallet.OPROPERTY_CURRENCY, OType.LINK, 10).linkedClass(Currency.CLASS_NAME)
-				.oProperty(Wallet.OPROPERTY_BALANCE, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
+				.oProperty(Wallet.OPROPERTY_BALANCE, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
+				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 30);
 
 		helper.oClass(REGISTRATION);
 
 		helper.oClass(EmbeddedWallet.CLASS_NAME, Wallet.CLASS_NAME)
                 .oProperty(EmbeddedWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
-                .oProperty(EmbeddedWallet.OPROPERTY_PASSWORD, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
-				.oProperty(EmbeddedWallet.OPROPERTY_ADDRESS, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
+                .oProperty(EmbeddedWallet.OPROPERTY_PASSWORD, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
+
+		helper.oClass(ExternalWallet.CLASS_NAME, Wallet.CLASS_NAME);
 
 		createRemoveRestoreIdFunction(helper);
 		return null;

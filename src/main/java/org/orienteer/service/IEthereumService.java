@@ -21,6 +21,10 @@ public interface IEthereumService {
 
     public void requestBalanceAsync(String address, BiConsumer<Exception, BigInteger> callback);
 
+//    public void requestAccountTransactionsAsync(String address, BiConsumer<Exception, List<>>)
+
+    public boolean isAddressValid(String address);
+
     public EthereumClientConfig getConfig();
 
     public void init();
