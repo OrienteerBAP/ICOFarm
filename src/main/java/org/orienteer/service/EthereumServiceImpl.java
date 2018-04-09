@@ -2,7 +2,7 @@ package org.orienteer.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.orienteer.module.ICOFarmModule;
+import org.orienteer.model.EthereumClientConfig;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
@@ -21,14 +21,17 @@ public class EthereumServiceImpl implements IEthereumService {
     @Inject
     private Web3j web3j;
 
+    @Inject
+    private EthereumClientConfig clientConfig;
+
     @Override
     public String createWallet(String password) throws Exception {
-        return WalletUtils.generateFullNewWalletFile(password, new File(ICOFarmModule.WALLETS_DIR));
+        return WalletUtils.generateFullNewWalletFile(password, new File(clientConfig.getWorkFolder()));
     }
 
     @Override
     public Credentials requestWallet(String password, String fileName) throws Exception {
-        return WalletUtils.loadCredentials(password, ICOFarmModule.WALLETS_DIR + fileName);
+        return WalletUtils.loadCredentials(password, clientConfig.getWorkFolder() + fileName);
     }
 
     @Override

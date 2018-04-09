@@ -32,8 +32,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final String WALLETS_DIR = "/tmp/icofarm/";
-
 	public static final int VERSION = 0;
 
 
@@ -43,8 +41,14 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	
 	@Override
 	public ODocument onInstall(OrienteerWebApplication app, ODatabaseDocument db) {
-		super.onInstall(app, db);
 		OSchemaHelper helper = OSchemaHelper.bind(db);
+
+		helper.oClass(EthereumClientConfig.CLASS_NAME)
+				.oProperty(EthereumClientConfig.OPROPERTY_NAME, OType.STRING, 0).oIndex(OClass.INDEX_TYPE.UNIQUE).markAsDocumentName().notNull()
+				.oProperty(EthereumClientConfig.OPROPERTY_HOST, OType.STRING, 10).notNull()
+				.oProperty(EthereumClientConfig.OPROPERTY_PORT, OType.INTEGER, 20).notNull()
+				.oProperty(EthereumClientConfig.OPROPERTY_WORK_FOLDER, OType.STRING, 30).notNull().defaultValue("icofarm")
+				.oProperty(EthereumClientConfig.OPROPERTY_TIMEOUT, OType.INTEGER, 40).notNull().defaultValue("15");
 
 		helper.oClass(Currency.CLASS_NAME, "OEnum");
 
@@ -74,7 +78,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(EmbeddedWallet.OPROPERTY_ADDRESS, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
 
 		createRemoveRestoreIdFunction(helper);
-
 		return null;
 	}
 

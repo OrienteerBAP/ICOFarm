@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.orienteer.model.EmbeddedWallet;
+import org.orienteer.model.EthereumClientConfig;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
@@ -60,6 +61,12 @@ public class DbServiceImpl implements IDbService {
         List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + EmbeddedWallet.CLASS_NAME));
         return docs == null || docs.isEmpty() ? Collections.emptyList() : docs.stream().map(EmbeddedWallet::new)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public EthereumClientConfig getEthereumClientConfig() {
+        List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + EthereumClientConfig.CLASS_NAME, 1));
+        return getFromDocs(docs, EthereumClientConfig::new);
     }
 
     @Override

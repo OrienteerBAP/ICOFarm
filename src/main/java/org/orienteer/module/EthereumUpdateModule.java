@@ -1,20 +1,26 @@
 package org.orienteer.module;
 
+import com.google.inject.Inject;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
 import org.orienteer.model.EmbeddedWallet;
+import org.orienteer.model.EthereumClientConfig;
 import org.orienteer.service.IDbService;
 import org.orienteer.service.IUpdateWalletService;
 
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class EthereumUpdateModule extends AbstractOrienteerModule {
 
-    public static final String OPROPERTY_TIMEOUT = "timeout";
+    @Inject
+    private EthereumClientConfig config;
+
+    private ScheduledFuture<?> future;
 
     protected EthereumUpdateModule() {
         super("ethereum-update", ICOFarmModule.VERSION);
@@ -36,14 +42,15 @@ public class EthereumUpdateModule extends AbstractOrienteerModule {
         IDbService dbService = app.getServiceInstance(IDbService.class);
         IUpdateWalletService updateService = app.getServiceInstance(IUpdateWalletService.class);
         ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors());
-        executor.scheduleAtFixedRate(() -> {
+        future = executor.scheduleAtFixedRate(() -> {
             List<EmbeddedWallet> wallets = dbService.getEmbeddedWallets();
             updateService.updateBalance(wallets);
-        }, 0, 1, TimeUnit.MINUTES); // TODO: adjust timeout
+        }, 0, config.getTimeout(), TimeUnit.MINUTES);
     }
 
     @Override
     public void onDestroy(OrienteerWebApplication app, ODatabaseDocument db, ODocument moduleDoc) {
         super.onDestroy(app, db, moduleDoc);
+        future.cancel(true);
     }
 }
