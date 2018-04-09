@@ -1,13 +1,14 @@
 package org.orienteer.service;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.EthereumClientConfig;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.http.HttpService;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -18,10 +19,7 @@ import java.util.function.BiConsumer;
 @Singleton
 public class EthereumServiceImpl implements IEthereumService {
 
-    @Inject
     private Web3j web3j;
-
-    @Inject
     private EthereumClientConfig clientConfig;
 
     @Override
@@ -60,6 +58,47 @@ public class EthereumServiceImpl implements IEthereumService {
         });
     }
 
+    @Override
+    public EthereumClientConfig getConfig() {
+        if (clientConfig == null) {
+            clientConfig = getOrCreateClientConfig();
+        }
+        return clientConfig;
+    }
+
+    @Override
+    public void init() {
+        web3j = getOrCreateWeb3j();
+        clientConfig = getOrCreateClientConfig();
+    }
+
+    @Override
+    public void destroy() {
+        web3j = null;
+        clientConfig = null;
+    }
+
+    private Web3j getOrCreateWeb3j() {
+        if (web3j == null) {
+            EthereumClientConfig config = getConfig();
+            web3j = Web3j.build(new HttpService(config.getHost() + ":" + config.getPort()));
+        }
+        return web3j;
+    }
+
+    private EthereumClientConfig getOrCreateClientConfig() {
+        EthereumClientConfig config = OrienteerWebApplication.get().getServiceInstance(IDbService.class).getEthereumClientConfig();
+        if (config == null) {
+            config = new EthereumClientConfig.Builder()
+                    .setHost("http://localhost")
+                    .setPort(8545)
+                    .setName("default")
+                    .setTimeout(15)
+                    .setWorkFolder("icofarm")
+                    .build();
+        }
+        return config;
+    }
 
     private <T> void wrapAndRunAsync(BiConsumer<Exception, T> callback, Callable<T> callable) {
         CompletableFuture.runAsync(() -> {

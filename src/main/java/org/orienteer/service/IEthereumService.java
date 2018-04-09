@@ -1,6 +1,7 @@
 package org.orienteer.service;
 
 import com.google.inject.ImplementedBy;
+import org.orienteer.model.EthereumClientConfig;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigInteger;
@@ -20,4 +21,8 @@ public interface IEthereumService {
 
     public void requestBalanceAsync(String address, BiConsumer<Exception, BigInteger> callback);
 
+    public EthereumClientConfig getConfig();
+
+    public void init();
+    public void destroy();
 }

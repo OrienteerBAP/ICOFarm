@@ -6,6 +6,7 @@ import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.service.IFilterPredicateFactory;
 import org.orienteer.hook.EmbeddedWalletHook;
+import org.orienteer.hook.EthereumClientConfigHook;
 import org.orienteer.hook.ICOFarmOUserHook;
 import org.orienteer.hook.ICOFarmOWidgetHook;
 import org.orienteer.module.EthereumUpdateModule;
@@ -41,6 +42,7 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		getOrientDbSettings().getORecordHooks().add(ICOFarmOWidgetHook.class);
 		getOrientDbSettings().getORecordHooks().add(ICOFarmOUserHook.class);
 		getOrientDbSettings().getORecordHooks().add(EmbeddedWalletHook.class);
+		getOrientDbSettings().getORecordHooks().add(EthereumClientConfigHook.class);
 	}
 
 	@Override
