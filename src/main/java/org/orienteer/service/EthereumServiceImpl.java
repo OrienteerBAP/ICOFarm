@@ -8,8 +8,11 @@ import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.http.HttpService;
+import rx.Observable;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -49,6 +52,11 @@ public class EthereumServiceImpl implements IEthereumService {
     }
 
     @Override
+    public EthBlock requestBlock(String number) throws Exception {
+        return web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send();
+    }
+
+    @Override
     public BigInteger requestBalance(String address) throws Exception {
         EthGetBalance balance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
         return balance.getBalance();
@@ -63,6 +71,11 @@ public class EthereumServiceImpl implements IEthereumService {
             }
             return balance.getBalance();
         });
+    }
+
+    @Override
+    public Observable<Transaction> getTransactionObservable() {
+        return web3j.transactionObservable();
     }
 
     @Override

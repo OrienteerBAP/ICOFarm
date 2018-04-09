@@ -8,9 +8,11 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.orienteer.model.*;
+import org.web3j.protocol.core.methods.response.Transaction;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -64,6 +66,20 @@ public class DbServiceImpl implements IDbService {
     public EthereumClientConfig getEthereumClientConfig() {
         List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + EthereumClientConfig.CLASS_NAME, 1));
         return getFromDocs(docs, EthereumClientConfig::new);
+    }
+
+    @Override
+    public boolean isICOFarmTransaction(Transaction transaction) {
+
+        List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + Wallet.CLASS_NAME + " where "
+                + Wallet.OPROPERTY_ADDRESS + " = ? OR "
+                + Wallet.OPROPERTY_ADDRESS + " = ?", 1), transaction.getFrom(), transaction.getTo());
+        return docs != null && !docs.isEmpty();
+    }
+
+    @Override
+    public void saveTransaction(Transaction transaction, Date timestamp) {
+        new OTransaction(transaction, timestamp).sudoSave();
     }
 
     @Override

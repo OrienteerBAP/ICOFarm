@@ -29,7 +29,7 @@ public class ExternalWalletHook extends ODocumentHookAbstract {
     }
 
     private void checkIfAddressValid(ODocument doc) {
-        IEthereumService service = OrienteerWebApplication.get().getServiceInstance(IEthereumService.class);
+        IEthereumService service = OrienteerWebApplication.lookupApplication().getServiceInstance(IEthereumService.class);
         String address = doc.field(Wallet.OPROPERTY_ADDRESS);
         if (!service.isAddressValid(address)) {
             throw new OValidationException(String.format("Account with address '%s' doesn't valid!", address));

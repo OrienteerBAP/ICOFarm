@@ -32,7 +32,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 3;
+	public static final int VERSION = 4;
 
 	protected ICOFarmModule() {
 		super("ICOFarm", VERSION);
@@ -52,12 +52,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(Currency.CLASS_NAME, "OEnum");
 
 		helper.oClass(OTransaction.CLASS_NAME)
-				.oProperty(OTransaction.OPROPERTY_DATETIME, OType.DATETIME, 0).notNull().markAsDocumentName()
-				.oProperty(OTransaction.OPROPERTY_FROM_CURRENCY, OType.LINK, 10).notNull().linkedClass(Currency.CLASS_NAME)
-				.oProperty(OTransaction.OPROPERTY_FROM_VALUE, OType.DOUBLE, 20).notNull()
-				.oProperty(OTransaction.OPROPERTY_TO_CURRENCY, OType.LINK, 30).notNull().linkedClass(Currency.CLASS_NAME)
-				.oProperty(OTransaction.OPROPERTY_TO_VALUE, OType.DOUBLE, 40).notNull()
-				.oProperty(OTransaction.OPROPERTY_OWNER, OType.LINK, 10).notNull().linkedClass(OUser.CLASS_NAME);
+				.oProperty(OTransaction.OPROPERTY_TIMESTAMP, OType.DATETIME, 0).notNull().markAsDocumentName()
+				.oProperty(OTransaction.OPROPERTY_FROM, OType.STRING, 10).notNull()
+				.oProperty(OTransaction.OPROPERTY_TO, OType.STRING, 20).notNull()
+				.oProperty(OTransaction.OPROPERTY_VALUE, OType.STRING, 30).notNull()
+				.oProperty(OTransaction.OPROPERTY_HASH, OType.STRING, 40).notNull()
+				.oProperty(OTransaction.OPROPERTY_BLOCK, OType.STRING, 10).notNull();
 
 		helper.oClass(REFERRAL)
 				.oProperty(OPROPERTY_REFERRAL_CREATED, OType.DATETIME, 0).notNull().markAsDocumentName()

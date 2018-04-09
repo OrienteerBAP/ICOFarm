@@ -6,7 +6,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.EmbeddedWallet;
 import org.orienteer.service.IEthereumService;
-import org.orienteer.service.IUpdateWalletService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
@@ -43,11 +42,5 @@ public class EmbeddedWalletHook extends ODocumentHookAbstract {
             LOG.error("Can't create new wallet: {}", doc, e);
         }
         return RESULT.SKIP;
-    }
-
-    @Override
-    public void onRecordAfterCreate(ODocument doc) {
-        IUpdateWalletService service = OrienteerWebApplication.lookupApplication().getServiceInstance(IUpdateWalletService.class);
-        service.updateBalance(doc);
     }
 }
