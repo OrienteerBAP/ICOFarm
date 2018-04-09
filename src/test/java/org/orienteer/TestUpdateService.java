@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.orienteer.junit.OrienteerTestRunner;
 import org.orienteer.model.EmbeddedWallet;
+import org.orienteer.model.Wallet;
 import org.orienteer.service.IUpdateWalletService;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
@@ -23,14 +24,14 @@ public class TestUpdateService {
     @Inject
     private IUpdateWalletService updateService;
 
-    private List<EmbeddedWallet> wallets;
+    private List<Wallet> wallets;
 
     @Before
     public void init() {
         wallets = new LinkedList<>();
-        wallets.add((EmbeddedWallet) new EmbeddedWallet().sudoSave());
-        wallets.add((EmbeddedWallet) new EmbeddedWallet().sudoSave());
-        wallets.add((EmbeddedWallet) new EmbeddedWallet().sudoSave());
+        wallets.add(new EmbeddedWallet().sudoSave());
+        wallets.add(new EmbeddedWallet().sudoSave());
+        wallets.add(new EmbeddedWallet().sudoSave());
     }
 
     @After
