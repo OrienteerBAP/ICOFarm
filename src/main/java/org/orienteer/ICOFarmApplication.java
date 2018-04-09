@@ -53,6 +53,7 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		hooks.add(EthereumClientConfigHook.class);
 		hooks.add(WalletHook.class);
 		hooks.add(ExternalWalletHook.class);
+		hooks.add(OTransactionHook.class);
 
 		getApplicationListeners().add(new IApplicationListener() {
 			@Override
