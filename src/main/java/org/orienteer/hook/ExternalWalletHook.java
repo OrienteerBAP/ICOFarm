@@ -9,6 +9,8 @@ import org.orienteer.model.ExternalWallet;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.IEthereumService;
 
+import java.math.BigInteger;
+
 public class ExternalWalletHook extends ODocumentHookAbstract {
 
     public ExternalWalletHook(ODatabaseDocument db) {
@@ -18,22 +20,34 @@ public class ExternalWalletHook extends ODocumentHookAbstract {
 
     @Override
     public RESULT onRecordBeforeCreate(ODocument doc) {
-        checkIfAddressValid(doc);
+        prepareWallet(doc);
         return super.onRecordBeforeCreate(doc);
     }
 
     @Override
     public RESULT onRecordBeforeUpdate(ODocument doc) {
-        checkIfAddressValid(doc);
+        prepareWallet(doc);
         return super.onRecordBeforeUpdate(doc);
     }
 
-    private void checkIfAddressValid(ODocument doc) {
+    private void prepareWallet(ODocument doc) {
         IEthereumService service = OrienteerWebApplication.lookupApplication().getServiceInstance(IEthereumService.class);
+        checkIfAddressValid(doc, service);
+        updateWalletBalance(doc, service);
+    }
+
+    private void checkIfAddressValid(ODocument doc, IEthereumService service) {
         String address = doc.field(Wallet.OPROPERTY_ADDRESS);
         if (!service.isAddressValid(address)) {
             throw new OValidationException(String.format("Account with address '%s' doesn't valid!", address));
         }
+    }
+
+    private void updateWalletBalance(ODocument doc, IEthereumService service) {
+        try {
+            BigInteger balance = service.requestBalance(doc.field(Wallet.OPROPERTY_ADDRESS));
+            if (balance != null) doc.field(Wallet.OPROPERTY_BALANCE, balance.toString());
+        } catch (Exception e) {}
     }
 
     @Override

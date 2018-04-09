@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.EthereumClientConfig;
-import org.orienteer.service.IEthereumService;
+import org.orienteer.service.IEthereumUpdateService;
 
 public class EthereumClientConfigHook extends ODocumentHookAbstract {
 
@@ -15,8 +15,13 @@ public class EthereumClientConfigHook extends ODocumentHookAbstract {
     }
 
     @Override
+    public void onRecordAfterCreate(ODocument doc) {
+        onRecordAfterUpdate(doc);
+    }
+
+    @Override
     public void onRecordAfterUpdate(ODocument doc) {
-        IEthereumService service = OrienteerWebApplication.get().getServiceInstance(IEthereumService.class);
+        IEthereumUpdateService service = OrienteerWebApplication.get().getServiceInstance(IEthereumUpdateService.class);
         service.destroy();
         service.init();
     }
