@@ -1,14 +1,12 @@
 package org.orienteer;
 
+import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.apache.wicket.markup.html.WebPage;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.service.IFilterPredicateFactory;
-import org.orienteer.hook.EmbeddedWalletHook;
-import org.orienteer.hook.EthereumClientConfigHook;
-import org.orienteer.hook.ICOFarmOUserHook;
-import org.orienteer.hook.ICOFarmOWidgetHook;
+import org.orienteer.hook.*;
 import org.orienteer.module.EthereumUpdateModule;
 import org.orienteer.module.ICOFarmModule;
 import org.orienteer.module.ICOFarmPerspectiveModule;
@@ -18,6 +16,8 @@ import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
 import org.orienteer.service.ICOFarmFilterPredicateFactory;
 import org.orienteer.web.ICOFarmLoginPage;
+
+import java.util.List;
 
 public class ICOFarmApplication extends OrienteerWebApplication {
 
@@ -39,10 +39,12 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		ICOFarmRegistrationResource.mount(this);
 		ICOFarmRestorePasswordResource.mount(this);
 
-		getOrientDbSettings().getORecordHooks().add(ICOFarmOWidgetHook.class);
-		getOrientDbSettings().getORecordHooks().add(ICOFarmOUserHook.class);
-		getOrientDbSettings().getORecordHooks().add(EmbeddedWalletHook.class);
-		getOrientDbSettings().getORecordHooks().add(EthereumClientConfigHook.class);
+		List<Class<? extends ORecordHook>> hooks = getOrientDbSettings().getORecordHooks();
+		hooks.add(ICOFarmOWidgetHook.class);
+		hooks.add(ICOFarmOUserHook.class);
+		hooks.add(EmbeddedWalletHook.class);
+		hooks.add(EthereumClientConfigHook.class);
+		hooks.add(WalletHook.class);
 	}
 
 	@Override

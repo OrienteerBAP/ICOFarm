@@ -15,6 +15,7 @@ import org.orienteer.core.module.OWidgetsModule;
 import org.orienteer.core.module.PerspectivesModule;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
+import org.orienteer.model.EmbeddedWallet;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OTransaction;
 import org.orienteer.model.Wallet;
@@ -151,9 +152,18 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         identityProperties.add("perspective");
         identityProperties.add("perspectiveItem");
 
+        List<String> walletProperties = new ArrayList<>(1);
+        walletProperties.add(Wallet.OPROPERTY_OWNER);
+
+        List<String> embeddedWalletProperties = new ArrayList<>(2);
+        embeddedWalletProperties.add(EmbeddedWallet.OPROPERTY_NAME);
+        embeddedWalletProperties.add(EmbeddedWallet.OPROPERTY_PASSWORD);
+
         HIDDEN_PROPERTIES.put(ICOFarmUser.CLASS_NAME, userProperties);
         HIDDEN_PROPERTIES.put("ORestricted", restrictedProperties);
         HIDDEN_PROPERTIES.put(OIdentity.CLASS_NAME, identityProperties);
+        HIDDEN_PROPERTIES.put(Wallet.CLASS_NAME, walletProperties);
+        HIDDEN_PROPERTIES.put(EmbeddedWallet.CLASS_NAME, embeddedWalletProperties);
     }
 
     private void initHiddenWidgets() {
