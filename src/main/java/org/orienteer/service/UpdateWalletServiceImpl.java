@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.Wallet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.math.BigInteger;
@@ -12,6 +14,8 @@ import java.util.function.Consumer;
 
 @Singleton
 public class UpdateWalletServiceImpl implements IUpdateWalletService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateWalletServiceImpl.class);
 
     @Inject
     private IEthereumService ethereumService;
@@ -34,13 +38,14 @@ public class UpdateWalletServiceImpl implements IUpdateWalletService {
 
     @Override
     public void updateBalance(List<Wallet> wallets, Consumer<BigInteger> balanceConsumer) {
-        wallets.forEach(wallet -> ethereumService.requestBalanceAsync(wallet.getAddress(), (err, balance) -> {
-            if (balance != null) {
-                if (balanceConsumer != null) balanceConsumer.accept(balance);
-                wallet.setBalance(balance.toString());
-                wallet.sudoSave();
+        wallets.forEach(wallet -> {
+            try {
+                BigInteger balance = ethereumService.requestBalance(wallet.getAddress());
+                updateWalletBalance(wallet.getDocument(), balance);
+            } catch (Exception e) {
+                LOG.error("Can't get balance for address: {}", wallet.getAddress(), e);
             }
-        }));
+        });
     }
 
     @Override
@@ -50,11 +55,18 @@ public class UpdateWalletServiceImpl implements IUpdateWalletService {
 
     @Override
     public void updateBalance(ODocument doc) {
-        ethereumService.requestBalanceAsync(doc.field(Wallet.OPROPERTY_ADDRESS), (err, balance) -> {
-            if (balance != null) {
-                doc.field(Wallet.OPROPERTY_BALANCE, balance);
-                DBClosure.sudoSave(doc);
-            }
-        });
+        try {
+            BigInteger balance = ethereumService.requestBalance(doc.field(Wallet.OPROPERTY_ADDRESS));
+            updateWalletBalance(doc, balance);
+        } catch (Exception e) {
+            LOG.error("Can't get balance for address: {}", doc.field(Wallet.OPROPERTY_ADDRESS), e);
+        }
+    }
+
+    private void updateWalletBalance(ODocument doc, BigInteger balance) {
+        if (balance != null) {
+            doc.field(Wallet.OPROPERTY_BALANCE, balance);
+            DBClosure.sudoSave(doc);
+        }
     }
 }

@@ -3,6 +3,7 @@ package org.orienteer.module;
 import com.google.inject.Inject;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import org.apache.wicket.ThreadContext;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
 import org.orienteer.model.Wallet;
@@ -43,7 +44,9 @@ public class EthereumUpdateModule extends AbstractOrienteerModule {
         IDbService dbService = app.getServiceInstance(IDbService.class);
         IUpdateWalletService updateService = app.getServiceInstance(IUpdateWalletService.class);
         ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors());
+
         future = executor.scheduleAtFixedRate(() -> {
+            ThreadContext.setApplication(app);
             List<Wallet> wallets = dbService.getWallets();
             updateService.update(wallets);
         }, 0, ethereumService.getConfig().getTimeout(), TimeUnit.MINUTES);

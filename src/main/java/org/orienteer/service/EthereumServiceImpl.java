@@ -49,6 +49,12 @@ public class EthereumServiceImpl implements IEthereumService {
     }
 
     @Override
+    public BigInteger requestBalance(String address) throws Exception {
+        EthGetBalance balance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
+        return balance.getBalance();
+    }
+
+    @Override
     public void requestBalanceAsync(String address, BiConsumer<Exception, BigInteger> callback) {
         wrapAndRunAsync(callback, () -> {
             EthGetBalance balance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
