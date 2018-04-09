@@ -2,7 +2,7 @@ package org.orienteer.model;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
-public class EmbeddedOWallet extends OWallet {
+public class EmbeddedWallet extends Wallet {
 
     public static final String CLASS_NAME = "EmbeddedWallet";
 
@@ -10,11 +10,11 @@ public class EmbeddedOWallet extends OWallet {
     public static final String OPROPERTY_NAME     = "name";
     public static final String OPROPERTY_ADDRESS  = "address";
 
-    public EmbeddedOWallet(ODocument wallet) {
+    public EmbeddedWallet(ODocument wallet) {
         super(wallet);
     }
 
-    public EmbeddedOWallet() {
+    public EmbeddedWallet() {
         super(CLASS_NAME);
     }
 

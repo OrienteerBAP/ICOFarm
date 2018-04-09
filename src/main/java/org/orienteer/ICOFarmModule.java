@@ -18,9 +18,7 @@ import org.orienteer.core.module.OWidgetsModule;
 import org.orienteer.core.module.PerspectivesModule;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
-import org.orienteer.model.EmbeddedOWallet;
-import org.orienteer.model.ICOFarmUser;
-import org.orienteer.model.OTransaction;
+import org.orienteer.model.*;
 import org.orienteer.service.IDbService;
 import org.orienteer.service.IUpdateWalletService;
 
@@ -36,13 +34,8 @@ import static com.orientechnologies.orient.core.metadata.security.ORule.Resource
 
 public class ICOFarmModule extends AbstractOrienteerModule {
 
-	public static final String CURRENCY              = "Currency";
-	public static final String REFERRAL              = "Referral";
-	public static final String WALLET                = "Wallet";
-	public static final String EXTERNAL_WALLET       = "ExternalWallet";
-	public static final String EMBEDDED_WALLET       = "EmbeddedWallet";
-	public static final String CRYPTOCURRENCY_WALLET = "CryptocurrencyWallet";
-	public static final String ETHEREUM_WALLET       = "EthereumWallet";
+	public static final String CURRENCY     = "Currency";
+	public static final String REFERRAL     = "Referral";
 	public static final String REGISTRATION = "Registration";
 
 	public static final String OPROPERTY_REFERRAL_CREATED = "created";
@@ -114,17 +107,17 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OPROPERTY_REFERRAL_USER, OType.LINK, 10).notNull().linkedClass(OUser.CLASS_NAME).oIndex(OClass.INDEX_TYPE.UNIQUE)
 				.oProperty(OPROPERTY_REFERRAL_BY, OType.LINK, 20).notNull().linkedClass(OUser.CLASS_NAME);
 
-		helper.oClass(WALLET)
+		helper.oClass(Wallet.CLASS_NAME)
 				.oProperty(OPROPERTY_WALLET_OWNER, OType.LINK, 0).linkedClass(OUser.CLASS_NAME)
 				.oProperty(OPROPERTY_WALLET_CURRENCY, OType.LINK, 10).linkedClass(CURRENCY)
 				.oProperty(OPROPERTY_WALLET_BALANCE, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
 
 		helper.oClass(REGISTRATION);
 
-		helper.oClass(EMBEDDED_WALLET, WALLET)
-                .oProperty(EmbeddedOWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
-                .oProperty(EmbeddedOWallet.OPROPERTY_PASSWORD, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
-				.oProperty(EmbeddedOWallet.OPROPERTY_ADDRESS, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
+		helper.oClass(EmbeddedWallet.CLASS_NAME, Wallet.CLASS_NAME)
+                .oProperty(EmbeddedWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
+                .oProperty(EmbeddedWallet.OPROPERTY_PASSWORD, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
+				.oProperty(EmbeddedWallet.OPROPERTY_ADDRESS, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
 
 		updateClassRestrictions(db);
 		createRemoveRestoreIdFunction(helper);
@@ -151,12 +144,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		investor.grant(ResourceGeneric.CLASS, OTransaction.CLASS_NAME, 7);
 
-		investor.grant(ResourceGeneric.CLASS, WALLET, 15);
-		investor.grant(ResourceGeneric.CLASS, EXTERNAL_WALLET, 15);
-		investor.grant(ResourceGeneric.CLASS, EMBEDDED_WALLET, 15);
+		investor.grant(ResourceGeneric.CLASS, Wallet.CLASS_NAME, 15);
+		investor.grant(ResourceGeneric.CLASS, ExternalWallet.CLASS_NAME, 15);
+		investor.grant(ResourceGeneric.CLASS, EmbeddedWallet.CLASS_NAME, 15);
+		investor.grant(ResourceGeneric.CLASS, CryptocurrencyWallet.CLASS_NAME, 7);
+		investor.grant(ResourceGeneric.CLASS, EthereumWallet.CLASS_NAME, 7);
 
-		investor.grant(ResourceGeneric.CLASS, CRYPTOCURRENCY_WALLET, 7);
-		investor.grant(ResourceGeneric.CLASS, ETHEREUM_WALLET, 7);
 		investor.grant(ResourceGeneric.CLASS, CURRENCY, 2);
 		investor.grant(ResourceGeneric.CLASS, REFERRAL, 2);
 		investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);
@@ -221,7 +214,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		ODocument item3 = getOrCreatePerspectiveItem.apply("Wallets", perspective);
 		item3.field("icon", FAIconType.briefcase.name());
 		item3.field("perspective", perspective);
-		item3.field("url", "/browse/" + WALLET);
+		item3.field("url", "/browse/" + Wallet.CLASS_NAME);
 		item3.save();
 
 		perspective.field("menu", Arrays.asList(item1, item2, item3));
@@ -287,7 +280,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		setRestricted.accept(schema.getClass(OTransaction.CLASS_NAME));
 		setRestricted.accept(schema.getClass(REFERRAL));
-		setRestricted.accept(schema.getClass(WALLET));
+		setRestricted.accept(schema.getClass(Wallet.CLASS_NAME));
 	}
 
     /**
@@ -416,7 +409,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		IUpdateWalletService updateService = app.getServiceInstance(IUpdateWalletService.class);
 		ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors());
 		executor.scheduleAtFixedRate(() -> {
-			List<EmbeddedOWallet> wallets = dbService.getEmbeddedWallets();
+			List<EmbeddedWallet> wallets = dbService.getEmbeddedWallets();
 			updateService.updateBalance(wallets);
 		}, 0, 1, TimeUnit.MINUTES); // TODO: adjust timeout
 	}

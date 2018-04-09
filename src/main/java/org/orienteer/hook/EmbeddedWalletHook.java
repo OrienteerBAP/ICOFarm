@@ -3,9 +3,8 @@ package org.orienteer.hook;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import org.orienteer.ICOFarmModule;
 import org.orienteer.core.OrienteerWebApplication;
-import org.orienteer.model.EmbeddedOWallet;
+import org.orienteer.model.EmbeddedWallet;
 import org.orienteer.service.IEthereumService;
 import org.orienteer.service.IUpdateWalletService;
 import org.slf4j.Logger;
@@ -21,7 +20,7 @@ public class EmbeddedWalletHook extends ODocumentHookAbstract {
 
     public EmbeddedWalletHook(ODatabaseDocument db) {
         super(db);
-        setIncludeClasses(ICOFarmModule.EMBEDDED_WALLET);
+        setIncludeClasses(EmbeddedWallet.CLASS_NAME);
     }
 
     @Override
@@ -36,9 +35,9 @@ public class EmbeddedWalletHook extends ODocumentHookAbstract {
         try {
             String fileName = service.createWallet(password);
             Credentials credentials = service.requestWallet(password, fileName);
-            doc.field(EmbeddedOWallet.OPROPERTY_NAME, fileName);
-            doc.field(EmbeddedOWallet.OPROPERTY_PASSWORD, password);
-            doc.field(EmbeddedOWallet.OPROPERTY_ADDRESS, credentials.getAddress());
+            doc.field(EmbeddedWallet.OPROPERTY_NAME, fileName);
+            doc.field(EmbeddedWallet.OPROPERTY_PASSWORD, password);
+            doc.field(EmbeddedWallet.OPROPERTY_ADDRESS, credentials.getAddress());
             return super.onRecordBeforeCreate(doc);
         } catch (Exception e) {
             LOG.error("Can't create new wallet: {}", doc, e);

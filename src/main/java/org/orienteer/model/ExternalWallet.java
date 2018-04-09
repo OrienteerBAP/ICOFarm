@@ -2,8 +2,11 @@ package org.orienteer.model;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
-public class ExternalOWallet extends OWallet {
-	public ExternalOWallet(ODocument wallet) {
+public class ExternalWallet extends Wallet {
+
+	public static final String CLASS_NAME = "ExternalWallet";
+
+	public ExternalWallet(ODocument wallet) {
 		super(wallet);
 	}
 

@@ -16,7 +16,7 @@ import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
-import org.orienteer.model.EthereumOWallet;
+import org.orienteer.model.EthereumWallet;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.TokenCurrency;
 import org.orienteer.service.Buyable;
@@ -99,13 +99,13 @@ public class BuyToken extends AbstractModalOMethod {
 		if (user==null)	throw new Exception("Please autorize");
 		ICOFarmUser icofarmUser = new ICOFarmUser(user.getDocument());
 		
-		EthereumOWallet wallet = icofarmUser.getMainETHWallet();
+		EthereumWallet wallet = icofarmUser.getMainETHWallet();
 		if (wallet==null) throw new Exception("Please link correct ETC wallet to your account");
 		
 		String walletSource = wallet.getWalletJSON();
 		if (walletSource==null) throw new Exception("Please set correct ETC wallet JSON");
 		
-		File file = new File(EthereumOWallet.CACHE_FOLDER+"/"+wallet.getWalletJSONName());
+		File file = new File(EthereumWallet.CACHE_FOLDER+"/"+wallet.getWalletJSONName());
 		file.getParentFile().mkdirs(); 
 		file.createNewFile();
         FileWriter fw = new FileWriter(file);
