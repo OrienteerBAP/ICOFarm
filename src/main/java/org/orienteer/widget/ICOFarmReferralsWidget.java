@@ -28,6 +28,7 @@ import org.orienteer.core.component.table.OPropertyValueColumn;
 import org.orienteer.core.component.table.component.GenericTablePanel;
 import org.orienteer.core.widget.Widget;
 import org.orienteer.model.ICOFarmUser;
+import org.orienteer.module.ICOFarmPerspectiveModule;
 import org.orienteer.resource.ICOFarmReferralResource;
 import ru.ydn.wicket.wicketorientdb.model.ODocumentModel;
 import ru.ydn.wicket.wicketorientdb.model.OQueryDataProvider;
@@ -39,7 +40,7 @@ import java.util.List;
 import static org.orienteer.module.ICOFarmModule.OPROPERTY_REFERRAL_CREATED;
 import static org.orienteer.module.ICOFarmModule.OPROPERTY_REFERRAL_USER;
 
-@Widget(id = ICOFarmModule.REFERRAL_WIDGET_ID, domain = "browse", selector = ICOFarmModule.REFERRAL, autoEnable = true)
+@Widget(id = ICOFarmPerspectiveModule.REFERRAL_WIDGET_ID, domain = "browse", selector = ICOFarmModule.REFERRAL, autoEnable = true)
 public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
 
     public static final JavaScriptResourceReference COPY_JS = new JavaScriptResourceReference(ICOFarmReferralsWidget.class, "copy.js");

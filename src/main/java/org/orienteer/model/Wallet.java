@@ -9,7 +9,10 @@ public class Wallet extends ODocumentWrapper {
 
 	public static final String CLASS_NAME = "Wallet";
 
-	public static final String OPROPERTY_BALANCE = "balance";
+	public static final String OPROPERTY_OWNER    = "owner";
+	public static final String OPROPERTY_CURRENCY = "currency";
+	public static final String OPROPERTY_BALANCE  = "balance";
+	public static final String OPROPERTY_ADDRESS  = "address";
 
 	public Wallet(ODocument wallet) {
 		super(wallet);
@@ -25,6 +28,28 @@ public class Wallet extends ODocumentWrapper {
 
 	public Wallet setBalance(String balance) {
 		document.field(OPROPERTY_BALANCE, balance);
+		return this;
+	}
+
+	public String getAddress() {
+		return document.field(OPROPERTY_ADDRESS);
+	}
+
+	public ODocument getOwner() {
+		return (ODocument) document.field(OPROPERTY_OWNER);
+	}
+
+	public Wallet setOwner(ODocument doc) {
+		document.field(OPROPERTY_OWNER, doc);
+		return this;
+	}
+
+	public Currency getCurrency() {
+		return new Currency((ODocument) document.field(OPROPERTY_CURRENCY));
+	}
+
+	public Wallet setCurrencu(ODocument doc) {
+		document.field(OPROPERTY_CURRENCY, doc);
 		return this;
 	}
 

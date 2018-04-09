@@ -8,7 +8,6 @@ public class EmbeddedWallet extends Wallet {
 
     public static final String OPROPERTY_PASSWORD = "password";
     public static final String OPROPERTY_NAME     = "name";
-    public static final String OPROPERTY_ADDRESS  = "address";
 
     public EmbeddedWallet(ODocument wallet) {
         super(wallet);
@@ -24,10 +23,6 @@ public class EmbeddedWallet extends Wallet {
 
     public String getName() {
         return document.field(OPROPERTY_NAME);
-    }
-
-    public String getAddress() {
-        return document.field(OPROPERTY_ADDRESS);
     }
 
 }

@@ -12,6 +12,9 @@ import org.orienteer.core.service.impl.DefaultFilterPredicateFactory;
 
 import java.util.List;
 
+import static org.orienteer.module.ICOFarmPerspectiveModule.HIDDEN_PROPERTIES;
+import static org.orienteer.module.ICOFarmSecurityModule.INVESTOR_ROLE;
+
 public class ICOFarmFilterPredicateFactory extends DefaultFilterPredicateFactory {
 
     @Override
@@ -37,8 +40,8 @@ public class ICOFarmFilterPredicateFactory extends DefaultFilterPredicateFactory
         if (user != null) {
             SerializablePredicate<OProperty> predicate = (p) -> {
                 boolean result = true;
-                if (user.hasRole(ICOFarmModule.INVESTOR_ROLE, true)) {
-                    List<String> properties = ICOFarmModule.HIDDEN_PROPERTIES.get(p.getOwnerClass().getName());
+                if (user.hasRole(INVESTOR_ROLE, true)) {
+                    List<String> properties = HIDDEN_PROPERTIES.get(p.getOwnerClass().getName());
                     result = properties == null || !properties.contains(p.getName());
                 }
                 return result;

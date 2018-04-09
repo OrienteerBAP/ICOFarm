@@ -25,6 +25,8 @@ import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.Widget;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
+import org.orienteer.module.ICOFarmPerspectiveModule;
+import org.orienteer.module.ICOFarmSecurityModule;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.service.IDbService;
 import org.orienteer.service.IOMailService;
@@ -38,7 +40,7 @@ import java.util.UUID;
 
 import static org.orienteer.module.ICOFarmModule.*;
 
-@Widget(id = ICOFarmModule.REGISTRATION_WIDGET_ID, domain = "browse", selector = ICOFarmModule.REGISTRATION, autoEnable = true)
+@Widget(id = ICOFarmPerspectiveModule.REGISTRATION_WIDGET_ID, domain = "browse", selector = ICOFarmModule.REGISTRATION, autoEnable = true)
 public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUser> {
 
     @Inject
@@ -93,7 +95,7 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
 
             private ICOFarmUser createNewUser(String email, String password, String firstName, String lastName) {
                 ICOFarmUser user = new ICOFarmUser();
-                ORole role = dbService.getRoleByName(ICOFarmModule.INVESTOR_ROLE);
+                ORole role = dbService.getRoleByName(ICOFarmSecurityModule.INVESTOR_ROLE);
                 user.setEmail(email)
                         .setId(UUID.randomUUID().toString())
                         .setFirstName(firstName)
@@ -114,7 +116,7 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
                     doc.field(OPROPERTY_REFERRAL_CREATED, new Date());
                     doc.field(OPROPERTY_REFERRAL_USER, user.getDocument());
                     doc.field(OPROPERTY_REFERRAL_BY, by.getDocument());
-                    doc.field(ICOFarmModule.ORESTRICTED_ALLOW_READ, by.getDocument());
+                    doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ, by.getDocument());
                     DBClosure.sudoSave(doc);
                 }
             }

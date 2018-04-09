@@ -3,7 +3,6 @@ package org.orienteer.model;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
-import org.orienteer.module.ICOFarmModule;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.Map;
@@ -11,8 +10,10 @@ import java.util.Map;
 public class Currency extends ODocumentWrapper {
 	private static final long serialVersionUID = 1L;
 
+	public static final String CLASS_NAME = "Currency";
+
 	public Currency() {
-        super(ICOFarmModule.CURRENCY);
+        super(CLASS_NAME);
     }
 
     public Currency(ORID iRID) {

@@ -6,8 +6,8 @@ import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import org.orienteer.module.ICOFarmModule;
 import org.orienteer.core.module.OWidgetsModule;
+import org.orienteer.module.ICOFarmPerspectiveModule;
 import org.orienteer.util.ICOFarmUtils;
 
 import java.util.List;
@@ -24,12 +24,12 @@ public class ICOFarmOWidgetHook extends ODocumentHookAbstract {
         String id = doc.field(OWidgetsModule.OPROPERTY_TYPE_ID);
         OSecurityUser user = doc.getDatabase().getUser();
         if (!Strings.isNullOrEmpty(id) && !ICOFarmUtils.isAdmin(user)) {
-            if (id.equals(ICOFarmModule.SCHEMA_CLASSES_WIDGET_ID)) {
+            if (id.equals(ICOFarmPerspectiveModule.SCHEMA_CLASSES_WIDGET_ID)) {
                 throw new OSecurityAccessException("User " + user.getName() + " haven't access to schema!");
             } else {
                 ODocument dashboard = doc.field(OWidgetsModule.OPROPERTY_DASHBOARD);
                 String className = dashboard.field(OWidgetsModule.OPROPERTY_CLASS);
-                List<String> hiddenWidgets = ICOFarmModule.HIDDEN_WIDGETS.get(className);
+                List<String> hiddenWidgets = ICOFarmPerspectiveModule.HIDDEN_WIDGETS.get(className);
                 if (hiddenWidgets != null && hiddenWidgets.contains(id)) {
                     return RESULT.SKIP;
                 }
