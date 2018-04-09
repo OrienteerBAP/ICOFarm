@@ -18,7 +18,6 @@ import org.orienteer.resource.ICOFarmReferralResource;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
 import org.orienteer.service.ICOFarmFilterPredicateFactory;
-import org.orienteer.service.IEthereumService;
 import org.orienteer.service.IEthereumUpdateService;
 import org.orienteer.web.ICOFarmLoginPage;
 
@@ -30,9 +29,6 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 	public static final CustomAttribute REMOVE_SCHEDULE_START_TIMEOUT = CustomAttribute.create("remove.timeout", OType.STRING, "0", false, false);
 
 	private ICOFarmFilterPredicateFactory predicateFactory;
-
-	@Inject
-	private IEthereumService ethereumService;
 
 	@Inject
 	private IEthereumUpdateService updateService;

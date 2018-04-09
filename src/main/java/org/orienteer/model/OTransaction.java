@@ -2,9 +2,11 @@ package org.orienteer.model;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
+import org.orienteer.module.ICOFarmSecurityModule;
 import org.web3j.protocol.core.methods.response.Transaction;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
+import java.util.Collections;
 import java.util.Date;
 
 public class OTransaction extends ODocumentWrapper {
@@ -28,7 +30,7 @@ public class OTransaction extends ODocumentWrapper {
         super(iDocument);
     }
 
-    public OTransaction(Transaction transaction, Date timestamp) {
+    public OTransaction(Transaction transaction, ODocument owner, Date timestamp) {
 	    this();
 	    setFrom(transaction.getFrom());
 	    setTo(transaction.getTo());
@@ -36,6 +38,7 @@ public class OTransaction extends ODocumentWrapper {
 	    setHash(transaction.getHash());
 	    setBlock(transaction.getBlockNumber().toString());
 	    setValue(transaction.getValue().toString());
+	    document.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singleton(owner));
     }
 
     public OTransaction setTimestamp(Date timestamp) {

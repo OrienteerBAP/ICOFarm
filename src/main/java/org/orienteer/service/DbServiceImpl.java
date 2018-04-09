@@ -2,6 +2,7 @@ package org.orienteer.service;
 
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OUser;
@@ -70,7 +71,6 @@ public class DbServiceImpl implements IDbService {
 
     @Override
     public boolean isICOFarmTransaction(Transaction transaction) {
-
         List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + Wallet.CLASS_NAME + " where "
                 + Wallet.OPROPERTY_ADDRESS + " = ? OR "
                 + Wallet.OPROPERTY_ADDRESS + " = ?", 1), transaction.getFrom(), transaction.getTo());
@@ -79,7 +79,14 @@ public class DbServiceImpl implements IDbService {
 
     @Override
     public void saveTransaction(Transaction transaction, Date timestamp) {
-        new OTransaction(transaction, timestamp).sudoSave();
+        ODocument from = getUserByWalletAddress(transaction.getFrom());
+        ODocument to = getUserByWalletAddress(transaction.getTo());
+        if (from != null) {
+            new OTransaction(transaction, from, timestamp).sudoSave();
+        }
+        if (to != null && !to.equals(from)) {
+            new OTransaction(transaction, to, timestamp).sudoSave();
+        }
     }
 
     @Override
@@ -87,6 +94,12 @@ public class DbServiceImpl implements IDbService {
         return dbClosure.setQuery(query)
                 .setArgs(args)
                 .execute();
+    }
+
+    private ODocument getUserByWalletAddress(String address) {
+        String sql = String.format("select %s from %s where %s = ?", Wallet.OPROPERTY_OWNER, Wallet.CLASS_NAME, Wallet.OPROPERTY_ADDRESS);
+        List<ODocument> docs = query(new OSQLSynchQuery<>(sql, 1), address);
+        return docs != null && !docs.isEmpty() ? new ODocument((ORecordId) docs.get(0).field(Wallet.OPROPERTY_OWNER)) : null;
     }
 
     private <T> T getFromDocs(List<ODocument> docs, Function<ODocument, T> f) {
