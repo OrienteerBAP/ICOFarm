@@ -59,7 +59,7 @@ public class TestICOFarmEthereumService {
             assertNull(err);
             assertNotNull(balance);
         };
-        dbService.getEmbeddedWallets().forEach((wallet) -> {
+        dbService.getWallets().forEach((wallet) -> {
             assertNull(wallet.getAddress());
             service.requestBalanceAsync(wallet.getAddress(), balanceConsumer);
         });

@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
-import org.orienteer.model.EmbeddedWallet;
+import org.orienteer.model.Wallet;
 import org.orienteer.service.IDbService;
 import org.orienteer.service.IEthereumService;
 import org.orienteer.service.IUpdateWalletService;
@@ -44,8 +44,8 @@ public class EthereumUpdateModule extends AbstractOrienteerModule {
         IUpdateWalletService updateService = app.getServiceInstance(IUpdateWalletService.class);
         ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(Runtime.getRuntime().availableProcessors());
         future = executor.scheduleAtFixedRate(() -> {
-            List<EmbeddedWallet> wallets = dbService.getEmbeddedWallets();
-            updateService.updateBalance(wallets);
+            List<Wallet> wallets = dbService.getWallets();
+            updateService.update(wallets);
         }, 0, ethereumService.getConfig().getTimeout(), TimeUnit.MINUTES);
     }
 

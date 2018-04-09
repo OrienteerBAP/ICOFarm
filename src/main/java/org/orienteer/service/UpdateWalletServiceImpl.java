@@ -3,7 +3,7 @@ package org.orienteer.service;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import org.orienteer.model.EmbeddedWallet;
+import org.orienteer.model.Wallet;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.math.BigInteger;
@@ -17,12 +17,23 @@ public class UpdateWalletServiceImpl implements IUpdateWalletService {
     private IEthereumService ethereumService;
 
     @Override
-    public void updateBalance(List<EmbeddedWallet> wallets) {
+    public void update(List<Wallet> wallets) {
+        updateBalance(wallets);
+        updateTransactions(wallets);
+    }
+
+    @Override
+    public void updateTransactions(List<Wallet> wallets) {
+
+    }
+
+    @Override
+    public void updateBalance(List<Wallet> wallets) {
         updateBalance(wallets, null);
     }
 
     @Override
-    public void updateBalance(List<EmbeddedWallet> wallets, Consumer<BigInteger> balanceConsumer) {
+    public void updateBalance(List<Wallet> wallets, Consumer<BigInteger> balanceConsumer) {
         wallets.forEach(wallet -> ethereumService.requestBalanceAsync(wallet.getAddress(), (err, balance) -> {
             if (balance != null) {
                 if (balanceConsumer != null) balanceConsumer.accept(balance);
@@ -33,15 +44,15 @@ public class UpdateWalletServiceImpl implements IUpdateWalletService {
     }
 
     @Override
-    public void updateBalance(EmbeddedWallet wallet) {
+    public void updateBalance(Wallet wallet) {
         updateBalance(wallet.getDocument());
     }
 
     @Override
     public void updateBalance(ODocument doc) {
-        ethereumService.requestBalanceAsync(doc.field(EmbeddedWallet.OPROPERTY_ADDRESS), (err, balance) -> {
+        ethereumService.requestBalanceAsync(doc.field(Wallet.OPROPERTY_ADDRESS), (err, balance) -> {
             if (balance != null) {
-                doc.field(EmbeddedWallet.OPROPERTY_BALANCE, balance);
+                doc.field(Wallet.OPROPERTY_BALANCE, balance);
                 DBClosure.sudoSave(doc);
             }
         });
