@@ -93,7 +93,7 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         ORole investor = security.getRole(INVESTOR_ROLE) != null ? security.getRole(INVESTOR_ROLE) :
                 security.createRole(INVESTOR_ROLE, OSecurityRole.ALLOW_MODES.DENY_ALL_BUT).setParentRole(security.getRole("reader"));
 
-        investor.grant(ResourceGeneric.CLASS, OTransaction.CLASS_NAME, 7);
+        investor.grant(ResourceGeneric.CLASS, OTransaction.CLASS_NAME, 15);
 
         investor.grant(ResourceGeneric.CLASS, Wallet.CLASS_NAME, 15);
         investor.grant(ResourceGeneric.CLASS, ExternalWallet.CLASS_NAME, 15);
