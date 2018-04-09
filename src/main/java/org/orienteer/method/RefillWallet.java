@@ -12,10 +12,10 @@ import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
-import org.orienteer.model.EmbeddedOWallet;
+import org.orienteer.model.EmbeddedWallet;
 
 @OMethod(filters = {
-        @OFilter(fClass = ODocumentFilter.class, fData = EmbeddedOWallet.CLASS_NAME)
+        @OFilter(fClass = ODocumentFilter.class, fData = EmbeddedWallet.CLASS_NAME)
 })
 public class RefillWallet extends AbstractModalOMethod {
 
