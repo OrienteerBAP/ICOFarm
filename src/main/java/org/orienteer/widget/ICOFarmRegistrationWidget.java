@@ -18,7 +18,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
-import org.orienteer.ICOFarmModule;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
@@ -36,7 +36,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.orienteer.ICOFarmModule.*;
+import static org.orienteer.module.ICOFarmModule.*;
 
 @Widget(id = ICOFarmModule.REGISTRATION_WIDGET_ID, domain = "browse", selector = ICOFarmModule.REGISTRATION, autoEnable = true)
 public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUser> {

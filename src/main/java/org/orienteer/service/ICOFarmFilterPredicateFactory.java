@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import org.danekja.java.util.function.serializable.SerializablePredicate;
-import org.orienteer.ICOFarmModule;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.module.OWidgetsModule;
 import org.orienteer.core.module.PerspectivesModule;

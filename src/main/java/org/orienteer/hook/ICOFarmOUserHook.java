@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import org.orienteer.ICOFarmModule;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.model.ICOFarmUser;
 
 /**

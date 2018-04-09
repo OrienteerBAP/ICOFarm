@@ -2,7 +2,7 @@ package org.orienteer.service;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.orienteer.ICOFarmModule;
+import org.orienteer.module.ICOFarmModule;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;

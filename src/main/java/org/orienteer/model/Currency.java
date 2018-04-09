@@ -3,7 +3,7 @@ package org.orienteer.model;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
-import org.orienteer.ICOFarmModule;
+import org.orienteer.module.ICOFarmModule;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.Map;

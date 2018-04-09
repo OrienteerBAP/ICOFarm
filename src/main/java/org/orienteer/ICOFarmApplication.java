@@ -8,6 +8,7 @@ import org.orienteer.core.service.IFilterPredicateFactory;
 import org.orienteer.hook.EmbeddedWalletHook;
 import org.orienteer.hook.ICOFarmOUserHook;
 import org.orienteer.hook.ICOFarmOWidgetHook;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.resource.ICOFarmReferralResource;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;

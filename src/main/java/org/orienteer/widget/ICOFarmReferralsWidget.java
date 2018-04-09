@@ -19,7 +19,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
-import org.orienteer.ICOFarmModule;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
@@ -36,8 +36,8 @@ import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.orienteer.ICOFarmModule.OPROPERTY_REFERRAL_CREATED;
-import static org.orienteer.ICOFarmModule.OPROPERTY_REFERRAL_USER;
+import static org.orienteer.module.ICOFarmModule.OPROPERTY_REFERRAL_CREATED;
+import static org.orienteer.module.ICOFarmModule.OPROPERTY_REFERRAL_USER;
 
 @Widget(id = ICOFarmModule.REFERRAL_WIDGET_ID, domain = "browse", selector = ICOFarmModule.REFERRAL, autoEnable = true)
 public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {

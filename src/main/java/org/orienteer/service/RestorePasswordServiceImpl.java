@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.orienteer.ICOFarmModule.*;
+import static org.orienteer.module.ICOFarmModule.*;
 
 public class RestorePasswordServiceImpl implements IRestorePasswordService {
 
