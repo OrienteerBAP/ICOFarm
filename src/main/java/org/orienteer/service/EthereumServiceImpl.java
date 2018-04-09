@@ -42,11 +42,6 @@ public class EthereumServiceImpl implements IEthereumService {
     }
 
     @Override
-    public void createTransaction(String password, String from, String to, BiConsumer<Exception, String> callback) {
-
-    }
-
-    @Override
     public void requestWalletAsync(String password, String fileName, BiConsumer<Exception, Credentials> callback) {
         wrapAndRunAsync(callback, () -> requestWallet(password, fileName));
     }
@@ -54,6 +49,11 @@ public class EthereumServiceImpl implements IEthereumService {
     @Override
     public EthBlock requestBlock(String number) throws Exception {
         return web3j.ethGetBlockByNumber(DefaultBlockParameterName.LATEST, false).send();
+    }
+
+    @Override
+    public Transaction requestTransactionByHash(String hash) throws Exception {
+        return web3j.ethGetTransactionByHash(hash).send().getResult();
     }
 
     @Override

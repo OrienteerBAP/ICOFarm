@@ -14,19 +14,17 @@ import java.util.function.BiConsumer;
 public interface IEthereumService {
 
     public String createWallet(String password) throws Exception;
-    public Credentials requestWallet(String password, String fileName) throws Exception;
-
     public void createWalletAsync(String password, BiConsumer<Exception, String> callback);
 
-    public void createTransaction(String password, String from, String to, BiConsumer<Exception, String> callback);
-
+    public Credentials requestWallet(String password, String fileName) throws Exception;
     public void requestWalletAsync(String password, String fileName, BiConsumer<Exception, Credentials> callback);
+
+    public BigInteger requestBalance(String address) throws Exception;
+    public void requestBalanceAsync(String address, BiConsumer<Exception, BigInteger> callback);
 
     public EthBlock requestBlock(String number) throws Exception;
 
-    public BigInteger requestBalance(String address) throws Exception;
-
-    public void requestBalanceAsync(String address, BiConsumer<Exception, BigInteger> callback);
+    public Transaction requestTransactionByHash(String hash) throws Exception;
 
     public Observable<Transaction> getTransactionObservable();
 
