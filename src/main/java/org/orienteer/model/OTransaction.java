@@ -19,6 +19,7 @@ public class OTransaction extends ODocumentWrapper {
     public static final String OPROPERTY_VALUE     = "value";
     public static final String OPROPERTY_HASH      = "hash";
     public static final String OPROPERTY_BLOCK     = "block";
+    public static final String OPROPERTY_CONFIRMED = "confirmed";
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,13 +31,11 @@ public class OTransaction extends ODocumentWrapper {
         super(iDocument);
     }
 
-    public OTransaction(Transaction transaction, ODocument owner, Date timestamp) {
+    public OTransaction(Transaction transaction, ODocument owner) {
 	    this();
 	    setFrom(transaction.getFrom());
 	    setTo(transaction.getTo());
-	    setTimestamp(timestamp);
 	    setHash(transaction.getHash());
-	    setBlock(transaction.getBlockNumber().toString());
 	    setValue(transaction.getValue().toString());
 	    document.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singleton(owner));
     }
@@ -89,6 +88,16 @@ public class OTransaction extends ODocumentWrapper {
 
     public String getBlock() {
 	    return document.field(OPROPERTY_BLOCK);
+    }
+
+    public OTransaction setConfirmed(boolean confirmed) {
+	    document.field(OPROPERTY_CONFIRMED, confirmed);
+	    return this;
+    }
+
+    public boolean isConfirmed() {
+	    Boolean confirmed = document.field(OPROPERTY_CONFIRMED);
+	    return confirmed != null && confirmed;
     }
 
     public OTransaction sudoSave() {

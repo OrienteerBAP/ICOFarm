@@ -74,8 +74,13 @@ public class EthereumServiceImpl implements IEthereumService {
     }
 
     @Override
-    public Observable<Transaction> getTransactionObservable() {
+    public Observable<Transaction> getTransactionsObservable() {
         return web3j.transactionObservable();
+    }
+
+    @Override
+    public Observable<Transaction> getPendingTransactionsObservable() {
+        return web3j.pendingTransactionObservable();
     }
 
     @Override

@@ -6,10 +6,13 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.wicket.util.io.IClusterable;
-import org.orienteer.model.*;
+import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.OMail;
+import org.orienteer.model.OTransaction;
+import org.orienteer.model.Wallet;
+import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 
-import java.util.Date;
 import java.util.List;
 
 @ImplementedBy(DbServiceImpl.class)
@@ -27,9 +30,10 @@ public interface IDbService extends IClusterable {
 
     public List<Wallet> getWallets();
 
-    public boolean isICOFarmTransaction(Transaction transaction);
+    public void confirmTransaction(Transaction transaction, EthBlock.Block block);
+    public OTransaction saveUnconfirmedTransaction(Transaction transaction);
 
-    public void saveTransaction(Transaction transaction, Date timestamp);
+    public boolean isICOFarmTransaction(Transaction transaction);
 
     public List<ODocument> query(OSQLSynchQuery<ODocument> query, Object...args);
 

@@ -2,13 +2,16 @@ package org.orienteer.service;
 
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
-import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import org.orienteer.model.*;
+import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.OMail;
+import org.orienteer.model.OTransaction;
+import org.orienteer.model.Wallet;
+import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
@@ -64,6 +67,29 @@ public class DbServiceImpl implements IDbService {
     }
 
     @Override
+    public void confirmTransaction(Transaction transaction, EthBlock.Block block) {
+        DBClosure.sudoConsumer(db -> {
+            String sql = String.format("select from %s where %s = ?", OTransaction.CLASS_NAME, OTransaction.OPROPERTY_HASH);
+            List<ODocument> docs = db.query(new OSQLSynchQuery<>(sql), transaction.getHash());
+            Date date = new Date(1000 * block.getTimestamp().longValue());
+            if (docs != null && !docs.isEmpty()) {
+                docs.forEach(d -> {
+                    d.field(OTransaction.OPROPERTY_CONFIRMED, true);
+                    d.field(OTransaction.OPROPERTY_BLOCK, block.getNumber().toString());
+                    d.field(OTransaction.OPROPERTY_TIMESTAMP, date);
+                    d.save();
+                });
+            } else {
+                saveUnconfirmedTransaction(transaction)
+                        .setConfirmed(true)
+                        .setBlock(block.getHash())
+                        .setTimestamp(date)
+                        .sudoSave();
+            }
+        });
+    }
+
+    @Override
     public boolean isICOFarmTransaction(Transaction transaction) {
         List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + Wallet.CLASS_NAME + " where "
                 + Wallet.OPROPERTY_ADDRESS + " = ? OR "
@@ -72,15 +98,21 @@ public class DbServiceImpl implements IDbService {
     }
 
     @Override
-    public void saveTransaction(Transaction transaction, Date timestamp) {
+    public OTransaction saveUnconfirmedTransaction(Transaction transaction) {
         ODocument from = getUserByWalletAddress(transaction.getFrom());
         ODocument to = getUserByWalletAddress(transaction.getTo());
+        OTransaction result = null;
         if (from != null) {
-            new OTransaction(transaction, from, timestamp).sudoSave();
+            result = new OTransaction(transaction, from)
+                    .setConfirmed(false)
+                    .sudoSave();
         }
         if (to != null && !to.equals(from)) {
-            new OTransaction(transaction, to, timestamp).sudoSave();
+            result = new OTransaction(transaction, to)
+                    .setConfirmed(false)
+                    .sudoSave();
         }
+        return result;
     }
 
     @Override
@@ -93,7 +125,7 @@ public class DbServiceImpl implements IDbService {
     private ODocument getUserByWalletAddress(String address) {
         String sql = String.format("select %s from %s where %s = ?", Wallet.OPROPERTY_OWNER, Wallet.CLASS_NAME, Wallet.OPROPERTY_ADDRESS);
         List<ODocument> docs = query(new OSQLSynchQuery<>(sql, 1), address);
-        return docs != null && !docs.isEmpty() ? new ODocument((ORecordId) docs.get(0).field(Wallet.OPROPERTY_OWNER)) : null;
+        return docs != null && !docs.isEmpty() ? (ODocument) docs.get(0).field(Wallet.OPROPERTY_OWNER) : null;
     }
 
     private <T> T getFromDocs(List<ODocument> docs, Function<ODocument, T> f) {

@@ -3,6 +3,7 @@ package org.orienteer.service;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import org.orienteer.model.EthereumClientConfig;
 import org.orienteer.model.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +13,9 @@ import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 import java.math.BigInteger;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -29,25 +30,26 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     @Inject
     private IDbService dbService;
 
-    private Subscription balanceSubscriber;
-    private Subscription transactionSubscriber;
+    private CompositeSubscription compositeSubscription;
 
     @Override
     public void init(ODocument config) {
-        if (balanceSubscriber == null && transactionSubscriber == null) {
+        if (compositeSubscription == null || compositeSubscription.isUnsubscribed()) {
+            if (compositeSubscription == null) compositeSubscription = new CompositeSubscription();
             ethereumService.init(config);
-            balanceSubscriber = subscribeOnUpdateBalanceByTimeout();
-            transactionSubscriber = subscribeOnUpdateTransactions();
+
+            compositeSubscription.addAll(
+                    subscribeOnUpdateBalanceByTimeout(),
+                    subscribeOnPendingTransactions(),
+                    subscribeOnUpdateTransactions()
+            );
         }
     }
 
     @Override
     public void destroy() {
-        balanceSubscriber.unsubscribe();
-        transactionSubscriber.unsubscribe();
+        compositeSubscription.clear();
         ethereumService.destroy();
-        balanceSubscriber = null;
-        transactionSubscriber = null;
     }
 
     private Subscription subscribeOnUpdateBalanceByTimeout() {
@@ -58,20 +60,36 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     }
 
     private Subscription subscribeOnUpdateTransactions() {
-        Observable<List<Transaction>> obs = ethereumService.getTransactionObservable()
+        Observable<List<Transaction>> obs = ethereumService.getTransactionsObservable()
         	.buffer(ethereumService.getConfig().getBufferTimeout(), TimeUnit.SECONDS,ethereumService.getConfig().getBufferSize())
-        	.subscribeOn(Schedulers.io());
+        	.subscribeOn(Schedulers.newThread());
 
         return obs.subscribe(transactions-> {
-            for (Transaction t : transactions) {
-                if (dbService.isICOFarmTransaction(t)) {
+            for (Transaction transaction : transactions) {
+                if (dbService.isICOFarmTransaction(transaction)) {
                     try {
-                        LOG.info("receive transaction: {}", t.getHash());
-                        EthBlock ethBlock = ethereumService.requestBlock(t.getBlockNumberRaw());
-                        dbService.saveTransaction(t, new Date(1000 * ethBlock.getBlock().getTimestamp().longValue()));
+                        LOG.info("confirm transaction: {}", transaction.getHash());
+                        EthBlock ethBlock = ethereumService.requestBlock(transaction.getBlockNumberRaw());
+                        dbService.confirmTransaction(transaction, ethBlock.getBlock());
                     } catch (Exception ex) {
-                        LOG.error("Can't get transaction block: {}", t, ex);
+                        LOG.error("Can't get transaction block: {}", transaction, ex);
                     }
+                }
+            }
+        });
+    }
+
+    private Subscription subscribeOnPendingTransactions() {
+        EthereumClientConfig config = ethereumService.getConfig();
+        Observable<List<Transaction>> obs = ethereumService.getPendingTransactionsObservable()
+                .buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
+                .subscribeOn(Schedulers.newThread());
+
+        return obs.subscribe(transactions -> {
+            for (Transaction transaction : transactions) {
+                if (dbService.isICOFarmTransaction(transaction)) {
+                    LOG.info("receive pending transaction: {}", transaction.getHash());
+                    dbService.saveUnconfirmedTransaction(transaction);
                 }
             }
         });

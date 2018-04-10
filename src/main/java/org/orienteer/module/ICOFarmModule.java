@@ -36,7 +36,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 0;
+	public static final int VERSION = 5;
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -64,7 +64,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OTransaction.OPROPERTY_TO, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
 				.oProperty(OTransaction.OPROPERTY_VALUE, OType.STRING, 30).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
 				.oProperty(OTransaction.OPROPERTY_HASH, OType.STRING, 40).notNull()
-				.oProperty(OTransaction.OPROPERTY_BLOCK, OType.STRING, 10).notNull().updateCustomAttribute(CustomAttribute.UI_READONLY, true);
+				.oProperty(OTransaction.OPROPERTY_BLOCK, OType.STRING, 50).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
+				.oProperty(OTransaction.OPROPERTY_CONFIRMED, OType.BOOLEAN, 60).notNull().updateCustomAttribute(CustomAttribute.UI_READONLY, true).defaultValue("false");
 
 		helper.oClass(REFERRAL)
 				.oProperty(OPROPERTY_REFERRAL_CREATED, OType.DATETIME, 0).notNull().markAsDocumentName()

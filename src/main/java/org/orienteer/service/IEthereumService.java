@@ -27,7 +27,9 @@ public interface IEthereumService {
 
     public Transaction requestTransactionByHash(String hash) throws Exception;
 
-    public Observable<Transaction> getTransactionObservable();
+    public Observable<Transaction> getTransactionsObservable();
+
+    public Observable<Transaction> getPendingTransactionsObservable();
 
     public boolean isAddressValid(String address);
 
