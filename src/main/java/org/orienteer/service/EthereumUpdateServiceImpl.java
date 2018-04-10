@@ -20,9 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
-	
-	
-	
+
     private static final Logger LOG = LoggerFactory.getLogger(EthereumUpdateServiceImpl.class);
 
     @Inject
@@ -39,8 +37,8 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     public void init() {
         if (balanceSubscriber == null && transactionSubscriber == null) {
             ethereumService.init();
-            balanceSubscriber = updateBalanceByTimeout().subscribe();
-            transactionSubscriber = updateTransactions().subscribe();
+            balanceSubscriber = subscribeOnUpdateBalanceByTimeout();
+            transactionSubscriber = subscribeOnUpdateTransactions();
         }
     }
 
@@ -53,28 +51,31 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
         transactionSubscriber = null;
     }
 
-    private Observable<Long> updateBalanceByTimeout() {
-        return Observable.interval(ethereumService.getConfig().getTimeout(), TimeUnit.MINUTES)
-                .doOnNext(l -> updateBalance(dbService.getWallets()))
+    private Subscription subscribeOnUpdateBalanceByTimeout() {
+        Observable<Long> obs = Observable.interval(ethereumService.getConfig().getTimeout(), TimeUnit.MINUTES)
                 .subscribeOn(Schedulers.io());
+
+        return obs.subscribe(l -> updateBalance(dbService.getWallets()));
     }
 
-    private Observable<List<Transaction>> updateTransactions() {
-        return ethereumService.getTransactionObservable()
+    private Subscription subscribeOnUpdateTransactions() {
+        Observable<List<Transaction>> obs = ethereumService.getTransactionObservable()
         	.buffer(ethereumService.getConfig().getBufferTimeout(), TimeUnit.SECONDS,ethereumService.getConfig().getBufferSize())
-        	.doOnNext(transactions->{
-        		for (Transaction t : transactions) {
-    				if (dbService.isICOFarmTransaction(t)){
-                        try {
-                            LOG.info("receive transaction: {}", t.getHash());
-                            EthBlock ethBlock = ethereumService.requestBlock(t.getBlockNumberRaw());
-                            dbService.saveTransaction(t, new Date(1000 * ethBlock.getBlock().getTimestamp().longValue()));
-                        } catch (Exception ex) {
-                            LOG.error("Can't get transaction block: {}", t, ex);
-                        }
-    				}
-				}
-    		}).subscribeOn(Schedulers.io());
+        	.subscribeOn(Schedulers.io());
+
+        return obs.subscribe(transactions-> {
+            for (Transaction t : transactions) {
+                if (dbService.isICOFarmTransaction(t)) {
+                    try {
+                        LOG.info("receive transaction: {}", t.getHash());
+                        EthBlock ethBlock = ethereumService.requestBlock(t.getBlockNumberRaw());
+                        dbService.saveTransaction(t, new Date(1000 * ethBlock.getBlock().getTimestamp().longValue()));
+                    } catch (Exception ex) {
+                        LOG.error("Can't get transaction block: {}", t, ex);
+                    }
+                }
+            }
+        });
     }
 
     private void updateBalance(List<Wallet> wallets) {
