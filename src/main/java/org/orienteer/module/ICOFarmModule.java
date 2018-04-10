@@ -1,5 +1,6 @@
 package org.orienteer.module;
 
+import com.google.inject.Inject;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -12,6 +13,7 @@ import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.*;
+import org.orienteer.service.IEthereumUpdateService;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ICOFarmModule extends AbstractOrienteerModule {
+
+	public static final String CLASS_NAME = "ICOFarmModule";
 
 	public static final String REFERRAL     = "Referral";
 	public static final String REGISTRATION = "Registration";
@@ -32,7 +36,10 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 11;
+	public static final int VERSION = 0;
+
+	@Inject
+	private IEthereumUpdateService updateService;
 
 	protected ICOFarmModule() {
 		super("ICOFarm", VERSION);
@@ -42,8 +49,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public ODocument onInstall(OrienteerWebApplication app, ODatabaseDocument db) {
 		OSchemaHelper helper = OSchemaHelper.bind(db);
 
-		helper.oClass(EthereumClientConfig.CLASS_NAME)
-				.oProperty(EthereumClientConfig.OPROPERTY_NAME, OType.STRING, 0).oIndex(OClass.INDEX_TYPE.UNIQUE).markAsDocumentName().notNull()
+		helper.oClass(CLASS_NAME, ICOFarmModule.OMODULE_CLASS)
+				.oProperty(EthereumClientConfig.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName().notNull()
 				.oProperty(EthereumClientConfig.OPROPERTY_HOST, OType.STRING, 10).notNull()
 				.oProperty(EthereumClientConfig.OPROPERTY_PORT, OType.INTEGER, 20).notNull()
 				.oProperty(EthereumClientConfig.OPROPERTY_WORK_FOLDER, OType.STRING, 30).notNull().defaultValue("icofarm")
@@ -79,7 +86,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(ExternalWallet.CLASS_NAME, Wallet.CLASS_NAME);
 
 		createRemoveRestoreIdFunction(helper);
-		return null;
+		return createModuleDocument(helper);
 	}
 
     /**
@@ -112,8 +119,29 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		}
 	}
 
+	private ODocument createModuleDocument(OSchemaHelper helper) {
+		return helper.oClass(CLASS_NAME).oDocument()
+				.field(EthereumClientConfig.OPROPERTY_NAME, "default")
+				.field(EthereumClientConfig.OPROPERTY_HOST, "http://localhost")
+				.field(EthereumClientConfig.OPROPERTY_PORT, 8545)
+				.field(EthereumClientConfig.OPROPERTY_TIMEOUT, 15)
+				.field(EthereumClientConfig.OPROPERTY_WORK_FOLDER, "icofarm")
+				.saveDocument().getODocument();
+	}
+
 	@Override
 	public void onUpdate(OrienteerWebApplication app, ODatabaseDocument db, int oldVersion, int newVersion) {
 		onInstall(app, db);
+	}
+
+	@Override
+	public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db, ODocument moduleDoc) {
+		super.onInitialize(app, db, moduleDoc);
+		updateService.init(moduleDoc);
+	}
+
+	@Override
+	public void onDestroy(OrienteerWebApplication app, ODatabaseDocument db) {
+		updateService.destroy();
 	}
 }

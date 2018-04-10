@@ -27,8 +27,6 @@ public interface IDbService extends IClusterable {
 
     public List<Wallet> getWallets();
 
-    public EthereumClientConfig getEthereumClientConfig();
-
     public boolean isICOFarmTransaction(Transaction transaction);
 
     public void saveTransaction(Transaction transaction, Date timestamp);

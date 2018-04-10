@@ -2,7 +2,7 @@ package org.orienteer.service;
 
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
-import org.orienteer.core.OrienteerWebApplication;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
@@ -80,16 +80,13 @@ public class EthereumServiceImpl implements IEthereumService {
 
     @Override
     public EthereumClientConfig getConfig() {
-        if (clientConfig == null) {
-            clientConfig = getOrCreateClientConfig();
-        }
         return clientConfig;
     }
 
     @Override
-    public void init() {
-        web3j = getOrCreateWeb3j();
-        clientConfig = getOrCreateClientConfig();
+    public void init(ODocument config) {
+        clientConfig = new EthereumClientConfig(config);
+        web3j = Web3j.build(new HttpService(clientConfig.getHost() + ":" + clientConfig.getPort()));
     }
 
     @Override
@@ -98,33 +95,9 @@ public class EthereumServiceImpl implements IEthereumService {
         clientConfig = null;
     }
 
-
     @Override
     public boolean isAddressValid(String address) {
         return !Strings.isNullOrEmpty(address) && WalletUtils.isValidAddress(address);
-    }
-
-
-    private Web3j getOrCreateWeb3j() {
-        if (web3j == null) {
-            EthereumClientConfig config = getConfig();
-            web3j = Web3j.build(new HttpService(config.getHost() + ":" + config.getPort()));
-        }
-        return web3j;
-    }
-
-    private EthereumClientConfig getOrCreateClientConfig() {
-        EthereumClientConfig config = OrienteerWebApplication.get().getServiceInstance(IDbService.class).getEthereumClientConfig();
-        if (config == null) {
-            config = new EthereumClientConfig.Builder()
-                    .setHost("http://localhost")
-                    .setPort(8545)
-                    .setName("default")
-                    .setTimeout(15)
-                    .setWorkFolder("icofarm")
-                    .build();
-        }
-        return config;
     }
 
     private <T> void wrapAndRunAsync(BiConsumer<Exception, T> callback, Callable<T> callable) {

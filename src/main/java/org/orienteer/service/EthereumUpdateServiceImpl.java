@@ -32,11 +32,10 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     private Subscription balanceSubscriber;
     private Subscription transactionSubscriber;
 
-
     @Override
-    public void init() {
+    public void init(ODocument config) {
         if (balanceSubscriber == null && transactionSubscriber == null) {
-            ethereumService.init();
+            ethereumService.init(config);
             balanceSubscriber = subscribeOnUpdateBalanceByTimeout();
             transactionSubscriber = subscribeOnUpdateTransactions();
         }

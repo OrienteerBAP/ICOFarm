@@ -64,12 +64,6 @@ public class DbServiceImpl implements IDbService {
     }
 
     @Override
-    public EthereumClientConfig getEthereumClientConfig() {
-        List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + EthereumClientConfig.CLASS_NAME, 1));
-        return getFromDocs(docs, EthereumClientConfig::new);
-    }
-
-    @Override
     public boolean isICOFarmTransaction(Transaction transaction) {
         List<ODocument> docs = query(new OSQLSynchQuery<>("select from " + Wallet.CLASS_NAME + " where "
                 + Wallet.OPROPERTY_ADDRESS + " = ? OR "

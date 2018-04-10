@@ -1,16 +1,12 @@
 package org.orienteer;
 
-import com.google.inject.Inject;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import org.apache.wicket.Application;
-import org.apache.wicket.IApplicationListener;
 import org.apache.wicket.markup.html.WebPage;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.service.IFilterPredicateFactory;
 import org.orienteer.hook.*;
-import org.orienteer.module.EthereumUpdateModule;
 import org.orienteer.module.ICOFarmModule;
 import org.orienteer.module.ICOFarmPerspectiveModule;
 import org.orienteer.module.ICOFarmSecurityModule;
@@ -18,7 +14,6 @@ import org.orienteer.resource.ICOFarmReferralResource;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
 import org.orienteer.service.ICOFarmFilterPredicateFactory;
-import org.orienteer.service.IEthereumUpdateService;
 import org.orienteer.web.ICOFarmLoginPage;
 
 import java.util.List;
@@ -30,9 +25,6 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 
 	private ICOFarmFilterPredicateFactory predicateFactory;
 
-	@Inject
-	private IEthereumUpdateService updateService;
-
 	@Override
 	public void init() {
 		super.init();
@@ -41,7 +33,6 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		registerModule(ICOFarmModule.class);
 		registerModule(ICOFarmSecurityModule.class);
 		registerModule(ICOFarmPerspectiveModule.class);
-		registerModule(EthereumUpdateModule.class);
 		ICOFarmReferralResource.mount(this);
 		ICOFarmRegistrationResource.mount(this);
 		ICOFarmRestorePasswordResource.mount(this);
@@ -50,23 +41,9 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		hooks.add(ICOFarmOWidgetHook.class);
 		hooks.add(ICOFarmOUserHook.class);
 		hooks.add(EmbeddedWalletHook.class);
-		hooks.add(EthereumClientConfigHook.class);
 		hooks.add(WalletHook.class);
 		hooks.add(ExternalWalletHook.class);
 		hooks.add(OTransactionHook.class);
-
-		getApplicationListeners().add(new IApplicationListener() {
-			@Override
-			public void onAfterInitialized(Application application) {
-				updateService.init();
-			}
-		});
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		updateService.destroy();
 	}
 
 	@Override

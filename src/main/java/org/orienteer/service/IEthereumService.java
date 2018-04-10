@@ -1,6 +1,7 @@
 package org.orienteer.service;
 
 import com.google.inject.ImplementedBy;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.EthBlock;
@@ -32,6 +33,6 @@ public interface IEthereumService {
 
     public EthereumClientConfig getConfig();
 
-    public void init();
+    public void init(ODocument config);
     public void destroy();
 }
