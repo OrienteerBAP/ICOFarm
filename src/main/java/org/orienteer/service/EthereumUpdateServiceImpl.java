@@ -20,7 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
-
+	
+	
+	
     private static final Logger LOG = LoggerFactory.getLogger(EthereumUpdateServiceImpl.class);
 
     @Inject
@@ -57,18 +59,22 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 .subscribeOn(Schedulers.io());
     }
 
-    private Observable<Transaction> updateTransactions() {
+    private Observable<List<Transaction>> updateTransactions() {
         return ethereumService.getTransactionObservable()
-                .filter(dbService::isICOFarmTransaction)
-                .doOnNext(t -> {
-                    try {
-                        LOG.info("receive transaction: {}", t.getHash());
-                        EthBlock ethBlock = ethereumService.requestBlock(t.getBlockNumberRaw());
-                        dbService.saveTransaction(t, new Date(1000 * ethBlock.getBlock().getTimestamp().longValue()));
-                    } catch (Exception ex) {
-                        LOG.error("Can't get transaction block: {}", t, ex);
-                    }
-                }).subscribeOn(Schedulers.io());
+        	.buffer(ethereumService.getConfig().getBufferTimeout(), TimeUnit.SECONDS,ethereumService.getConfig().getBufferSize())
+        	.doOnNext(transactions->{
+        		for (Transaction t : transactions) {
+    				if (dbService.isICOFarmTransaction(t)){
+                        try {
+                            LOG.info("receive transaction: {}", t.getHash());
+                            EthBlock ethBlock = ethereumService.requestBlock(t.getBlockNumberRaw());
+                            dbService.saveTransaction(t, new Date(1000 * ethBlock.getBlock().getTimestamp().longValue()));
+                        } catch (Exception ex) {
+                            LOG.error("Can't get transaction block: {}", t, ex);
+                        }
+    				}
+				}
+    		}).subscribeOn(Schedulers.io());
     }
 
     private void updateBalance(List<Wallet> wallets) {
