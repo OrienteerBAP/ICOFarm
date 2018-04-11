@@ -143,7 +143,7 @@ public class DbServiceImpl implements IDbService {
 
         @Override
         protected List<ODocument> execute(ODatabaseDocument db) {
-            List<ODocument> docs = docs = db.query(query, args);
+            List<ODocument> docs = db.query(query, args);
             query = null;
             args = null;
             return docs;
