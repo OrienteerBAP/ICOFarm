@@ -13,7 +13,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
-import org.orienteer.service.IDbService;
+import org.orienteer.service.IDBService;
 import org.orienteer.service.IRestorePasswordService;
 import org.orienteer.util.EmailExistsValidator;
 import org.orienteer.web.ICOFarmLoginPage;
@@ -26,7 +26,7 @@ public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
     private IRestorePasswordService service;
 
     @Inject
-    private IDbService dbService;
+    private IDBService dbService;
 
     public ICOFarmRestorePasswordPanel(String id) {
         super(id);

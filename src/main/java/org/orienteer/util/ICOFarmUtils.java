@@ -4,7 +4,9 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.ICOFarmUser;
+import org.web3j.protocol.core.methods.response.EthBlock;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,4 +29,7 @@ public final class ICOFarmUtils {
                 .anyMatch(mode -> mode == OSecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
     }
 
+    public static Date computeTimestamp(EthBlock.Block block) {
+        return new Date(1000 * block.getTimestamp().longValue());
+    }
 }

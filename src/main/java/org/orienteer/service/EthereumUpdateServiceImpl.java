@@ -18,6 +18,7 @@ import rx.subscriptions.CompositeSubscription;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 @Singleton
 public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
@@ -28,7 +29,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     private IEthereumService ethereumService;
 
     @Inject
-    private IDbService dbService;
+    private IDBService dbService;
 
     private CompositeSubscription compositeSubscription;
 
@@ -62,10 +63,21 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     private Subscription subscribeOnUpdateTransactions() {
         EthereumClientConfig config = ethereumService.getConfig();
         Observable<List<Transaction>> obs = ethereumService.getTransactionsObservable()
+                .doOnNext(t -> LOG.info("receive pending transactions: {}", t.getHash()))
         	.buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
         	.subscribeOn(Schedulers.io());
 
-        return obs.subscribe(transactions-> {
+        Function<Transaction, EthBlock.Block> blockFunction = transaction -> {
+            EthBlock result = null;
+            try {
+                result = ethereumService.requestBlock(transaction.getBlockNumberRaw());
+            } catch (Exception ex) {
+                LOG.error("Can't get transaction block: {}", transaction, ex);
+            }
+            return result != null ? result.getBlock() : null;
+        };
+
+        return obs.subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction)/*{
             for (Transaction transaction : transactions) {
                 if (isICOFarmTransaction(transaction)) {
                     try {
@@ -77,7 +89,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                     }
                 }
             }
-        });
+        }*/);
     }
 
     private Subscription subscribeOnPendingTransactions() {
@@ -86,14 +98,14 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 .buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
                 .subscribeOn(Schedulers.io());
 
-        return obs.subscribe(transactions -> {
+        return obs.subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions)/*{
             for (Transaction transaction : transactions) {
                 if (isICOFarmTransaction(transaction)) {
                     LOG.info("receive pending transaction: {}", transaction.getHash());
                     dbService.saveUnconfirmedTransaction(transaction);
                 }
             }
-        });
+        }*/);
     }
 
     private boolean isICOFarmTransaction(Transaction transaction) {

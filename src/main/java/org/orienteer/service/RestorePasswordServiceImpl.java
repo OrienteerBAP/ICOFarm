@@ -28,7 +28,7 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
     private IOMailService mailService;
 
     @Inject
-    private IDbService dbService;
+    private IDBService dbService;
 
     @Override
     public void restoreUserPassword(@Nonnull ICOFarmUser user) {

@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.orienteer.junit.OrienteerTestRunner;
-import org.orienteer.service.IDbService;
+import org.orienteer.service.IDBService;
 import org.orienteer.service.IEthereumService;
 
 import java.math.BigInteger;
@@ -20,7 +20,7 @@ public class TestICOFarmEthereumService {
     private IEthereumService service;
 
     @Inject
-    private IDbService dbService;
+    private IDBService dbService;
 
     @Test
     public void testCreateWallet() throws InterruptedException {

@@ -4,19 +4,18 @@ import com.google.inject.ImplementedBy;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.wicket.util.io.IClusterable;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
-import org.orienteer.model.OTransaction;
 import org.orienteer.model.Wallet;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 
 import java.util.List;
+import java.util.function.Function;
 
-@ImplementedBy(DbServiceImpl.class)
-public interface IDbService extends IClusterable {
+@ImplementedBy(DBServiceImpl.class)
+public interface IDBService extends IClusterable {
 
     public ICOFarmUser getUserBy(String field, String value);
 
@@ -30,11 +29,11 @@ public interface IDbService extends IClusterable {
 
     public List<Wallet> getWallets();
 
-    public void confirmTransaction(Transaction transaction, EthBlock.Block block);
-    public OTransaction saveUnconfirmedTransaction(Transaction transaction);
-
     public boolean isICOFarmTransaction(Transaction transaction);
+    public void confirmTransaction(Transaction transaction, EthBlock.Block block);
+    public ODocument saveUnconfirmedTransaction(Transaction transaction);
 
-    public List<ODocument> query(OSQLSynchQuery<ODocument> query, Object...args);
+    public void confirmICOFarmTransactions(List<Transaction> transactions, Function<Transaction, EthBlock.Block> blockFunction);
+    public void saveUnconfirmedICOFarmTransactions(List<Transaction> transactions);
 
 }

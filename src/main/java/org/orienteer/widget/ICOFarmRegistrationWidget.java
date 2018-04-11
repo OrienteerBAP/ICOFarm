@@ -28,7 +28,7 @@ import org.orienteer.model.OMail;
 import org.orienteer.module.ICOFarmPerspectiveModule;
 import org.orienteer.module.ICOFarmSecurityModule;
 import org.orienteer.resource.ICOFarmRegistrationResource;
-import org.orienteer.service.IDbService;
+import org.orienteer.service.IDBService;
 import org.orienteer.service.IOMailService;
 import org.orienteer.util.EmailExistsValidator;
 import org.orienteer.util.ICOFarmUtils;
@@ -47,7 +47,7 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
     private IOMailService mailService;
 
     @Inject
-    private IDbService dbService;
+    private IDBService dbService;
 
     public ICOFarmRegistrationWidget(String id, IModel<OSecurityUser> model, IModel<ODocument> widgetDocumentModel) {
         super(id, model, widgetDocumentModel);
