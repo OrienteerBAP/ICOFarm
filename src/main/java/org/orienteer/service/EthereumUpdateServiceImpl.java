@@ -60,13 +60,14 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     }
 
     private Subscription subscribeOnUpdateTransactions() {
+        EthereumClientConfig config = ethereumService.getConfig();
         Observable<List<Transaction>> obs = ethereumService.getTransactionsObservable()
-        	.buffer(ethereumService.getConfig().getBufferTimeout(), TimeUnit.SECONDS,ethereumService.getConfig().getBufferSize())
-        	.subscribeOn(Schedulers.newThread());
+        	.buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
+        	.subscribeOn(Schedulers.io());
 
         return obs.subscribe(transactions-> {
             for (Transaction transaction : transactions) {
-                if (dbService.isICOFarmTransaction(transaction)) {
+                if (isICOFarmTransaction(transaction)) {
                     try {
                         LOG.info("confirm transaction: {}", transaction.getHash());
                         EthBlock ethBlock = ethereumService.requestBlock(transaction.getBlockNumberRaw());
@@ -83,16 +84,20 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
         EthereumClientConfig config = ethereumService.getConfig();
         Observable<List<Transaction>> obs = ethereumService.getPendingTransactionsObservable()
                 .buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
-                .subscribeOn(Schedulers.newThread());
+                .subscribeOn(Schedulers.io());
 
         return obs.subscribe(transactions -> {
             for (Transaction transaction : transactions) {
-                if (dbService.isICOFarmTransaction(transaction)) {
+                if (isICOFarmTransaction(transaction)) {
                     LOG.info("receive pending transaction: {}", transaction.getHash());
                     dbService.saveUnconfirmedTransaction(transaction);
                 }
             }
         });
+    }
+
+    private boolean isICOFarmTransaction(Transaction transaction) {
+        return transaction.getFrom() != null && transaction.getTo() != null && dbService.isICOFarmTransaction(transaction);
     }
 
     private void updateBalance(List<Wallet> wallets) {
