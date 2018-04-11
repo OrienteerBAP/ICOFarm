@@ -60,7 +60,7 @@ public class TestICOFarmEthereumService {
             assertNotNull(balance);
         };
         dbService.getWallets().forEach((wallet) -> {
-            assertNull(wallet.getAddress());
+            assertNotNull(wallet.getAddress());
             service.requestBalanceAsync(wallet.getAddress(), balanceConsumer);
         });
 
