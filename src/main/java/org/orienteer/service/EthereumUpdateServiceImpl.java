@@ -63,7 +63,6 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     private Subscription subscribeOnUpdateTransactions() {
         EthereumClientConfig config = ethereumService.getConfig();
         Observable<List<Transaction>> obs = ethereumService.getTransactionsObservable()
-                .doOnNext(t -> LOG.info("receive pending transactions: {}", t.getHash()))
         	.buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
         	.subscribeOn(Schedulers.io());
 
@@ -77,19 +76,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
             return result != null ? result.getBlock() : null;
         };
 
-        return obs.subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction)/*{
-            for (Transaction transaction : transactions) {
-                if (isICOFarmTransaction(transaction)) {
-                    try {
-                        LOG.info("confirm transaction: {}", transaction.getHash());
-                        EthBlock ethBlock = ethereumService.requestBlock(transaction.getBlockNumberRaw());
-                        dbService.confirmTransaction(transaction, ethBlock.getBlock());
-                    } catch (Exception ex) {
-                        LOG.error("Can't get transaction block: {}", transaction, ex);
-                    }
-                }
-            }
-        }*/);
+        return obs.subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction));
     }
 
     private Subscription subscribeOnPendingTransactions() {
@@ -98,18 +85,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 .buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
                 .subscribeOn(Schedulers.io());
 
-        return obs.subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions)/*{
-            for (Transaction transaction : transactions) {
-                if (isICOFarmTransaction(transaction)) {
-                    LOG.info("receive pending transaction: {}", transaction.getHash());
-                    dbService.saveUnconfirmedTransaction(transaction);
-                }
-            }
-        }*/);
-    }
-
-    private boolean isICOFarmTransaction(Transaction transaction) {
-        return transaction.getFrom() != null && transaction.getTo() != null && dbService.isICOFarmTransaction(transaction);
+        return obs.subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions));
     }
 
     private void updateBalance(List<Wallet> wallets) {

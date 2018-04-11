@@ -3,7 +3,6 @@ package org.orienteer.service;
 import com.google.inject.ImplementedBy;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.util.io.IClusterable;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
@@ -28,10 +27,6 @@ public interface IDBService extends IClusterable {
     public ORole getRoleByName(String name);
 
     public List<Wallet> getWallets();
-
-    public boolean isICOFarmTransaction(Transaction transaction);
-    public void confirmTransaction(Transaction transaction, EthBlock.Block block);
-    public ODocument saveUnconfirmedTransaction(Transaction transaction);
 
     public void confirmICOFarmTransactions(List<Transaction> transactions, Function<Transaction, EthBlock.Block> blockFunction);
     public void saveUnconfirmedICOFarmTransactions(List<Transaction> transactions);

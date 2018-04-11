@@ -73,25 +73,11 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
-    public void confirmTransaction(Transaction transaction, EthBlock.Block block) {
-        dbClosure.get().execute(db -> {
-            saveConfirmedTransaction(db, transaction, block);
-            return null;
-        });
-    }
-
-    @Override
-    public ODocument saveUnconfirmedTransaction(Transaction transaction) {
-        return saveUnconfirmedTransaction(null, transaction);
-    }
-
-    @Override
     public void confirmICOFarmTransactions(List<Transaction> transactions, Function<Transaction, EthBlock.Block> blockFunction) {
-        LOG.info("confirmICOFarmTransactions");
         dbClosure.get().execute(db -> {
             filterICOFarmTransactions(db, transactions)
                     .forEach(t -> {
-                        LOG.info("save confirmed transaction: {}", t.getHash());
+                        LOG.info("save confirmed transaction: {} {}", t.getHash(), Thread.currentThread().getName()); //TODO: remove in next stable version
                         saveConfirmedTransaction(db, t, blockFunction.apply(t));
                     });
             return null;
@@ -100,20 +86,14 @@ public class DBServiceImpl implements IDBService {
 
     @Override
     public void saveUnconfirmedICOFarmTransactions(List<Transaction> transactions) {
-        LOG.info("saveUnconfirmedICOFarmTransactions");
         dbClosure.get().execute(db -> {
             filterICOFarmTransactions(db, transactions)
                     .forEach(t -> {
-                        LOG.info("save unconfirmed transaction: {}", t.getHash());
+                        LOG.info("save unconfirmed transaction: {} {}", t.getHash(), Thread.currentThread().getName()); //TODO: remove in next stable version
                         saveUnconfirmedTransaction(db, t);
                     });
             return null;
         });
-    }
-
-    @Override
-    public boolean isICOFarmTransaction(Transaction transaction) {
-        return isICOFarmTransaction(null, transaction);
     }
 
     private ODocument saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
