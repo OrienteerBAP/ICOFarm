@@ -14,10 +14,14 @@ import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.core.methods.response.EthSyncing;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.protocol.ipc.UnixIpcService;
+import org.web3j.protocol.ipc.WindowsIpcService;
 import org.web3j.tx.Transfer;
 import org.web3j.utils.Convert;
 
@@ -47,9 +51,11 @@ public class TestICOFarmApplication
 	    assertTrue(tester.getApplication() instanceof ICOFarmApplication);
 	}
 	
-	//@Test
+	@Test
 	public void ethereumTest(){
-		Web3j web3 = Web3j.build(new HttpService("https://rinkeby.infura.io/jQ5uVScqyIMjgP6ZSSMb"));
+		//Web3j web3 = Web3j.build(new HttpService("https://rinkeby.infura.io/jQ5uVScqyIMjgP6ZSSMb"));
+		Web3j web3 = Web3j.build(new HttpService());
+		//Web3j web3 = Web3j.build(new WindowsIpcService("/root/.ethereum/rinkeby/geth.ipc"));
 		Web3ClientVersion web3ClientVersion=null;
 		try {
 			web3ClientVersion = web3.web3ClientVersion().send();
@@ -58,6 +64,21 @@ public class TestICOFarmApplication
 			e.printStackTrace();
 		}
 		String clientVersion = web3ClientVersion.getWeb3ClientVersion();
+
+		EthSyncing isSyncing= null;
+		try {
+			isSyncing = web3.ethSyncing().send();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		EthBlockNumber blockNumber = null;
+		try {
+			blockNumber = web3.ethBlockNumber().send();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		/*
 
         try {
@@ -102,7 +123,7 @@ public class TestICOFarmApplication
 			String erc20Contract = "0xc1b0A0a6672939094Db09a0F446bD10A0C833d9D";
 			
 			ERC20Interface token = ERC20Interface.load(erc20Contract, web3, credentials, gasPrice, gasLimit);
-			token.transfer(erc20Contract, BigInteger.valueOf(500000)).send();
+			//token.transfer(erc20Contract, BigInteger.valueOf(50)).send();
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -147,6 +168,9 @@ public class TestICOFarmApplication
 		
 		System.out.println("----------------------------------------------------------");
 		System.out.println(clientVersion);
+		System.out.println(isSyncing.getRawResponse());
+		System.out.println(blockNumber.getRawResponse());
+		
 		System.out.println(wei.toString());
 		System.out.println(wei2.toString());
 		System.out.println(weimm.toString());

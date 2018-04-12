@@ -36,7 +36,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 5;
+	public static final int VERSION = 6;
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -49,14 +49,17 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public ODocument onInstall(OrienteerWebApplication app, ODatabaseDocument db) {
 		OSchemaHelper helper = OSchemaHelper.bind(db);
 
+		
+		helper.oClass(Currency.CLASS_NAME, "OEnum");
+		helper.oClass(TokenCurrency.CLASS_NAME, Currency.CLASS_NAME);
+		
 		helper.oClass(CLASS_NAME, ICOFarmModule.OMODULE_CLASS)
 				.oProperty(EthereumClientConfig.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName().notNull()
 				.oProperty(EthereumClientConfig.OPROPERTY_HOST, OType.STRING, 10).notNull()
 				.oProperty(EthereumClientConfig.OPROPERTY_PORT, OType.INTEGER, 20).notNull()
 				.oProperty(EthereumClientConfig.OPROPERTY_WORK_FOLDER, OType.STRING, 30).notNull().defaultValue("icofarm")
-				.oProperty(EthereumClientConfig.OPROPERTY_TIMEOUT, OType.INTEGER, 40).notNull().defaultValue("15");
-
-		helper.oClass(Currency.CLASS_NAME, "OEnum");
+				.oProperty(EthereumClientConfig.OPROPERTY_TIMEOUT, OType.INTEGER, 40).notNull().defaultValue("15")
+				.oProperty(EthereumClientConfig.OPROPERTY_MAIN_TOKEN_CURRENCY, OType.LINK, 50).linkedClass(TokenCurrency.CLASS_NAME).notNull().assignVisualization("listbox");
 
 		helper.oClass(OTransaction.CLASS_NAME)
 				.oProperty(OTransaction.OPROPERTY_TIMESTAMP, OType.DATETIME, 0).markAsDocumentName().updateCustomAttribute(CustomAttribute.UI_READONLY, true)
@@ -138,6 +141,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	@Override
 	public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db, ODocument moduleDoc) {
 		super.onInitialize(app, db, moduleDoc);
+		onInstall(app, db);
 		updateService.init(moduleDoc);
 	}
 

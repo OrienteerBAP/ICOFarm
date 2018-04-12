@@ -6,9 +6,12 @@ import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
+import org.orienteer.model.EthereumClientConfig;
 import org.orienteer.model.EthereumWallet;
 import org.orienteer.model.TokenCurrency;
+import org.orienteer.service.IEthereumService;
 
+import com.google.inject.Inject;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 @OMethod(
@@ -22,6 +25,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 public class BuyTokenFromWallet extends BuyToken{
 	private static final long serialVersionUID = 1L;
 
+	@Override
 	protected EthereumWallet getWallet() throws Exception{
 		IModel<?> walletModel = getEnvData().getDisplayObjectModel();
 		ODocument walletDoc = (ODocument) walletModel.getObject();
@@ -30,19 +34,10 @@ public class BuyTokenFromWallet extends BuyToken{
 		
 	}
 	
+	@Override
 	protected TokenCurrency getTokenCurrency() throws Exception{
-		throw new Exception("Make 'default token currency' feature first");
-		/*
-		ICOFarmApplication.get().getModuleByName(name)
-		OSecurityUser user = OrienteerWebSession.get().getUser();
-		
-		if (user==null)	throw new Exception("Please autorize");
-		ICOFarmUser icofarmUser = new ICOFarmUser(user.getDocument());
-		
-		EthereumWallet wallet = icofarmUser.getMainETHWallet();
-		if (wallet==null) throw new Exception("Please link correct ETC wallet to your account");
-		return wallet;
-		*/
+		TokenCurrency tokenCurrency = getConfig().getMainTokenCurrency(); 
+		if (tokenCurrency.getDocument()==null) throw new Exception("Please set main token currency in ICOFarm module settings!");
+		return tokenCurrency;		
 	}
-	
 }

@@ -10,6 +10,7 @@ public class EthereumClientConfig extends ODocumentWrapper {
     public static final String OPROPERTY_PORT        = "port";
     public static final String OPROPERTY_WORK_FOLDER = "workFolder";
     public static final String OPROPERTY_TIMEOUT     = "timeout";
+    public static final String OPROPERTY_MAIN_TOKEN_CURRENCY     = "mainTokenCurrency";
 
     private static final long DEFAULT_BUFFER_DELAY_SEC = 5;//transactions buffer read delay (seconds)
     private static final int DEFAULT_BUFFER_DELAY_NUM = 100;//transactions buffer read delay (number of transactions)
@@ -85,6 +86,10 @@ public class EthereumClientConfig extends ODocumentWrapper {
     public int getBufferSize(){
     	return DEFAULT_BUFFER_DELAY_NUM;
     }
+    
+    public TokenCurrency getMainTokenCurrency(){
+    	return new TokenCurrency(document.field(OPROPERTY_MAIN_TOKEN_CURRENCY));
+    } 
     
     @Override
     public <RET extends ODocumentWrapper> RET save() {

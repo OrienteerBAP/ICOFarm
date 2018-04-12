@@ -1,5 +1,6 @@
 package org.orienteer.method;
 
+import com.google.inject.Inject;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.Component;
@@ -16,10 +17,12 @@ import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
+import org.orienteer.model.EthereumClientConfig;
 import org.orienteer.model.EthereumWallet;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.TokenCurrency;
 import org.orienteer.service.Buyable;
+import org.orienteer.service.IEthereumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
@@ -52,7 +55,10 @@ public class BuyToken extends AbstractModalOMethod {
 	private static final Logger LOG = LoggerFactory.getLogger(BuyToken.class);
 	
 	
+	@Inject //TODO: Find way to inject config. Something like injector.injectMembers(this) does not work properly.  
+    private IEthereumService ethereumService;
 
+	
 	@Override
 	public Component getModalContent(String componentId, ModalWindow modal,AbstractModalWindowCommand<?> command) {
 		return new BuyTokenPopupPanel(componentId, modal,command) {
@@ -125,12 +131,16 @@ public class BuyToken extends AbstractModalOMethod {
 	}
 	
 	private String doBuyTokens(String wallet,String password,String contractAddress,BigDecimal ETHquantity) throws Exception{
-		Web3j web3 = Web3j.build(new HttpService("https://rinkeby.infura.io/jQ5uVScqyIMjgP6ZSSMb"));
+		EthereumClientConfig clientConfig = getConfig();
+		Web3j web3 = Web3j.build(new HttpService(clientConfig.getHost() + ":" + clientConfig.getPort()));
 		Credentials credentials = WalletUtils.loadCredentials(password, wallet);
 		Buyable token = Buyable.load(contractAddress, web3, credentials, GAS_PRICE, GAS_LIMIT);
 		CompletableFuture<TransactionReceipt> result = token.buy(ETHquantity.toBigInteger()).sendAsync();
 		return credentials.getAddress();
 	}
-
+	
+	public EthereumClientConfig getConfig(){
+		return ethereumService.getConfig();
+	} 
 }
 
