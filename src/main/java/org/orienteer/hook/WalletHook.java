@@ -15,7 +15,9 @@ public class WalletHook extends ODocumentHookAbstract {
 
     @Override
     public void onRecordAfterCreate(ODocument doc) {
-        doc.field(Wallet.OPROPERTY_OWNER, OrienteerWebSession.get().getUser().getDocument());
+        if (doc.field(Wallet.OPROPERTY_OWNER) == null) {
+            doc.field(Wallet.OPROPERTY_OWNER, OrienteerWebSession.get().getUser().getDocument());
+        }
     }
 
     @Override

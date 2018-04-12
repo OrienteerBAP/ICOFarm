@@ -64,8 +64,7 @@ public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
                 ICOFarmUser user = getUser();
                 if (user != null) {
                     String password = ((TextField<String>) get("password")).getModelObject();
-                    user.setPassword(password);
-                    user.sudoSave();
+                    dbService.updateUserPassword(user, password);
                     service.clearRestoring(user);
                     PageParameters params = new PageParameters();
                     params.add("restore", "success");

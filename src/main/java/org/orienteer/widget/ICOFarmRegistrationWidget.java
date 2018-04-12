@@ -2,7 +2,6 @@ package org.orienteer.widget;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
-import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -18,27 +17,21 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
-import org.orienteer.module.ICOFarmModule;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.Widget;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.module.ICOFarmPerspectiveModule;
-import org.orienteer.module.ICOFarmSecurityModule;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.IOMailService;
 import org.orienteer.util.EmailExistsValidator;
 import org.orienteer.util.ICOFarmUtils;
-import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
-import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
-
-import static org.orienteer.module.ICOFarmModule.*;
 
 @Widget(id = ICOFarmPerspectiveModule.REGISTRATION_WIDGET_ID, domain = "browse", selector = ICOFarmModule.REGISTRATION, autoEnable = true)
 public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUser> {
@@ -86,38 +79,18 @@ public class ICOFarmRegistrationWidget extends AbstractICOFarmWidget<OSecurityUs
                 String email = ((TextField<String>) form.get("email")).getModelObject();
                 String password = ((TextField<String>) form.get("password")).getModelObject();
 
-                ICOFarmUser user = createNewUser(email, password, firstName, lastName);
-                createReferral(user);
+                ICOFarmUser user = dbService.createInvestorUser(email, password, firstName, lastName, false);
+                updateReferral(user);
                 sendActivationEmail(user);
 
                 target.add(ICOFarmRegistrationWidget.this);
             }
 
-            private ICOFarmUser createNewUser(String email, String password, String firstName, String lastName) {
-                ICOFarmUser user = new ICOFarmUser();
-                ORole role = dbService.getRoleByName(ICOFarmSecurityModule.INVESTOR_ROLE);
-                user.setEmail(email)
-                        .setId(UUID.randomUUID().toString())
-                        .setFirstName(firstName)
-                        .setLastName(lastName)
-                        .setName(email)
-                        .setPassword(password)
-                        .addRole(role)
-                        .setAccountStatus(OSecurityUser.STATUSES.SUSPENDED);
-                user.sudoSave();
-                return user;
-            }
-
-            private void createReferral(ICOFarmUser user) {
+            private void updateReferral(ICOFarmUser user) {
                 String id = (String) OrienteerWebSession.get().getAttribute("referral");
                 ICOFarmUser by = !Strings.isNullOrEmpty(id) ? dbService.getUserBy(ICOFarmUser.ID, id) : null;
                 if (by != null) {
-                    ODocument doc = new ODocument(REFERRAL);
-                    doc.field(OPROPERTY_REFERRAL_CREATED, new Date());
-                    doc.field(OPROPERTY_REFERRAL_USER, user.getDocument());
-                    doc.field(OPROPERTY_REFERRAL_BY, by.getDocument());
-                    doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ, by.getDocument());
-                    DBClosure.sudoSave(doc);
+                    dbService.updateReferralInformation(user, by);
                 }
             }
 

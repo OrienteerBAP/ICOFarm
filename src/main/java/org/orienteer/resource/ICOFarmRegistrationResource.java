@@ -16,7 +16,6 @@ import org.orienteer.core.web.HomePage;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.service.IDBService;
 import org.orienteer.web.ICOFarmLoginPage;
-import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -71,11 +70,7 @@ public class ICOFarmRegistrationResource extends AbstractResource {
             }
 
             private void activateUser(String id) {
-                DBClosure.sudoConsumer((db) -> {
-                    ICOFarmUser user = getUserById(id);
-                    user.setAccountStatus(OUser.STATUSES.ACTIVE);
-                    user.save();
-                });
+                dbService.updateUserStatus(getUserById(id), true);
             }
 
             private void redirectToLoginPage() {

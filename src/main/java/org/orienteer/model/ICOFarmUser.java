@@ -2,7 +2,6 @@ package org.orienteer.model;
 
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.Date;
 
@@ -82,9 +81,5 @@ public class ICOFarmUser extends OUser {
     public EthereumWallet getMainETHWallet() {
     	ODocument wallet = document.field(ETH_WALLET);
         return wallet!=null?new EthereumWallet(wallet):null;
-    }
-
-    public void sudoSave() {
-        DBClosure.sudoSave(this);
     }
 }
