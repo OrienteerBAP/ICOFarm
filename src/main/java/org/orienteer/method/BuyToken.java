@@ -37,6 +37,7 @@ import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 
 @OMethod(
+		icon=FAIconType.dollar,
 		filters={
 				@OFilter(fClass = ODocumentFilter.class, fData = "TokenCurrency"),
 			@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
@@ -54,7 +55,6 @@ public class BuyToken extends AbstractModalOMethod {
 
 	@Override
 	public Component getModalContent(String componentId, ModalWindow modal,AbstractModalWindowCommand<?> command) {
-		command.setIcon(FAIconType.dollar);
 		return new BuyTokenPopupPanel(componentId, modal,command) {
 			private static final long serialVersionUID = 1L;
 
@@ -67,10 +67,7 @@ public class BuyToken extends AbstractModalOMethod {
 					
 					IModel<String> password = getWalletPassword();
 					IModel<String> summ = getEthSumm();
-					IModel<?> currencyModel = getEnvData().getDisplayObjectModel();
-					ODocument currencyDoc = (ODocument) currencyModel.getObject();
-					if (currencyDoc==null) throw new Exception("Please link buy button to 'currency' OClass");
-					String tokenAddress = new TokenCurrency(currencyDoc).getContractAddress();
+					String tokenAddress = getTokenCurrency().getContractAddress();
 
 					walletAddress = doBuyTokens(walletFile,password.getObject(),tokenAddress, new BigDecimal(summ.getObject()));
 					//https://rinkeby.etherscan.io/address/0xf8f3d3d326c78f0d274f91f2428305a89002660e
@@ -93,7 +90,7 @@ public class BuyToken extends AbstractModalOMethod {
 		};
 	}
 	
-	private String doSaveWalletFile() throws Exception{
+	protected EthereumWallet getWallet() throws Exception{
 		OSecurityUser user = OrienteerWebSession.get().getUser();
 		
 		if (user==null)	throw new Exception("Please autorize");
@@ -101,6 +98,19 @@ public class BuyToken extends AbstractModalOMethod {
 		
 		EthereumWallet wallet = icofarmUser.getMainETHWallet();
 		if (wallet==null) throw new Exception("Please link correct ETC wallet to your account");
+		return wallet;
+	}
+	
+	protected TokenCurrency getTokenCurrency() throws Exception{
+		IModel<?> currencyModel = getEnvData().getDisplayObjectModel();
+		ODocument currencyDoc = (ODocument) currencyModel.getObject();
+		if (currencyDoc==null) throw new Exception("Please link buy button to 'currency' OClass");
+		return new TokenCurrency(currencyDoc);		
+	}
+	
+	private String doSaveWalletFile() throws Exception{
+
+		EthereumWallet wallet = getWallet();
 		
 		String walletSource = wallet.getWalletJSON();
 		if (walletSource==null) throw new Exception("Please set correct ETC wallet JSON");
