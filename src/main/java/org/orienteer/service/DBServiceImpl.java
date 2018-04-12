@@ -154,6 +154,7 @@ public class DBServiceImpl implements IDBService {
         return (EmbeddedWallet) dbClosure.get().execute(db -> {
             EmbeddedWallet wallet = new EmbeddedWallet();
             wallet.setOwner(user.getDocument());
+            wallet.getDocument().field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, user.getDocument());
             wallet.save();
             return wallet;
         });
