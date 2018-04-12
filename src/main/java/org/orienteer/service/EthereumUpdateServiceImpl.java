@@ -35,7 +35,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
 
     @Override
     public void init(ODocument config) {
-        if (compositeSubscription == null || compositeSubscription.isUnsubscribed()) {
+        if (compositeSubscription == null || !compositeSubscription.hasSubscriptions()) {
             if (compositeSubscription == null) compositeSubscription = new CompositeSubscription();
             ethereumService.init(config);
 
@@ -76,7 +76,8 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
             return result != null ? result.getBlock() : null;
         };
 
-        return obs.subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction));
+        return obs.subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction),
+                (t) -> LOG.error("Can't receive new transactions!", t));
     }
 
     private Subscription subscribeOnPendingTransactions() {
@@ -85,7 +86,8 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 .buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
                 .subscribeOn(Schedulers.io());
 
-        return obs.subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions));
+        return obs.subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions),
+                (t) -> LOG.error("Can't receive pending transactions!", t));
     }
 
     private void updateBalance(List<Wallet> wallets) {

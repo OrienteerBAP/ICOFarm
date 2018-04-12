@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 public class ICOFarmModule extends AbstractOrienteerModule {
 
 	public static final String CLASS_NAME = "ICOFarmModule";
+	public static final String NAME       = "ICOFarm";
 
 	public static final String REFERRAL     = "Referral";
 	public static final String REGISTRATION = "Registration";
@@ -42,7 +43,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	private IEthereumUpdateService updateService;
 
 	protected ICOFarmModule() {
-		super("ICOFarm", VERSION);
+		super(NAME, VERSION);
 	}
 	
 	@Override
@@ -122,7 +123,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 	private ODocument createModuleDocument(OSchemaHelper helper) {
 		return helper.oClass(CLASS_NAME).oDocument()
-				.field(EthereumClientConfig.OPROPERTY_NAME, "default")
+				.field(EthereumClientConfig.OPROPERTY_NAME, NAME)
 				.field(EthereumClientConfig.OPROPERTY_HOST, "http://localhost")
 				.field(EthereumClientConfig.OPROPERTY_PORT, 8545)
 				.field(EthereumClientConfig.OPROPERTY_TIMEOUT, 15)
@@ -139,6 +140,13 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db, ODocument moduleDoc) {
 		super.onInitialize(app, db, moduleDoc);
 		updateService.init(moduleDoc);
+	}
+
+	@Override
+	public void onConfigurationChange(OrienteerWebApplication app, ODatabaseDocument db, ODocument moduleDoc) {
+		super.onConfigurationChange(app, db, moduleDoc);
+        onDestroy(app, db);
+        onInitialize(app, db, moduleDoc);
 	}
 
 	@Override
