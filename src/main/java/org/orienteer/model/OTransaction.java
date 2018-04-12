@@ -2,7 +2,6 @@ package org.orienteer.model;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
-import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.Date;
 
@@ -95,11 +94,6 @@ public class OTransaction extends ODocumentWrapper {
     public boolean isConfirmed() {
 	    Boolean confirmed = document.field(OPROPERTY_CONFIRMED);
 	    return confirmed != null && confirmed;
-    }
-
-    public OTransaction sudoSave() {
-        DBClosure.sudoSave(this);
-        return this;
     }
 
 }

@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 public class ICOFarmModule extends AbstractOrienteerModule {
 
 	public static final String CLASS_NAME = "ICOFarmModule";
+	public static final String NAME       = "ICOFarm";
 
 	public static final String REFERRAL     = "Referral";
 	public static final String REGISTRATION = "Registration";
@@ -37,12 +38,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
 	public static final int VERSION = 6;
-
+	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 	@Inject
 	private IEthereumUpdateService updateService;
 
 	protected ICOFarmModule() {
-		super("ICOFarm", VERSION);
+		super(NAME, VERSION);
 	}
 	
 	@Override
@@ -60,6 +61,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(EthereumClientConfig.OPROPERTY_WORK_FOLDER, OType.STRING, 30).notNull().defaultValue("icofarm")
 				.oProperty(EthereumClientConfig.OPROPERTY_TIMEOUT, OType.INTEGER, 40).notNull().defaultValue("15")
 				.oProperty(EthereumClientConfig.OPROPERTY_MAIN_TOKEN_CURRENCY, OType.LINK, 50).linkedClass(TokenCurrency.CLASS_NAME).notNull().assignVisualization("listbox");
+
 
 		helper.oClass(OTransaction.CLASS_NAME)
 				.oProperty(OTransaction.OPROPERTY_TIMESTAMP, OType.DATETIME, 0).markAsDocumentName().updateCustomAttribute(CustomAttribute.UI_READONLY, true)
@@ -125,7 +127,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 	private ODocument createModuleDocument(OSchemaHelper helper) {
 		return helper.oClass(CLASS_NAME).oDocument()
-				.field(EthereumClientConfig.OPROPERTY_NAME, "default")
+				.field(EthereumClientConfig.OPROPERTY_NAME, NAME)
 				.field(EthereumClientConfig.OPROPERTY_HOST, "http://localhost")
 				.field(EthereumClientConfig.OPROPERTY_PORT, 8545)
 				.field(EthereumClientConfig.OPROPERTY_TIMEOUT, 15)
@@ -141,8 +143,14 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	@Override
 	public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db, ODocument moduleDoc) {
 		super.onInitialize(app, db, moduleDoc);
-		onInstall(app, db);
 		updateService.init(moduleDoc);
+	}
+
+	@Override
+	public void onConfigurationChange(OrienteerWebApplication app, ODatabaseDocument db, ODocument moduleDoc) {
+		super.onConfigurationChange(app, db, moduleDoc);
+        onDestroy(app, db);
+        onInitialize(app, db, moduleDoc);
 	}
 
 	@Override

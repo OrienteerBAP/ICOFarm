@@ -3,7 +3,6 @@ package org.orienteer.model;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
-import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 import java.util.Map;
 
@@ -37,8 +36,4 @@ public class Currency extends ODocumentWrapper {
         return this;
     }
 
-    public Currency sudoSave() {
-        DBClosure.sudoSave(this);
-        return this;
-    }
 }

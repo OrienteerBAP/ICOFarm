@@ -2,7 +2,6 @@ package org.orienteer.model;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
-import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
 public class Wallet extends ODocumentWrapper {
 	private static final long serialVersionUID = 1L;
@@ -48,13 +47,4 @@ public class Wallet extends ODocumentWrapper {
 		return new Currency((ODocument) document.field(OPROPERTY_CURRENCY));
 	}
 
-	public Wallet setCurrencu(ODocument doc) {
-		document.field(OPROPERTY_CURRENCY, doc);
-		return this;
-	}
-
-	public Wallet sudoSave() {
-		DBClosure.sudoSave(this);
-		return this;
-	}
 }
