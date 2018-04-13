@@ -1,6 +1,5 @@
 package org.orienteer.method;
 
-import com.google.inject.Inject;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.Component;
@@ -8,6 +7,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.flow.RedirectToUrlException;
+import org.orienteer.ICOFarmApplication;
 import org.orienteer.component.BuyTokenPopupPanel;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.FAIconType;
@@ -54,10 +54,6 @@ public class BuyToken extends AbstractModalOMethod {
 	private static final BigInteger GAS_LIMIT = BigInteger.valueOf(200000);
 	private static final Logger LOG = LoggerFactory.getLogger(BuyToken.class);
 	
-	
-	@Inject //TODO: Find way to inject config. Something like injector.injectMembers(this) does not work properly.  
-    private IEthereumService ethereumService;
-
 	
 	@Override
 	public Component getModalContent(String componentId, ModalWindow modal,AbstractModalWindowCommand<?> command) {
@@ -140,7 +136,8 @@ public class BuyToken extends AbstractModalOMethod {
 	}
 	
 	public EthereumClientConfig getConfig(){
-		return ethereumService.getConfig();
+		IEthereumService ethService = ICOFarmApplication.get().getInjector().getInstance(IEthereumService.class);
+		return ethService.getConfig();
 	} 
 }
 
