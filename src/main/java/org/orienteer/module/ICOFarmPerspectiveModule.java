@@ -157,7 +157,6 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
 
         List<String> embeddedWalletProperties = new ArrayList<>(2);
         embeddedWalletProperties.add(EmbeddedWallet.OPROPERTY_NAME);
-        embeddedWalletProperties.add(EmbeddedWallet.OPROPERTY_PASSWORD);
 
         HIDDEN_PROPERTIES.put(ICOFarmUser.CLASS_NAME, userProperties);
         HIDDEN_PROPERTIES.put("ORestricted", restrictedProperties);

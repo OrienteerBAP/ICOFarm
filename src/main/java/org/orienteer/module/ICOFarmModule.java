@@ -86,8 +86,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(REGISTRATION);
 
 		helper.oClass(EmbeddedWallet.CLASS_NAME, Wallet.CLASS_NAME)
-                .oProperty(EmbeddedWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
-                .oProperty(EmbeddedWallet.OPROPERTY_PASSWORD, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
+                .oProperty(EmbeddedWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
 
 		helper.oClass(ExternalWallet.CLASS_NAME, Wallet.CLASS_NAME);
 
