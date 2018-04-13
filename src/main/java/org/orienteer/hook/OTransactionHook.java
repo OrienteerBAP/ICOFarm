@@ -7,12 +7,11 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.OTransaction;
 import org.orienteer.service.IEthereumService;
+import org.orienteer.util.ICOFarmUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
-
-import java.util.Date;
 
 public class OTransactionHook extends ODocumentHookAbstract {
 
@@ -43,7 +42,8 @@ public class OTransactionHook extends ODocumentHookAbstract {
                     doc.field(OTransaction.OPROPERTY_TO, transaction.getTo());
                     doc.field(OTransaction.OPROPERTY_VALUE, transaction.getValue().toString());
                     doc.field(OTransaction.OPROPERTY_BLOCK, transaction.getBlockNumber().toString());
-                    doc.field(OTransaction.OPROPERTY_TIMESTAMP, new Date(block.getBlock().getTimestamp().longValue() * 1000));
+                    doc.field(OTransaction.OPROPERTY_TIMESTAMP, ICOFarmUtils.computeTimestamp(block.getBlock()));
+                    return;
                 }
             } catch (Exception ex) {
                 LOG.error("Can't get information about transaction: {}", doc, ex);
