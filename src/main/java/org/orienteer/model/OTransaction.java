@@ -1,5 +1,6 @@
 package org.orienteer.model;
 
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 
@@ -16,6 +17,7 @@ public class OTransaction extends ODocumentWrapper {
     public static final String OPROPERTY_HASH      = "hash";
     public static final String OPROPERTY_BLOCK     = "block";
     public static final String OPROPERTY_CONFIRMED = "confirmed";
+    public static final String OPROPERTY_WALLET    = "wallet";
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,15 +28,6 @@ public class OTransaction extends ODocumentWrapper {
     public OTransaction(ODocument iDocument) {
         super(iDocument);
     }
-
-//    public OTransaction(Transaction transaction, ODocument owner) {
-//	    this();
-//	    setFrom(transaction.getFrom());
-//	    setTo(transaction.getTo());
-//	    setHash(transaction.getHash());
-//	    setValue(transaction.getValue().toString());
-//	    document.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singleton(owner));
-//    }
 
     public OTransaction setTimestamp(Date timestamp) {
 	    document.field(OPROPERTY_TIMESTAMP, timestamp);
@@ -88,6 +81,16 @@ public class OTransaction extends ODocumentWrapper {
 
     public OTransaction setConfirmed(boolean confirmed) {
 	    document.field(OPROPERTY_CONFIRMED, confirmed);
+	    return this;
+    }
+
+    public Wallet getWallet() {
+	    ODocument doc = ((OIdentifiable) document.field(OPROPERTY_WALLET)).getRecord();
+	    return new Wallet(doc);
+    }
+
+    public OTransaction setWallet(Wallet wallet) {
+	    document.field(OPROPERTY_WALLET, wallet);
 	    return this;
     }
 

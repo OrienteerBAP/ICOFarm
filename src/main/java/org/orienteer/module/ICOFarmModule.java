@@ -38,7 +38,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 4;
+	public static final int VERSION = 5;
 
 	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 
@@ -73,7 +73,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OTransaction.OPROPERTY_VALUE, OType.STRING, 30).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
 				.oProperty(OTransaction.OPROPERTY_HASH, OType.STRING, 40).notNull()
 				.oProperty(OTransaction.OPROPERTY_BLOCK, OType.STRING, 50).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
-				.oProperty(OTransaction.OPROPERTY_CONFIRMED, OType.BOOLEAN, 60).notNull().updateCustomAttribute(CustomAttribute.UI_READONLY, true).defaultValue("false");
+				.oProperty(OTransaction.OPROPERTY_CONFIRMED, OType.BOOLEAN, 60).notNull().updateCustomAttribute(CustomAttribute.UI_READONLY, true).defaultValue("false")
+				.oProperty(OTransaction.OPROPERTY_WALLET, OType.LINK, 70);
+
 
 		helper.oClass(REFERRAL)
 				.oProperty(OPROPERTY_REFERRAL_CREATED, OType.DATETIME, 0).notNull().markAsDocumentName()
@@ -85,7 +87,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(Wallet.OPROPERTY_CURRENCY, OType.LINK, 10).linkedClass(Currency.CLASS_NAME)
 				.oProperty(Wallet.OPROPERTY_BALANCE, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
 				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 30)
-                .oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true");
+                .oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true")
+				.oProperty(Wallet.OPROPERTY_TRANSACTIONS, OType.LINKSET, 40).assignVisualization("table")
+					.assignTab(Wallet.OPROPERTY_TRANSACTIONS);
 
 		helper.oClass(REGISTRATION);
 
@@ -93,6 +97,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
                 .oProperty(EmbeddedWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
 
 		helper.oClass(ExternalWallet.CLASS_NAME, Wallet.CLASS_NAME);
+
+		helper.setupRelationship(Wallet.CLASS_NAME, Wallet.OPROPERTY_TRANSACTIONS, OTransaction.CLASS_NAME, OTransaction.OPROPERTY_WALLET);
 
 		createRemoveRestoreIdFunction(helper);
 		return createModuleDocument(helper);
