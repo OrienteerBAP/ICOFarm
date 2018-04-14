@@ -73,8 +73,9 @@ public class DBServiceImpl implements IDBService {
 
     @Override
     public List<Wallet> getUserWallets(ICOFarmUser user) {
-        List<ODocument> docs = query(null, new OSQLSynchQuery<>("select from " + Wallet.CLASS_NAME
-                + " where " + Wallet.OPROPERTY_OWNER + " = ?"), user.getDocument());
+        String sql = String.format("select from %s where %s = ? order by %s", Wallet.CLASS_NAME, Wallet.OPROPERTY_OWNER,
+                Wallet.OPROPERTY_CREATED);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql), user.getDocument());
         return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(Wallet::new).collect(Collectors.toList());
     }
 

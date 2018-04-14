@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
@@ -37,7 +38,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 1;
+	public static final int VERSION = 4;
 
 	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 
@@ -83,7 +84,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(Wallet.OPROPERTY_OWNER, OType.LINK, 0).linkedClass(ICOFarmUser.CLASS_NAME)
 				.oProperty(Wallet.OPROPERTY_CURRENCY, OType.LINK, 10).linkedClass(Currency.CLASS_NAME)
 				.oProperty(Wallet.OPROPERTY_BALANCE, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
-				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 30);
+				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 30)
+                .oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true");
 
 		helper.oClass(REGISTRATION);
 
@@ -127,13 +129,20 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	}
 
 	private ODocument createModuleDocument(OSchemaHelper helper) {
-		return helper.oClass(CLASS_NAME).oDocument()
-				.field(EthereumClientConfig.OPROPERTY_NAME, NAME)
-				.field(EthereumClientConfig.OPROPERTY_HOST, "http://localhost")
-				.field(EthereumClientConfig.OPROPERTY_PORT, 8545)
-				.field(EthereumClientConfig.OPROPERTY_TIMEOUT, 15)
-				.field(EthereumClientConfig.OPROPERTY_WORK_FOLDER, "icofarm")
-				.saveDocument().getODocument();
+        List<ODocument> docs = helper.getDatabase().query(new OSQLSynchQuery<>("select from " + CLASS_NAME, 1));
+        if (docs != null && !docs.isEmpty()) {
+            return null;
+        }
+
+        ODocument doc = new ODocument(CLASS_NAME);
+        doc.field(EthereumClientConfig.OPROPERTY_NAME, NAME);
+        doc.field(EthereumClientConfig.OPROPERTY_HOST, "http://localhost");
+        doc.field(EthereumClientConfig.OPROPERTY_PORT, 8545);
+        doc.field(EthereumClientConfig.OPROPERTY_TIMEOUT, 15);
+        doc.field(EthereumClientConfig.OPROPERTY_WORK_FOLDER, "icofarm");
+        doc.save();
+
+        return doc;
 	}
 
 	@Override

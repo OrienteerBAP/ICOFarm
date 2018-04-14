@@ -3,6 +3,8 @@ package org.orienteer.model;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 
+import java.util.Date;
+
 public class Wallet extends ODocumentWrapper {
 	private static final long serialVersionUID = 1L;
 
@@ -12,6 +14,7 @@ public class Wallet extends ODocumentWrapper {
 	public static final String OPROPERTY_CURRENCY = "currency";
 	public static final String OPROPERTY_BALANCE  = "balance";
 	public static final String OPROPERTY_ADDRESS  = "address";
+	public static final String OPROPERTY_CREATED  = "created";
 
 	public Wallet(ODocument wallet) {
 		super(wallet);
@@ -40,6 +43,15 @@ public class Wallet extends ODocumentWrapper {
 
 	public Wallet setOwner(ODocument doc) {
 		document.field(OPROPERTY_OWNER, doc);
+		return this;
+	}
+
+	public Date getCreated() {
+		return document.field(OPROPERTY_CREATED);
+	}
+
+	public Wallet setCreated(Date created) {
+		document.field(OPROPERTY_CREATED, created);
 		return this;
 	}
 

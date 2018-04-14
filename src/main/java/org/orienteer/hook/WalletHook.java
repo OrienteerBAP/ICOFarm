@@ -9,6 +9,7 @@ import org.orienteer.model.Wallet;
 import org.orienteer.service.IEthereumService;
 
 import java.math.BigInteger;
+import java.util.Date;
 
 public class WalletHook extends ODocumentHookAbstract {
 
@@ -23,6 +24,7 @@ public class WalletHook extends ODocumentHookAbstract {
         if (doc.field(Wallet.OPROPERTY_OWNER) == null) {
             doc.field(Wallet.OPROPERTY_OWNER, OrienteerWebSession.get().getUser().getDocument());
         }
+        doc.field(Wallet.OPROPERTY_CREATED, new Date());
         updateWalletBalance(doc, service);
     }
 
