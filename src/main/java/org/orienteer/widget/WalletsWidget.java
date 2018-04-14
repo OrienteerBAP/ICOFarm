@@ -22,7 +22,6 @@ import org.orienteer.util.ICOFarmUtils;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Widget(id = ICOFarmPerspectiveModule.WALLETS_WIDGET_ID, domain = "browse", selector = Wallet.CLASS_NAME, autoEnable = true)
 public class WalletsWidget extends AbstractICOFarmWidget<OClass> {
@@ -56,8 +55,8 @@ public class WalletsWidget extends AbstractICOFarmWidget<OClass> {
                 listItem.setRenderBodyOnly(true);
                 listItem.add(new WalletsRowPanel("walletsRow", WalletsWidget.this.getModel(), listItem.getModel(), size) {
                     @Override
-                    protected void onWalletDelete(Optional<AjaxRequestTarget> target) {
-                        target.ifPresent(t -> t.add(WalletsWidget.this));
+                    protected void onWalletDelete(AjaxRequestTarget target) {
+                        target.add(WalletsWidget.this);
                     }
                 });
             }

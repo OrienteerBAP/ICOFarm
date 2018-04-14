@@ -10,7 +10,6 @@ import org.apache.wicket.model.IModel;
 import org.orienteer.model.Wallet;
 
 import java.util.List;
-import java.util.Optional;
 
 public class WalletsRowPanel extends GenericPanel<List<Wallet>> {
 
@@ -32,7 +31,7 @@ public class WalletsRowPanel extends GenericPanel<List<Wallet>> {
         setOutputMarkupPlaceholderTag(true);
     }
 
-    protected void onWalletDelete(Optional<AjaxRequestTarget> target) {
+    protected void onWalletDelete(AjaxRequestTarget target) {
 
     }
 
@@ -42,7 +41,7 @@ public class WalletsRowPanel extends GenericPanel<List<Wallet>> {
             protected void populateItem(ListItem<Wallet> listItem) {
                 listItem.add(new WalletPanel("wallet", listItem.getModel()) {
                     @Override
-                    protected void onWalletDelete(Optional<AjaxRequestTarget> target) {
+                    protected void onWalletDelete(AjaxRequestTarget target) {
                         WalletsRowPanel.this.onWalletDelete(target);
                     }
                 });

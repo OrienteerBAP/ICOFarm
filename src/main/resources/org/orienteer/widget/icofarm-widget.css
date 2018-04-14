@@ -38,6 +38,6 @@
     cursor: pointer;
 }
 
-.wallet-card:hover > .card-header > .delete-wallet-command {
+.card-header:hover > .delete-wallet-command {
     visibility: visible !important;
 }
