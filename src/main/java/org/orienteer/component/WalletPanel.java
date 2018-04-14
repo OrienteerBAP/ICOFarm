@@ -6,6 +6,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.GenericPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -17,6 +18,7 @@ import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.component.command.AbstractModalWindowCommand;
 import org.orienteer.core.component.command.AjaxCommand;
 import org.orienteer.core.component.command.Command;
+import org.orienteer.core.web.ODocumentPage;
 import org.orienteer.model.Wallet;
 import ru.ydn.wicket.wicketorientdb.model.ODocumentModel;
 
@@ -35,6 +37,7 @@ public class WalletPanel extends GenericPanel<Wallet> {
         add(new Label("title", wallet.getAddress()));
         add(new Label("balance", wallet.getBalance()));
         add(createDeleteCommand("deleteCommand"));
+        add(createDetailsLink("detailsLink"));
         add(createRefillLink("refillLink"));
         setRenderBodyOnly(true);
         setOutputMarkupPlaceholderTag(true);
@@ -70,11 +73,33 @@ public class WalletPanel extends GenericPanel<Wallet> {
         return new AbstractModalWindowCommand<ODocument>(id, new ResourceModel("refill.link"), getDocumentModel()) {
 
             @Override
+            protected void onInitialize() {
+                super.onInitialize();
+                setRenderBodyOnly(true);
+                getLink().add(AttributeModifier.replace("class", "card-link float-right"));
+            }
+
+            @Override
             protected void initializeContent(ModalWindow modal) {
-                add(AttributeModifier.append("class", "float-right"));
                 modal.setMinimalWidth(580);
                 modal.setMinimalHeight(370);
                 modal.setContent(new RefillWalletPopupPanel(modal.getContentId(), getModel()));
+            }
+        };
+    }
+
+    private Link<ODocument> createDetailsLink(String id) {
+        return new Link<ODocument>(id, getDocumentModel()) {
+
+            @Override
+            protected void onInitialize() {
+                super.onInitialize();
+                setBody(new ResourceModel("details.link"));
+            }
+
+            @Override
+            public void onClick() {
+                setResponsePage(new ODocumentPage(getModel()));
             }
         };
     }
