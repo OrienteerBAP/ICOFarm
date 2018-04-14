@@ -1,6 +1,7 @@
 package org.orienteer.module;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.security.OIdentity;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -11,7 +12,6 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.module.AbstractOrienteerModule;
-import org.orienteer.core.module.OWidgetsModule;
 import org.orienteer.core.module.PerspectivesModule;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
@@ -22,7 +22,9 @@ import org.orienteer.model.Wallet;
 
 import java.util.*;
 
-import static org.orienteer.module.ICOFarmModule.*;
+import static org.orienteer.core.module.OWidgetsModule.*;
+import static org.orienteer.module.ICOFarmModule.REFERRAL;
+import static org.orienteer.module.ICOFarmModule.REGISTRATION;
 import static org.orienteer.module.ICOFarmSecurityModule.*;
 
 public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
@@ -33,6 +35,8 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     public static final String REFERRAL_WIDGET_ID       = "referrals-widget";
     public static final String REGISTRATION_WIDGET_ID   = "registration";
     public static final String SCHEMA_CLASSES_WIDGET_ID = "list-oclasses";
+    public static final String LIST_DOCUMENTS_WIDGET_ID = "list-all";
+    public static final String WALLETS_WIDGET_ID        = "wallets-widget";
 
     /**
      * Contains hidden properties for investors.
@@ -127,8 +131,13 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     }
 
     private void adjustDashboard(OSchemaHelper helper) {
-        createWidget(REGISTRATION_WIDGET_ID, REGISTRATION, helper);
-        createWidget(REFERRAL_WIDGET_ID, REFERRAL, helper);
+        createWidgetIfNotExists(REGISTRATION_WIDGET_ID, REGISTRATION, helper);
+
+        createWidgetIfNotExists(REFERRAL_WIDGET_ID, REFERRAL, helper);
+        createWidgetIfNotExists(LIST_DOCUMENTS_WIDGET_ID, REFERRAL, helper);
+
+        createWidgetIfNotExists(WALLETS_WIDGET_ID, Wallet.CLASS_NAME, helper);
+        createWidgetIfNotExists(LIST_DOCUMENTS_WIDGET_ID, Wallet.CLASS_NAME, helper);
     }
 
     private void initHiddenProperties() {
@@ -166,7 +175,8 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     }
 
     private void initHiddenWidgets() {
-        HIDDEN_WIDGETS.put(REFERRAL, Collections.singletonList("list-all"));
+        HIDDEN_WIDGETS.put(REFERRAL, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
+        HIDDEN_WIDGETS.put(Wallet.CLASS_NAME, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
     }
 
     private ODocument getOrCreatePerspective(String name, OSchemaHelper helper) {
@@ -190,21 +200,35 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         return doc;
     }
 
-    private void createWidget(String typeId, String className, OSchemaHelper helper) {
-        ODocument dashboard = createDashboard(className, helper);
-        helper.oClass(OWidgetsModule.OCLASS_WIDGET)
-                .oDocument()
-                .field(OWidgetsModule.OPROPERTY_TYPE_ID, typeId)
-                .field(OWidgetsModule.OPROPERTY_DASHBOARD, dashboard)
-                .saveDocument();
+    private void createWidgetIfNotExists(String typeId, String className, OSchemaHelper helper) {
+        ODocument dashboard = getOrCreateDashboard(className, helper);
+        if (!isWidgetExists(dashboard, typeId)) {
+           ODocument doc = new ODocument(OCLASS_WIDGET);
+           doc.field(OPROPERTY_TYPE_ID, typeId);
+           doc.field(OPROPERTY_DASHBOARD, dashboard);
+           doc.save();
+        }
     }
 
-    private ODocument createDashboard(String className, OSchemaHelper helper) {
-        return helper.oClass(OWidgetsModule.OCLASS_DASHBOARD)
-                .oDocument()
-                .field(OWidgetsModule.OPROPERTY_DOMAIN, "browse")
-                .field(OWidgetsModule.OPROPERTY_TAB, "list")
-                .field(OWidgetsModule.OPROPERTY_CLASS, className).saveDocument().getODocument();
+    private ODocument getOrCreateDashboard(String className, OSchemaHelper helper) {
+        String sql = String.format("select from %s where %s = ?", OCLASS_DASHBOARD, OPROPERTY_CLASS);
+        List<ODocument> docs = helper.getDatabase().query(new OSQLSynchQuery<>(sql, 1), className);
+        ODocument doc;
+        if (docs == null || docs.isEmpty()) {
+            doc = new ODocument(OCLASS_DASHBOARD);
+            doc.field(OPROPERTY_DOMAIN, "browse");
+            doc.field(OPROPERTY_TAB, "list");
+            doc.field(OPROPERTY_CLASS, className);
+            doc.save();
+        } else doc = docs.get(0);
+
+        return doc;
+    }
+
+    private boolean isWidgetExists(ODocument dashboard, String typeId) {
+        List<OIdentifiable> widgets = (List<OIdentifiable>) dashboard.field(OPROPERTY_WIDGETS);
+        return widgets != null && !widgets.isEmpty() && widgets.stream()
+                .anyMatch(widget -> typeId.equals(((ODocument)widget.getRecord()).field(OPROPERTY_TYPE_ID)));
     }
 
     private void updateRole(ODatabaseDocument db, String perspectiveName, String field, String roleName) {

@@ -16,6 +16,7 @@ import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.Widget;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.Wallet;
+import org.orienteer.module.ICOFarmPerspectiveModule;
 import org.orienteer.service.IDBService;
 import org.orienteer.util.ICOFarmUtils;
 
@@ -23,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-@Widget(id = "wallets-widget", domain = "browse", selector = Wallet.CLASS_NAME, autoEnable = true)
+@Widget(id = ICOFarmPerspectiveModule.WALLETS_WIDGET_ID, domain = "browse", selector = Wallet.CLASS_NAME, autoEnable = true)
 public class WalletsWidget extends AbstractICOFarmWidget<OClass> {
 
     @Inject
