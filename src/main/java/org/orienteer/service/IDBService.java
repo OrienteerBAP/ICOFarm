@@ -29,6 +29,8 @@ public interface IDBService extends IClusterable {
 
     public List<Wallet> getWallets();
 
+    public List<Wallet> getUserWallets(ICOFarmUser user);
+
     public ICOFarmUser createInvestorUser(String email, String password, String firstName, String lastName, boolean active);
 
     public void updateReferralInformation(ICOFarmUser user, ICOFarmUser by);

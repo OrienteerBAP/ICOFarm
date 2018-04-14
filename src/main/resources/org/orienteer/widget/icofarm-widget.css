@@ -29,7 +29,15 @@
     overflow-y: hidden; !important;
 }
 
-.add-wallet-card:hover {
+.add-wallet-card {
     opacity: 0.7;
+}
+
+.add-wallet-card:hover {
+    opacity: 0.9;
     cursor: pointer;
+}
+
+.wallet-card:hover > .card-header > .delete-wallet-command {
+    visibility: visible !important;
 }

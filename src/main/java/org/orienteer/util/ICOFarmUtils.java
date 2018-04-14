@@ -6,9 +6,8 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.ICOFarmUser;
 import org.web3j.protocol.core.methods.response.EthBlock;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collector;
 
 public final class ICOFarmUtils {
 
@@ -31,5 +30,23 @@ public final class ICOFarmUtils {
 
     public static Date computeTimestamp(EthBlock.Block block) {
         return new Date(1000 * block.getTimestamp().longValue());
+    }
+
+    public static <T> Collector<T, List<List<T>>, List<List<T>>> getCollectorForGroupList(int num) {
+        return Collector.of(
+                LinkedList::new,
+
+                (list, element) -> {
+                    List<T> innerList = !list.isEmpty() ? list.get(list.size() - 1) : null;
+                    if (innerList == null || innerList.size() == num) {
+                        innerList = new ArrayList<>(num);
+                        list.add(innerList);
+                    }
+
+                    innerList.add(element);
+                },
+
+                (a, b) -> a
+        );
     }
 }

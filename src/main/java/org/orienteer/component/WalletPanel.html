@@ -1,0 +1,15 @@
+<wicket:panel xmlns:wicket="http://www.w3.org/1999/xhtml">
+	<div class="card wallet-card">
+		<div class="card-header">
+			<i class="fa fa-briefcase" aria-hidden="true"></i>
+			<span wicket:id="title">Wallet Name</span>
+			<div wicket:id="deleteCommand" class="invisible float-right delete-wallet-command"></div>
+		</div>
+		<div class="card-body">
+			<h1 class="card-text text-center">
+				<strong wicket:id="balance">Wallet Balance</strong>
+			</h1>
+			<div wicket:id="refillLink"></div>
+		</div>
+	</div>
+</wicket:panel>
