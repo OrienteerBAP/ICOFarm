@@ -43,6 +43,7 @@ public class OTransactionHook extends ODocumentHookAbstract {
                     doc.field(OTransaction.OPROPERTY_VALUE, transaction.getValue().toString());
                     doc.field(OTransaction.OPROPERTY_BLOCK, transaction.getBlockNumber().toString());
                     doc.field(OTransaction.OPROPERTY_TIMESTAMP, ICOFarmUtils.computeTimestamp(block.getBlock()));
+                    doc.field(OTransaction.OPROPERTY_CONFIRMED, true);
                     return;
                 }
             } catch (Exception ex) {
