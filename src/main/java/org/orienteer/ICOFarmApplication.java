@@ -38,8 +38,8 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		ICOFarmRestorePasswordResource.mount(this);
 
 		List<Class<? extends ORecordHook>> hooks = getOrientDbSettings().getORecordHooks();
-		hooks.add(ICOFarmOWidgetHook.class);
-		hooks.add(ICOFarmOUserHook.class);
+		hooks.add(OWidgetHook.class);
+		hooks.add(OUserHook.class);
 		hooks.add(EmbeddedWalletHook.class);
 		hooks.add(WalletHook.class);
 		hooks.add(ExternalWalletHook.class);

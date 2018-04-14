@@ -4,16 +4,15 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import org.orienteer.module.ICOFarmModule;
 import org.orienteer.model.ICOFarmUser;
 
 /**
  * Hook which will skip OUser documents which is not documents for current user.
- * Works for user with role {@link ICOFarmModule#INVESTOR_ROLE}
+ * Works for user with role {@link org.orienteer.module.ICOFarmSecurityModule#INVESTOR_ROLE}
  */
-public class ICOFarmOUserHook extends ODocumentHookAbstract {
+public class OUserHook extends ODocumentHookAbstract {
 
-    public ICOFarmOUserHook(ODatabaseDocument database) {
+    public OUserHook(ODatabaseDocument database) {
         super(database);
         setIncludeClasses(ICOFarmUser.CLASS_NAME);
     }

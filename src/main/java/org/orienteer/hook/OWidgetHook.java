@@ -12,9 +12,9 @@ import org.orienteer.util.ICOFarmUtils;
 
 import java.util.List;
 
-public class ICOFarmOWidgetHook extends ODocumentHookAbstract {
+public class OWidgetHook extends ODocumentHookAbstract {
 
-    public ICOFarmOWidgetHook(ODatabaseDocument database) {
+    public OWidgetHook(ODatabaseDocument database) {
         super(database);
         setIncludeClasses(OWidgetsModule.OCLASS_WIDGET);
     }
