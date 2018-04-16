@@ -95,8 +95,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		helper.oClass(REGISTRATION);
 
-		helper.oClass(ExternalWallet.CLASS_NAME, Wallet.CLASS_NAME);
-
 		helper.setupRelationship(Wallet.CLASS_NAME, Wallet.OPROPERTY_TRANSACTIONS, OTransaction.CLASS_NAME, OTransaction.OPROPERTY_WALLET);
 
 		createRemoveRestoreIdFunction(helper);

@@ -41,7 +41,6 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		hooks.add(OWidgetHook.class);
 		hooks.add(OUserHook.class);
 		hooks.add(WalletHook.class);
-		hooks.add(ExternalWalletHook.class);
 		hooks.add(OTransactionHook.class);
 	}
 

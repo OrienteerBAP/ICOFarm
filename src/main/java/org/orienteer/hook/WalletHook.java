@@ -1,6 +1,7 @@
 package org.orienteer.hook;
 
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
+import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
@@ -24,19 +25,33 @@ public class WalletHook extends ODocumentHookAbstract {
     }
 
     @Override
-    public void onRecordAfterCreate(ODocument doc) {
+    public RESULT onRecordBeforeCreate(ODocument doc) {
         IEthereumService service = OrienteerWebApplication.get().getServiceInstance(IEthereumService.class);
+
+        if (doc.field(Wallet.OPROPERTY_ADDRESS) == null) {
+            createWallet(doc, service);
+        } else checkIfAddressValid(doc, service);
+
         if (doc.field(Wallet.OPROPERTY_OWNER) == null) {
             doc.field(Wallet.OPROPERTY_OWNER, OrienteerWebSession.get().getUser().getDocument());
         }
-        if (doc.field(Wallet.OPROPERTY_ADDRESS) == null) {
-            createWallet(doc, service);
-        }
+
         if (doc.field(Wallet.OPROPERTY_NAME) == null) {
             doc.field(Wallet.OPROPERTY_NAME, (String) doc.field(Wallet.OPROPERTY_ADDRESS));
         }
+
         doc.field(Wallet.OPROPERTY_CREATED, new Date());
         updateWalletBalance(doc, service);
+
+        return super.onRecordBeforeCreate(doc);
+    }
+
+    @Override
+    public RESULT onRecordBeforeUpdate(ODocument doc) {
+        IEthereumService service = OrienteerWebApplication.get().getServiceInstance(IEthereumService.class);
+        checkIfAddressValid(doc, service);
+
+        return super.onRecordBeforeUpdate(doc);
     }
 
     private void createWallet(ODocument doc, IEthereumService service) {
@@ -58,6 +73,12 @@ public class WalletHook extends ODocumentHookAbstract {
         } catch (Exception e) {}
     }
 
+    private void checkIfAddressValid(ODocument doc, IEthereumService service) {
+        String address = doc.field(Wallet.OPROPERTY_ADDRESS);
+        if (!service.isAddressValid(address)) {
+            throw new OValidationException(String.format("Account with address '%s' doesn't valid!", address));
+        }
+    }
 
     @Override
     public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
