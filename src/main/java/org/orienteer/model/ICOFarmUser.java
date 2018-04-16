@@ -1,9 +1,13 @@
 package org.orienteer.model;
 
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
-import java.util.Date;
+import java.util.*;
+
+import static org.orienteer.module.ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ;
+import static org.orienteer.module.ICOFarmSecurityModule.ORESTRICTED_ALLOW_UPDATE;
 
 public class ICOFarmUser extends OUser {
 	private static final long serialVersionUID = 1L;
@@ -72,6 +76,26 @@ public class ICOFarmUser extends OUser {
     public ICOFarmUser setRestoreIdCreated(Date date) {
         document.field(RESTORE_ID_CREATED, date);
         return this;
+    }
+
+    public ICOFarmUser setActive(boolean active) {
+        setAccountStatus(active ? STATUSES.ACTIVE : STATUSES.SUSPENDED);
+        Set<OIdentifiable> readers = document.field(ORESTRICTED_ALLOW_READ);
+        Set<OIdentifiable> updaters = document.field(ORESTRICTED_ALLOW_UPDATE);
+        if (readers == null) readers = new HashSet<>();
+        if (updaters == null) updaters = new HashSet<>();
+
+        readers.add(document);
+        updaters.add(document);
+
+        document.field(ORESTRICTED_ALLOW_READ, readers);
+        document.field(ORESTRICTED_ALLOW_UPDATE, updaters);
+
+        return this;
+    }
+
+    public boolean isActive() {
+        return getAccountStatus() == STATUSES.ACTIVE;
     }
 
     public Date getRestoreIdCreated() {

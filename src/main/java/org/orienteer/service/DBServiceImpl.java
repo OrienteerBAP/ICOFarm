@@ -117,7 +117,7 @@ public class DBServiceImpl implements IDBService {
     @Override
     public ICOFarmUser updateUserStatus(ICOFarmUser user, boolean active) {
         return (ICOFarmUser) dbClosure.get().execute((db) -> {
-            user.setAccountStatus(active ? OSecurityUser.STATUSES.ACTIVE : OSecurityUser.STATUSES.SUSPENDED);
+            user.setActive(active);
             user.save();
             return user;
         });

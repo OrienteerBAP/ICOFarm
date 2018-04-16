@@ -78,6 +78,7 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
     private void updateUserDocument(ODocument doc) {
         doc.field(ICOFarmUser.EMAIL, UUID.randomUUID().toString() + "@gmail.com");
         doc.field(ICOFarmUser.ID, UUID.randomUUID().toString());
+        doc.field(ORESTRICTED_ALLOW_READ, doc);
         doc.save();
     }
 
@@ -118,7 +119,6 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         reader.grant(ResourceGeneric.CLASS, OWidgetsModule.OCLASS_DASHBOARD, 2);
         reader.grant(ResourceGeneric.CLASS, PerspectivesModule.OCLASS_ITEM, 2);
         reader.grant(ResourceGeneric.CLASS, PerspectivesModule.OCLASS_PERSPECTIVE, 2);
-
         reader.save();
     }
 
@@ -129,6 +129,7 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         setRestricted(restricted, schema.getClass(OTransaction.CLASS_NAME));
         setRestricted(restricted, schema.getClass(ICOFarmModule.REFERRAL));
         setRestricted(restricted, schema.getClass(Wallet.CLASS_NAME));
+        setRestricted(restricted, schema.getClass(OUser.CLASS_NAME));
     }
 
     private void setRestricted(OClass restricted, OClass oClass) {
