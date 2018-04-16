@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.OTransaction;
-import org.orienteer.service.IEthereumService;
+import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.util.ICOFarmUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -14,7 +14,7 @@ import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.*;
-import org.orienteer.service.IEthereumUpdateService;
+import org.orienteer.service.web3.IEthereumUpdateService;
 
 import java.util.LinkedList;
 import java.util.List;

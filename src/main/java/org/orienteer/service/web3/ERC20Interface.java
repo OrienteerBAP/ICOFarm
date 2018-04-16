@@ -1,4 +1,4 @@
-package org.orienteer.service;
+package org.orienteer.service.web3;
 
 import org.web3j.abi.EventEncoder;
 import org.web3j.abi.TypeReference;

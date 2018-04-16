@@ -1,10 +1,11 @@
-package org.orienteer.service;
+package org.orienteer.service.web3;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
 import org.orienteer.model.Wallet;
+import org.orienteer.service.IDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;

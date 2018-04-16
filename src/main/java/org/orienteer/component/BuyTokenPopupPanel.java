@@ -78,12 +78,15 @@ public abstract class BuyTokenPopupPanel extends Panel{
 	public IModel<String> getWalletPassword() {
 		return walletPassword;
 	}
+
 	public void setWalletPassword(IModel<String> walletPassword) {
 		this.walletPassword = walletPassword;
 	}
+
 	public IModel<String> getEthSumm() {
 		return ethSumm;
 	}
+
 	public void setEthSumm(IModel<String> ethSumm) {
 		this.ethSumm = ethSumm;
 	}

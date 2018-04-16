@@ -1,4 +1,4 @@
-package org.orienteer.service;
+package org.orienteer.service.web3;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -11,6 +11,7 @@ import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.Transaction;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import rx.Observable;
 
@@ -45,6 +46,27 @@ public class EthereumServiceImpl implements IEthereumService {
     @Override
     public Transaction requestTransactionByHash(String hash) throws Exception {
         return web3j.ethGetTransactionByHash(hash).send().getResult();
+    }
+
+    @Override
+    public CompletableFuture<TransactionReceipt> buyTokens(Credentials credentials,
+                                                           String contractAddress,
+                                                           BigInteger ethQuantity,
+                                                           BigInteger gasPrice,
+                                                           BigInteger gasLimit) {
+        Buyable token = Buyable.load(contractAddress, web3j, credentials, gasPrice, gasLimit);
+        return token.buy(ethQuantity).sendAsync();
+    }
+
+    @Override
+    public CompletableFuture<TransactionReceipt> transferTokens(Credentials credentials,
+                                                                String contractAddress,
+                                                                String targetAddress,
+                                                                BigInteger ethQuantity,
+                                                                BigInteger gasPrice,
+                                                                BigInteger gasLimit) {
+        ERC20Interface token = ERC20Interface.load(contractAddress, web3j, credentials, gasPrice, gasLimit);
+        return token.transfer(targetAddress, ethQuantity).sendAsync();
     }
 
     @Override

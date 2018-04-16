@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.orienteer.junit.OrienteerTestRunner;
 import org.orienteer.service.IDBService;
-import org.orienteer.service.IEthereumService;
+import org.orienteer.service.web3.IEthereumService;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigInteger;

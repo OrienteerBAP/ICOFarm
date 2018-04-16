@@ -3,7 +3,6 @@ package org.orienteer.model;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
-import org.orienteer.core.component.property.BinaryEditPanel;
 
 import java.util.Collections;
 import java.util.Date;
@@ -87,12 +86,13 @@ public class Wallet extends ODocumentWrapper {
 		return this;
 	}
 
-	public String getWalletJSON(){
-		byte[] data = getDocument().field(OPROPERTY_WALLET_JSON);
-		return data.length>0?new String(data):null;
+	public byte[] getWalletJSON(){
+		byte [] data = getDocument().field(OPROPERTY_WALLET_JSON);
+		return data != null ? data : new byte[0];
 	}
+
 	public String getWalletJSONName(){
-		return getDocument().field(OPROPERTY_WALLET_JSON +BinaryEditPanel.FILENAME_SUFFIX);
+		return getDocument().field(OPROPERTY_WALLET_JSON + ".json");
 	}
 
 }

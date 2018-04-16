@@ -1,4 +1,4 @@
-package org.orienteer.service;
+package org.orienteer.service.web3;
 
 import com.google.inject.ImplementedBy;
 import com.orientechnologies.orient.core.record.impl.ODocument;

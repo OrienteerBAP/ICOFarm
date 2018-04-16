@@ -1,4 +1,4 @@
-package org.orienteer.service;
+package org.orienteer.service.web3;
 
 import com.google.inject.ImplementedBy;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -6,9 +6,11 @@ import org.orienteer.model.EthereumClientConfig;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import rx.Observable;
 
 import java.math.BigInteger;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 @ImplementedBy(EthereumServiceImpl.class)
@@ -25,6 +27,19 @@ public interface IEthereumService {
 
     public Transaction requestTransactionByHash(String hash) throws Exception;
 
+    public CompletableFuture<TransactionReceipt> buyTokens(Credentials credentials,
+                                                           String contractAddress,
+                                                           BigInteger ethQuantity,
+                                                           BigInteger gasPrice,
+                                                           BigInteger gasLimit); // TODO: think about gasPrice and gasLimit
+
+    public CompletableFuture<TransactionReceipt> transferTokens(Credentials credentials,
+                                                                String contractAddress,
+                                                                String targetAddress,
+                                                                BigInteger ethQuantity,
+                                                                BigInteger gasPrice,
+                                                                BigInteger gasLimit); // TODO: think about gasPrice and gasLimit
+
     public Observable<Transaction> getTransactionsObservable();
 
     public Observable<Transaction> getPendingTransactionsObservable();
@@ -32,6 +47,7 @@ public interface IEthereumService {
     public boolean isAddressValid(String address);
 
     public EthereumClientConfig getConfig();
+
 
     public void init(ODocument config);
     public void destroy();
