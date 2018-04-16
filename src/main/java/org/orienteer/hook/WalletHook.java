@@ -7,11 +7,16 @@ import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.IEthereumService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.web3j.crypto.Credentials;
 
 import java.math.BigInteger;
 import java.util.Date;
 
 public class WalletHook extends ODocumentHookAbstract {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WalletHook.class);
 
     public WalletHook(ODatabaseDocument db) {
         super(db);
@@ -24,8 +29,26 @@ public class WalletHook extends ODocumentHookAbstract {
         if (doc.field(Wallet.OPROPERTY_OWNER) == null) {
             doc.field(Wallet.OPROPERTY_OWNER, OrienteerWebSession.get().getUser().getDocument());
         }
+        if (doc.field(Wallet.OPROPERTY_ADDRESS) == null) {
+            createWallet(doc, service);
+        }
+        if (doc.field(Wallet.OPROPERTY_NAME) == null) {
+            doc.field(Wallet.OPROPERTY_NAME, (String) doc.field(Wallet.OPROPERTY_ADDRESS));
+        }
         doc.field(Wallet.OPROPERTY_CREATED, new Date());
         updateWalletBalance(doc, service);
+    }
+
+    private void createWallet(ODocument doc, IEthereumService service) {
+        try {
+            String password = OrienteerWebSession.get().getPassword();
+            byte [] wallet = service.createWallet(password);
+            Credentials credentials = service.readWallet(password, wallet);
+            doc.field(Wallet.OPROPERTY_ADDRESS, credentials.getAddress());
+            doc.field(Wallet.OPROPERTY_WALLET_JSON, wallet);
+        } catch (Exception e) {
+            LOG.error("Can't create new wallet: {}", doc, e);
+        }
     }
 
     private void updateWalletBalance(ODocument doc, IEthereumService service) {

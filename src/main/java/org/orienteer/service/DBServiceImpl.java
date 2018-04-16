@@ -157,9 +157,9 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
-    public EmbeddedWallet createEmbeddedWalletForUser(ICOFarmUser user) {
-        return (EmbeddedWallet) dbClosure.get().execute(db -> {
-            EmbeddedWallet wallet = new EmbeddedWallet();
+    public Wallet createWalletForUser(ICOFarmUser user) {
+        return (Wallet) dbClosure.get().execute(db -> {
+            Wallet wallet = new Wallet();
             wallet.setOwner(user.getDocument());
             wallet.getDocument().field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, user.getDocument());
             wallet.save();

@@ -17,7 +17,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.resource.ByteArrayResource;
-import org.orienteer.model.EmbeddedWallet;
+import org.orienteer.model.Wallet;
 import org.orienteer.widget.AbstractICOFarmWidget;
 import org.orienteer.widget.ICOFarmReferralsWidget;
 import org.web3j.utils.Strings;
@@ -83,7 +83,7 @@ public class RefillWalletPopupPanel extends GenericPanel<ODocument> {
     }
 
     private String getAddress() {
-        return getModel().getObject().field(EmbeddedWallet.OPROPERTY_ADDRESS);
+        return getModel().getObject().field(Wallet.OPROPERTY_ADDRESS);
     }
 
     @Override

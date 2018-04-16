@@ -28,8 +28,8 @@ public class Wallet extends ODocumentWrapper {
 		super(wallet);
 	}
 
-	public Wallet(String iClassName) {
-		super(iClassName);
+	public Wallet() {
+		super(CLASS_NAME);
 	}
 
 	public String getBalance() {

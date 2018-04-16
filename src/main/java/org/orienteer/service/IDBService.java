@@ -4,7 +4,6 @@ import com.google.inject.ImplementedBy;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import org.apache.wicket.util.io.IClusterable;
-import org.orienteer.model.EmbeddedWallet;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
 import org.orienteer.model.Wallet;
@@ -45,7 +44,7 @@ public interface IDBService extends IClusterable {
 
     public void cleareRestoreStatusForUser(ICOFarmUser user);
 
-    public EmbeddedWallet createEmbeddedWalletForUser(ICOFarmUser user);
+    public Wallet createWalletForUser(ICOFarmUser user);
 
     public void confirmICOFarmTransactions(List<Transaction> transactions, Function<Transaction, EthBlock.Block> blockFunction);
     public void saveUnconfirmedICOFarmTransactions(List<Transaction> transactions);

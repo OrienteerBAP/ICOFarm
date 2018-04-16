@@ -97,7 +97,6 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
 
         investor.grant(ResourceGeneric.CLASS, Wallet.CLASS_NAME, 15);
         investor.grant(ResourceGeneric.CLASS, ExternalWallet.CLASS_NAME, 15);
-        investor.grant(ResourceGeneric.CLASS, EmbeddedWallet.CLASS_NAME, 15);
         investor.grant(ResourceGeneric.CLASS, CryptocurrencyWallet.CLASS_NAME, 7);
         investor.grant(ResourceGeneric.CLASS, EthereumWallet.CLASS_NAME, 7);
 

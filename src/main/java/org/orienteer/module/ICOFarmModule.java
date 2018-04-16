@@ -84,19 +84,16 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OPROPERTY_REFERRAL_BY, OType.LINK, 20).notNull().linkedClass(OUser.CLASS_NAME);
 
 		helper.oClass(Wallet.CLASS_NAME)
-				.oProperty(Wallet.OPROPERTY_OWNER, OType.LINK, 0).linkedClass(ICOFarmUser.CLASS_NAME)
-				.oProperty(Wallet.OPROPERTY_CURRENCY, OType.LINK, 10).linkedClass(Currency.CLASS_NAME)
-				.oProperty(Wallet.OPROPERTY_BALANCE, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
-				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 30)
-                .oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true")
-				.oProperty(Wallet.OPROPERTY_TRANSACTIONS, OType.LINKSET, 40).assignVisualization("table")
-					.assignTab(Wallet.OPROPERTY_TRANSACTIONS)
-				.oProperty(Wallet.OPROPERTY_WALLET_JSON, OType.BINARY, 50);
+				.oProperty(Wallet.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName()
+				.oProperty(Wallet.OPROPERTY_OWNER, OType.LINK, 10).linkedClass(ICOFarmUser.CLASS_NAME)
+				.oProperty(Wallet.OPROPERTY_CURRENCY, OType.LINK, 20).linkedClass(Currency.CLASS_NAME)
+				.oProperty(Wallet.OPROPERTY_BALANCE, OType.STRING, 30).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
+				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 40)
+				.oProperty(Wallet.OPROPERTY_TRANSACTIONS, OType.LINKSET, 50).assignVisualization("table").assignTab(Wallet.OPROPERTY_TRANSACTIONS)
+				.oProperty(Wallet.OPROPERTY_WALLET_JSON, OType.BINARY, 60)
+				.oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true");
 
 		helper.oClass(REGISTRATION);
-
-		helper.oClass(EmbeddedWallet.CLASS_NAME, Wallet.CLASS_NAME)
-                .oProperty(EmbeddedWallet.OPROPERTY_NAME, OType.STRING).updateCustomAttribute(CustomAttribute.UI_READONLY, "true");
 
 		helper.oClass(ExternalWallet.CLASS_NAME, Wallet.CLASS_NAME);
 

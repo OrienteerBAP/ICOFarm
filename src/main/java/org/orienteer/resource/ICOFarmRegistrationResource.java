@@ -72,7 +72,7 @@ public class ICOFarmRegistrationResource extends AbstractResource {
             private void activateUser(String id) {
                 ICOFarmUser user = getUserById(id);
                 dbService.updateUserStatus(user, true);
-                dbService.createEmbeddedWalletForUser(user);
+                dbService.createWalletForUser(user);
             }
 
             private void redirectToLoginPage() {
