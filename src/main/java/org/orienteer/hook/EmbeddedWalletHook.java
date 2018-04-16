@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.model.EmbeddedWallet;
+import org.orienteer.model.Wallet;
 import org.orienteer.service.IEthereumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +32,11 @@ public class EmbeddedWalletHook extends ODocumentHookAbstract {
         IEthereumService service = OrienteerWebApplication.lookupApplication().getServiceInstance(IEthereumService.class);
         try {
             String password = OrienteerWebSession.get().getPassword();
-            String fileName = service.createWallet(password);
-            Credentials credentials = service.requestWallet(password, fileName);
-            doc.field(EmbeddedWallet.OPROPERTY_NAME, fileName);
+            byte [] wallet = service.createWallet(password);
+            Credentials credentials = service.readWallet(password, wallet);
+            doc.field(EmbeddedWallet.OPROPERTY_NAME, credentials.getAddress());
             doc.field(EmbeddedWallet.OPROPERTY_ADDRESS, credentials.getAddress());
+            doc.field(Wallet.OPROPERTY_WALLET_JSON, wallet);
             return super.onRecordBeforeCreate(doc);
         } catch (Exception e) {
             LOG.error("Can't create new wallet: {}", doc, e);

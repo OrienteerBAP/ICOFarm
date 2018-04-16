@@ -5,53 +5,14 @@ import com.orientechnologies.orient.core.type.ODocumentWrapper;
 
 public class EthereumClientConfig extends ODocumentWrapper {
 
-    public static final String OPROPERTY_NAME        = "name";
-    public static final String OPROPERTY_HOST        = "host";
-    public static final String OPROPERTY_PORT        = "port";
-    public static final String OPROPERTY_WORK_FOLDER = "workFolder";
-    public static final String OPROPERTY_TIMEOUT     = "timeout";
-    public static final String OPROPERTY_MAIN_TOKEN_CURRENCY     = "mainTokenCurrency";
+    public static final String OPROPERTY_NAME                      = "name";
+    public static final String OPROPERTY_HOST                      = "host";
+    public static final String OPROPERTY_PORT                      = "port";
+    public static final String OPROPERTY_TIMEOUT                   = "timeout";
+    public static final String OPROPERTY_TRANSACTIONS_BUFFER_DELAY = "transactionsBufferDelay";
+    public static final String OPROPERTY_TRANSACTIONS_BUFFER_NUM   = "transactionsBufferNum";
+    public static final String OPROPERTY_MAIN_TOKEN_CURRENCY       = "mainTokenCurrency";
 
-    private static final long DEFAULT_BUFFER_DELAY_SEC = 5;//transactions buffer read delay (seconds)
-    private static final int DEFAULT_BUFFER_DELAY_NUM = 100;//transactions buffer read delay (number of transactions)
-
-    public static class Builder {
-
-        private ODocument doc;
-
-        public Builder() {
-            doc = new ODocument();
-        }
-
-        public EthereumClientConfig build() {
-            return new EthereumClientConfig(doc);
-        }
-
-        public Builder setName(String name) {
-            doc.field(OPROPERTY_NAME, name);
-            return this;
-        }
-
-        public Builder setHost(String host) {
-            doc.field(OPROPERTY_HOST, host);
-            return this;
-        }
-
-        public Builder setPort(int port) {
-            doc.field(OPROPERTY_PORT, port);
-            return this;
-        }
-
-        public Builder setWorkFolder(String folder) {
-            doc.field(OPROPERTY_WORK_FOLDER, folder);
-            return this;
-        }
-
-        public Builder setTimeout(int timeout) {
-            doc.field(OPROPERTY_TIMEOUT, timeout);
-            return this;
-        }
-    }
 
     public EthereumClientConfig(ODocument doc) {
         super(doc);
@@ -69,24 +30,18 @@ public class EthereumClientConfig extends ODocumentWrapper {
         return document.field(OPROPERTY_PORT);
     }
 
-    public String getWorkFolder() {
-        String folder = document.field(OPROPERTY_WORK_FOLDER);
-        if (!folder.endsWith("/")) folder += "/";
-        return folder;
-    }
-
     public int getTimeout() {
         return document.field(OPROPERTY_TIMEOUT);
     }
 
-    public long getBufferTimeout(){
-    	return DEFAULT_BUFFER_DELAY_SEC;
+    public int getTransactionsBufferDelay(){
+    	return document.field(OPROPERTY_TRANSACTIONS_BUFFER_DELAY);
     }
     
-    public int getBufferSize(){
-    	return DEFAULT_BUFFER_DELAY_NUM;
+    public int getTransactionsBufferSize(){
+    	return document.field(OPROPERTY_TRANSACTIONS_BUFFER_NUM);
     }
-    
+
     public TokenCurrency getMainTokenCurrency(){
     	return new TokenCurrency(document.field(OPROPERTY_MAIN_TOKEN_CURRENCY));
     } 

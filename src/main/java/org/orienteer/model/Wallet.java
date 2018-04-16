@@ -3,6 +3,7 @@ package org.orienteer.model;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
+import org.orienteer.core.component.property.BinaryEditPanel;
 
 import java.util.Collections;
 import java.util.Date;
@@ -15,11 +16,13 @@ public class Wallet extends ODocumentWrapper {
 	public static final String CLASS_NAME = "Wallet";
 
 	public static final String OPROPERTY_OWNER        = "owner";
+	public static final String OPROPERTY_NAME         = "name";
 	public static final String OPROPERTY_CURRENCY     = "currency";
 	public static final String OPROPERTY_BALANCE      = "balance";
 	public static final String OPROPERTY_ADDRESS      = "address";
 	public static final String OPROPERTY_CREATED      = "created";
 	public static final String OPROPERTY_TRANSACTIONS = "transactions";
+	public static final String OPROPERTY_WALLET_JSON  = "walletJSON";
 
 	public Wallet(ODocument wallet) {
 		super(wallet);
@@ -77,6 +80,19 @@ public class Wallet extends ODocumentWrapper {
 
 	public Currency getCurrency() {
 		return new Currency((ODocument) document.field(OPROPERTY_CURRENCY));
+	}
+
+	public Wallet setWalletJSON(byte [] data) {
+		document.field(OPROPERTY_WALLET_JSON, data);
+		return this;
+	}
+
+	public String getWalletJSON(){
+		byte[] data = getDocument().field(OPROPERTY_WALLET_JSON);
+		return data.length>0?new String(data):null;
+	}
+	public String getWalletJSONName(){
+		return getDocument().field(OPROPERTY_WALLET_JSON +BinaryEditPanel.FILENAME_SUFFIX);
 	}
 
 }

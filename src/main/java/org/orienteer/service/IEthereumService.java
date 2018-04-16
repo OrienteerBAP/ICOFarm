@@ -14,11 +14,9 @@ import java.util.function.BiConsumer;
 @ImplementedBy(EthereumServiceImpl.class)
 public interface IEthereumService {
 
-    public String createWallet(String password) throws Exception;
-    public void createWalletAsync(String password, BiConsumer<Exception, String> callback);
+    public byte[] createWallet(String password) throws Exception;
 
-    public Credentials requestWallet(String password, String fileName) throws Exception;
-    public void requestWalletAsync(String password, String fileName, BiConsumer<Exception, Credentials> callback);
+    public Credentials readWallet(String password, byte[] data) throws Exception;
 
     public BigInteger requestBalance(String address) throws Exception;
     public void requestBalanceAsync(String address, BiConsumer<Exception, BigInteger> callback);

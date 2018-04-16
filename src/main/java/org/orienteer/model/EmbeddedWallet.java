@@ -7,8 +7,6 @@ public class EmbeddedWallet extends Wallet {
 
     public static final String CLASS_NAME = "EmbeddedWallet";
 
-    public static final String OPROPERTY_NAME     = "name";
-
     public EmbeddedWallet(ODocument wallet) {
         super(wallet);
     }

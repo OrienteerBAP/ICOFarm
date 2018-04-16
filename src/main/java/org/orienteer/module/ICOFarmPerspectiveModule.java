@@ -163,6 +163,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
 
         List<String> walletProperties = new ArrayList<>(1);
         walletProperties.add(Wallet.OPROPERTY_OWNER);
+        walletProperties.add(Wallet.OPROPERTY_CURRENCY);
 
         List<String> embeddedWalletProperties = new ArrayList<>(2);
         embeddedWalletProperties.add(EmbeddedWallet.OPROPERTY_NAME);

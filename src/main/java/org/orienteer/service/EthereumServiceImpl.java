@@ -1,11 +1,11 @@
 package org.orienteer.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
-import org.web3j.crypto.Credentials;
-import org.web3j.crypto.WalletUtils;
+import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthBlock;
@@ -14,7 +14,6 @@ import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.http.HttpService;
 import rx.Observable;
 
-import java.io.File;
 import java.math.BigInteger;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -27,23 +26,15 @@ public class EthereumServiceImpl implements IEthereumService {
     private EthereumClientConfig clientConfig;
 
     @Override
-    public String createWallet(String password) throws Exception {
-        return WalletUtils.generateFullNewWalletFile(password, new File(clientConfig.getWorkFolder()));
+    public byte[] createWallet(String password) throws Exception {
+        ECKeyPair ecKeyPair = Keys.createEcKeyPair();
+        return new ObjectMapper().writeValueAsBytes(Wallet.createStandard(password, ecKeyPair));
     }
 
     @Override
-    public Credentials requestWallet(String password, String fileName) throws Exception {
-        return WalletUtils.loadCredentials(password, clientConfig.getWorkFolder() + fileName);
-    }
-
-    @Override
-    public void createWalletAsync(String password, BiConsumer<Exception, String> callback) {
-        wrapAndRunAsync(callback, () -> createWallet(password));
-    }
-
-    @Override
-    public void requestWalletAsync(String password, String fileName, BiConsumer<Exception, Credentials> callback) {
-        wrapAndRunAsync(callback, () -> requestWallet(password, fileName));
+    public Credentials readWallet(String password, byte [] data) throws Exception {
+        WalletFile walletFile = new ObjectMapper().readValue(data, WalletFile.class);
+        return Credentials.create(Wallet.decrypt(password, walletFile));
     }
 
     @Override

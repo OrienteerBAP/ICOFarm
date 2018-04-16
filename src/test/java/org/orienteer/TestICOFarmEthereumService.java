@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.orienteer.junit.OrienteerTestRunner;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.IEthereumService;
+import org.web3j.crypto.Credentials;
 
 import java.math.BigInteger;
 import java.util.function.BiConsumer;
@@ -23,17 +24,14 @@ public class TestICOFarmEthereumService {
     private IDBService dbService;
 
     @Test
-    public void testCreateWallet() throws InterruptedException {
+    public void testCreateWallet() throws Exception {
         String password = "qwerty";
-        service.createWalletAsync(password, (err, name) -> {
-            assertNull(err);
-            assertNotNull(name);
-            service.requestWalletAsync(password, name, (e, c) -> {
-                assertNull(e);
-                assertNotNull(c);
-            });
-        });
-        Thread.currentThread().join(5000);
+        byte[] wallet = service.createWallet(password);
+        assertNotNull(wallet);
+        Credentials credentials = service.readWallet(password, wallet);
+        assertNotNull(credentials);
+        assertNotNull(credentials.getAddress());
+        assertNotNull(credentials.getEcKeyPair());
     }
 
     @Test

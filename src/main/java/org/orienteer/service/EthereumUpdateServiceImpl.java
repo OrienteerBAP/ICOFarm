@@ -63,7 +63,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     private Subscription subscribeOnUpdateTransactions() {
         EthereumClientConfig config = ethereumService.getConfig();
         Observable<List<Transaction>> obs = ethereumService.getTransactionsObservable()
-        	.buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
+        	.buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
         	.subscribeOn(Schedulers.io());
 
         Function<Transaction, EthBlock.Block> blockFunction = transaction -> {
@@ -83,7 +83,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     private Subscription subscribeOnPendingTransactions() {
         EthereumClientConfig config = ethereumService.getConfig();
         Observable<List<Transaction>> obs = ethereumService.getPendingTransactionsObservable()
-                .buffer(config.getBufferTimeout(), TimeUnit.SECONDS, config.getBufferSize())
+                .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
                 .subscribeOn(Schedulers.io());
 
         return obs.subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions),

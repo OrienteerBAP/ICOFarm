@@ -38,7 +38,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 5;
+	public static final int VERSION = 13;
 
 	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 
@@ -61,9 +61,10 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(EthereumClientConfig.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName().notNull()
 				.oProperty(EthereumClientConfig.OPROPERTY_HOST, OType.STRING, 10).notNull()
 				.oProperty(EthereumClientConfig.OPROPERTY_PORT, OType.INTEGER, 20).notNull()
-				.oProperty(EthereumClientConfig.OPROPERTY_WORK_FOLDER, OType.STRING, 30).notNull().defaultValue("icofarm")
 				.oProperty(EthereumClientConfig.OPROPERTY_TIMEOUT, OType.INTEGER, 40).notNull().defaultValue("15")
-				.oProperty(EthereumClientConfig.OPROPERTY_MAIN_TOKEN_CURRENCY, OType.LINK, 50).linkedClass(TokenCurrency.CLASS_NAME).notNull().assignVisualization("listbox");
+				.oProperty(EthereumClientConfig.OPROPERTY_TRANSACTIONS_BUFFER_DELAY, OType.INTEGER, 50).notNull().defaultValue("5")
+				.oProperty(EthereumClientConfig.OPROPERTY_TRANSACTIONS_BUFFER_NUM, OType.INTEGER, 60).notNull().defaultValue("100")
+				.oProperty(EthereumClientConfig.OPROPERTY_MAIN_TOKEN_CURRENCY, OType.LINK, 70).linkedClass(TokenCurrency.CLASS_NAME).notNull().assignVisualization("listbox");
 
 
 		helper.oClass(OTransaction.CLASS_NAME)
@@ -89,7 +90,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 30)
                 .oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true")
 				.oProperty(Wallet.OPROPERTY_TRANSACTIONS, OType.LINKSET, 40).assignVisualization("table")
-					.assignTab(Wallet.OPROPERTY_TRANSACTIONS);
+					.assignTab(Wallet.OPROPERTY_TRANSACTIONS)
+				.oProperty(Wallet.OPROPERTY_WALLET_JSON, OType.BINARY, 50);
 
 		helper.oClass(REGISTRATION);
 
@@ -144,8 +146,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
         doc.field(EthereumClientConfig.OPROPERTY_NAME, NAME);
         doc.field(EthereumClientConfig.OPROPERTY_HOST, "http://localhost");
         doc.field(EthereumClientConfig.OPROPERTY_PORT, 8545);
-        doc.field(EthereumClientConfig.OPROPERTY_TIMEOUT, 15);
-        doc.field(EthereumClientConfig.OPROPERTY_WORK_FOLDER, "icofarm");
         doc.save();
 
         return doc;
