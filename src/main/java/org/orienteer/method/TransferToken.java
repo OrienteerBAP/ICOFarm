@@ -79,7 +79,7 @@ public class TransferToken extends AbstractModalOMethod {
 	}
 
 	protected Wallet getWallet() throws Exception {
-		IModel<?> walletModel = getEnvData().getDisplayObjectModel();
+		IModel<?> walletModel = getContext().getDisplayObjectModel();
 		ODocument walletDoc = (ODocument) walletModel.getObject();
 		if (walletDoc == null) {
 			throw new Exception("Please link buy button to 'EthereumWallet' OClass");

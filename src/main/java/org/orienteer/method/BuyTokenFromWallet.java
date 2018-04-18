@@ -22,7 +22,7 @@ public class BuyTokenFromWallet extends BuyToken{
 
 	@Override
 	protected EthereumWallet getWallet() throws Exception{
-		IModel<?> walletModel = getEnvData().getDisplayObjectModel();
+		IModel<?> walletModel = getContext().getDisplayObjectModel();
 		return new EthereumWallet((ODocument) walletModel.getObject());
 	}
 	
