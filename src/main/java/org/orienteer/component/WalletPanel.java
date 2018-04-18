@@ -1,5 +1,6 @@
 package org.orienteer.component;
 
+import com.google.common.base.Strings;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.AttributeModifier;
@@ -28,7 +29,8 @@ public class WalletPanel extends GenericPanel<Wallet> {
     protected void onInitialize() {
         super.onInitialize();
         Wallet wallet = getModelObject();
-        add(new Label("title", wallet.getAddress()));
+        String name = wallet.getName();
+        add(new Label("title", !Strings.isNullOrEmpty(name) ? name : wallet.getAddress()));
         add(new Label("balance", wallet.getBalance()));
         add(createDeleteCommand("deleteCommand"));
         add(createDetailsLink("detailsLink"));

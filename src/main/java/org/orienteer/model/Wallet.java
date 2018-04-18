@@ -31,6 +31,15 @@ public class Wallet extends ODocumentWrapper {
 		super(CLASS_NAME);
 	}
 
+	public String getName() {
+		return document.field(OPROPERTY_NAME);
+	}
+
+	public Wallet setName(String name) {
+		document.field(OPROPERTY_NAME, name);
+		return this;
+	}
+
 	public String getBalance() {
 		return document.field(OPROPERTY_BALANCE);
 	}
