@@ -48,7 +48,7 @@ public class WalletHook extends ODocumentHookAbstract {
 
     @Override
     public RESULT onRecordBeforeUpdate(ODocument doc) {
-        IEthereumService service = OrienteerWebApplication.get().getServiceInstance(IEthereumService.class);
+        IEthereumService service = OrienteerWebApplication.lookupApplication().getServiceInstance(IEthereumService.class);
         checkIfAddressValid(doc, service);
 
         return super.onRecordBeforeUpdate(doc);

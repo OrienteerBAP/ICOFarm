@@ -3,6 +3,7 @@ package org.orienteer.service;
 import com.google.inject.ImplementedBy;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.util.io.IClusterable;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
@@ -28,6 +29,7 @@ public interface IDBService extends IClusterable {
 
     public List<Wallet> getWallets();
 
+    public List<Wallet> getUserWallets(ODocument userDoc);
     public List<Wallet> getUserWallets(ICOFarmUser user);
 
     public ICOFarmUser createInvestorUser(String email, String password, String firstName, String lastName, boolean active);
@@ -42,7 +44,7 @@ public interface IDBService extends IClusterable {
 
     public void createRestorePasswordScheduler(ICOFarmUser user);
 
-    public void cleareRestoreStatusForUser(ICOFarmUser user);
+    public void clearRestoreStatusForUser(ICOFarmUser user);
 
     public Wallet createWalletForUser(ICOFarmUser user);
 

@@ -72,11 +72,16 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
-    public List<Wallet> getUserWallets(ICOFarmUser user) {
+    public List<Wallet> getUserWallets(ODocument userDoc) {
         String sql = String.format("select from %s where %s = ? order by %s", Wallet.CLASS_NAME, Wallet.OPROPERTY_OWNER,
                 Wallet.OPROPERTY_CREATED);
-        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql), user.getDocument());
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql), userDoc);
         return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(Wallet::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Wallet> getUserWallets(ICOFarmUser user) {
+        return getUserWallets(user.getDocument());
     }
 
     @Override
@@ -146,7 +151,7 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
-    public void cleareRestoreStatusForUser(ICOFarmUser user) {
+    public void clearRestoreStatusForUser(ICOFarmUser user) {
         dbClosure.get().execute(db -> {
             user.setRestoreId(null);
             user.setRestoreIdCreated(null);

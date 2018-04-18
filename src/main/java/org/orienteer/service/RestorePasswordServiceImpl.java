@@ -26,7 +26,7 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
 
     @Override
     public void clearRestoring(@Nonnull ICOFarmUser user) {
-        dbService.cleareRestoreStatusForUser(user);
+        dbService.clearRestoreStatusForUser(user);
     }
 
     private void sendRestoreLink(ICOFarmUser user) {
