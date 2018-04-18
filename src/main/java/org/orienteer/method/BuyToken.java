@@ -78,13 +78,13 @@ public class BuyToken extends AbstractModalOMethod {
 		};
 	}
 	
-	protected EthereumWallet getWallet() throws Exception{
+	protected Wallet getWallet() throws Exception{
 		OSecurityUser user = OrienteerWebSession.get().getUser();
 		
 		if (user==null)	throw new Exception("Please autorize");
 		ICOFarmUser icofarmUser = new ICOFarmUser(user.getDocument());
 		
-		EthereumWallet wallet = icofarmUser.getMainETHWallet();
+		Wallet wallet = icofarmUser.getMainETHWallet();
 		if (wallet==null) throw new Exception("Please link correct ETC wallet to your account");
 		return wallet;
 	}

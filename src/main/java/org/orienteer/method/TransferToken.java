@@ -15,7 +15,6 @@ import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
 import org.orienteer.model.EthereumClientConfig;
-import org.orienteer.model.EthereumWallet;
 import org.orienteer.model.TokenCurrency;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.web3.IEthereumService;
@@ -84,7 +83,7 @@ public class TransferToken extends AbstractModalOMethod {
 		if (walletDoc == null) {
 			throw new Exception("Please link buy button to 'EthereumWallet' OClass");
 		}
-		return new EthereumWallet(walletDoc);
+		return new Wallet(walletDoc);
 		
 	}
 	

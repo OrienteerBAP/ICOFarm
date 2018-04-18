@@ -102,8 +102,8 @@ public class ICOFarmUser extends OUser {
         return document.field(RESTORE_ID_CREATED);
     }
 
-    public EthereumWallet getMainETHWallet() {
+    public Wallet getMainETHWallet() {
     	ODocument wallet = document.field(ETH_WALLET);
-        return wallet!=null?new EthereumWallet(wallet):null;
+        return wallet!=null?new Wallet(wallet):null;
     }
 }
