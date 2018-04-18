@@ -11,7 +11,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.flow.RedirectToUrlException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.orienteer.component.ICOFarmLoginPanel;
-import org.orienteer.component.ICOFarmRestorePasswordPanel;
+import org.orienteer.component.RestorePasswordPanel;
 import org.orienteer.core.MountPath;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
@@ -67,7 +67,7 @@ public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
             }
 
             private Component getNextPanel(boolean isLogin) {
-                return isLogin ? new ICOFarmRestorePasswordPanel(currentPanel.getId())
+                return isLogin ? new RestorePasswordPanel(currentPanel.getId())
                         : new ICOFarmLoginPanel(currentPanel.getId());
             }
 
@@ -87,7 +87,7 @@ public class ICOFarmLoginPage extends ICOFarmBasePage<Object> {
 
     private Panel createCurrentPanel(String id) {
         String restoreId = getPageParameters().get(ICOFarmRestorePasswordResource.RES_KEY).toString();
-        return Strings.isNullOrEmpty(restoreId) ? new ICOFarmLoginPanel(id) : new ICOFarmRestorePasswordPanel(id);
+        return Strings.isNullOrEmpty(restoreId) ? new ICOFarmLoginPanel(id) : new RestorePasswordPanel(id);
     }
 
     @Override

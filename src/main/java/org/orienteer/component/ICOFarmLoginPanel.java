@@ -11,7 +11,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
 
-public class ICOFarmLoginPanel extends AbstractICOFarmLoginPanel {
+public class ICOFarmLoginPanel extends AbstractLoginPanel {
     public ICOFarmLoginPanel(String id) {
         super(id);
     }

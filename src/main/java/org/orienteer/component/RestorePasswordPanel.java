@@ -20,7 +20,7 @@ import org.orienteer.web.ICOFarmLoginPage;
 
 import java.util.function.BiConsumer;
 
-public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
+public class RestorePasswordPanel extends AbstractLoginPanel {
 
     @Inject
     private IRestorePasswordService service;
@@ -28,7 +28,7 @@ public class ICOFarmRestorePasswordPanel extends AbstractICOFarmLoginPanel {
     @Inject
     private IDBService dbService;
 
-    public ICOFarmRestorePasswordPanel(String id) {
+    public RestorePasswordPanel(String id) {
         super(id);
     }
 

@@ -6,8 +6,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public abstract class AbstractICOFarmLoginPanel extends Panel {
-    public AbstractICOFarmLoginPanel(String id) {
+public abstract class AbstractLoginPanel extends Panel {
+    public AbstractLoginPanel(String id) {
         super(id);
     }
 
