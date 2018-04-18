@@ -1,0 +1,25 @@
+<wicket:panel xmlns:wicket="http://www.w3.org/1999/xhtml">
+  <div class="container-fluid p-3">
+    <h3 class="text-center">
+      <wicket:message key="buyToken.title"></wicket:message>
+    </h3>
+    <div wicket:id="feedback"></div>
+    <form wicket:id="form" role="form">
+      <div class="form-group">
+        <label>
+          <wicket:message key="buyToken.password"></wicket:message>
+        </label>
+        <input type="password" wicket:id="password" class="form-control"/>
+      </div>
+      <div class="form-group">
+        <label>
+          <wicket:message key="buyToken.quantity"></wicket:message>
+        </label>
+        <input type="text" wicket:id="quantity" class="form-control"/>
+      </div>
+      <div class="form-group text-center">
+        <input type="submit" wicket:id="submitButton" class="btn btn-primary" />
+      </div>
+    </form>
+  </div>
+</wicket:panel>

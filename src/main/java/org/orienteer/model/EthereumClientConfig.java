@@ -2,6 +2,10 @@ package org.orienteer.model;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
+import org.web3j.utils.Convert;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class EthereumClientConfig extends ODocumentWrapper {
 
@@ -44,7 +48,15 @@ public class EthereumClientConfig extends ODocumentWrapper {
 
     public TokenCurrency getMainTokenCurrency(){
     	return new TokenCurrency(document.field(OPROPERTY_MAIN_TOKEN_CURRENCY));
-    } 
+    }
+
+    public BigInteger getGasPriceFor(Currency currency) {
+        return Convert.toWei(BigDecimal.ONE, Convert.Unit.GWEI).toBigInteger();
+    }
+
+    public BigInteger getGasLimitFor(Currency currency) {
+        return BigInteger.valueOf(200000);
+    }
     
     @Override
     public <RET extends ODocumentWrapper> RET save() {
@@ -55,5 +67,4 @@ public class EthereumClientConfig extends ODocumentWrapper {
     public <RET extends ODocumentWrapper> RET save(String iClusterName) {
         throw new IllegalStateException("Can;t save config model!");
     }
-
 }

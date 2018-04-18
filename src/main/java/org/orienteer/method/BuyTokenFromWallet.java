@@ -21,15 +21,17 @@ public class BuyTokenFromWallet extends BuyToken{
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	protected Wallet getWallet() throws Exception{
+	protected Wallet getWallet() {
 		IModel<?> walletModel = getContext().getDisplayObjectModel();
 		return new Wallet((ODocument) walletModel.getObject());
 	}
 	
 	@Override
-	protected TokenCurrency getTokenCurrency() throws Exception{
+	protected TokenCurrency getTokenCurrency() {
 		TokenCurrency tokenCurrency = getConfig().getMainTokenCurrency(); 
-		if (tokenCurrency.getDocument()==null) throw new Exception("Please set main token currency in ICOFarm module settings!");
+		if (tokenCurrency == null) {
+			throw new IllegalStateException("Please set main token currency in ICOFarm module settings!");
+		}
 		return tokenCurrency;		
 	}
 }

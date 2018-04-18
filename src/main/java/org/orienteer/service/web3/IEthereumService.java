@@ -48,7 +48,6 @@ public interface IEthereumService {
 
     public EthereumClientConfig getConfig();
 
-
     public void init(ODocument config);
     public void destroy();
 }
