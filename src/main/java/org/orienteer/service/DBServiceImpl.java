@@ -104,7 +104,7 @@ public class DBServiceImpl implements IDBService {
             doc.field(OPROPERTY_REFERRAL_CREATED, new Date());
             doc.field(OPROPERTY_REFERRAL_USER, user.getDocument());
             doc.field(OPROPERTY_REFERRAL_BY, by.getDocument());
-            doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ, by.getDocument());
+            doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ, Collections.singletonList(by.getDocument()));
             return null;
         });
     }
@@ -161,7 +161,7 @@ public class DBServiceImpl implements IDBService {
         return (Wallet) dbClosure.get().execute(db -> {
             Wallet wallet = new Wallet();
             wallet.setOwner(user.getDocument());
-            wallet.getDocument().field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, user.getDocument());
+            wallet.getDocument().field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singletonList(user.getDocument()));
             wallet.save();
             return wallet;
         });

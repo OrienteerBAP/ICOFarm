@@ -233,7 +233,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         ODocument perspective = perspectivesModule.getPerspectiveByName(db, perspectiveName);
         ORole role = security.getRole(roleName);
         role.getDocument().field("perspective", perspective);
-        perspective.field(field, role.getDocument());
+        perspective.field(field, Collections.singletonList(role.getDocument()));
         role.save();
         perspective.save();
     }
@@ -244,7 +244,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         ODocument perspective = perspectivesModule.getPerspectiveByName(db, perspectiveName);
         OUser user = security.getUser(username);
         user.getDocument().field("perspective", perspective);
-        perspective.field(field, user.getDocument());
+        perspective.field(field, Collections.singletonList(user.getDocument()));
         user.save();
         perspective.save();
     }

@@ -20,6 +20,7 @@ import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.*;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 import static com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
@@ -78,7 +79,7 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
     private void updateUserDocument(ODocument doc) {
         doc.field(ICOFarmUser.EMAIL, UUID.randomUUID().toString() + "@gmail.com");
         doc.field(ICOFarmUser.ID, UUID.randomUUID().toString());
-        doc.field(ORESTRICTED_ALLOW_READ, doc);
+        doc.field(ORESTRICTED_ALLOW_READ, Collections.singleton(doc));
         doc.save();
     }
 
