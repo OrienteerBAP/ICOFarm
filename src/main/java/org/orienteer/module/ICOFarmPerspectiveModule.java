@@ -16,7 +16,6 @@ import org.orienteer.core.module.PerspectivesModule;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.ICOFarmUser;
-import org.orienteer.model.OTransaction;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 
@@ -79,25 +78,25 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     private void createPerspectives(OSchemaHelper helper) {
         ODocument perspective = getOrCreatePerspective(INVESTOR_PERSPECTIVE, helper);
         perspective.field("icon", FAIconType.usd.name());
-        perspective.field("homeUrl", "/browse/" + OTransaction.CLASS_NAME);
+        perspective.field("homeUrl", "/browse/" + Token.CLASS_NAME);
         perspective.save();
 
-        ODocument item1 = getOrCreatePerspectiveItem("Transactions", perspective, helper);
+        ODocument item1 = getOrCreatePerspectiveItem("Tokens", perspective, helper);
         item1.field("icon", FAIconType.usd.name());
         item1.field("perspective", perspective);
-        item1.field("url", "/browse/" + OTransaction.CLASS_NAME);
+        item1.field("url", "/browse/" + Token.CLASS_NAME);
         item1.save();
 
-        ODocument item2 = getOrCreatePerspectiveItem("Referrals", perspective, helper);
-        item2.field("icon", FAIconType.users.name());
+        ODocument item2 = getOrCreatePerspectiveItem("Wallets", perspective, helper);
+        item2.field("icon", FAIconType.briefcase.name());
         item2.field("perspective", perspective);
-        item2.field("url", "/browse/" + REFERRAL);
+        item2.field("url", "/browse/" + Wallet.CLASS_NAME);
         item2.save();
 
-        ODocument item3 = getOrCreatePerspectiveItem("Wallets", perspective, helper);
-        item3.field("icon", FAIconType.briefcase.name());
+        ODocument item3 = getOrCreatePerspectiveItem("Referrals", perspective, helper);
+        item3.field("icon", FAIconType.users.name());
         item3.field("perspective", perspective);
-        item3.field("url", "/browse/" + Wallet.CLASS_NAME);
+        item3.field("url", "/browse/" + REFERRAL);
         item3.save();
 
         perspective.field("menu", Arrays.asList(item1, item2, item3));
