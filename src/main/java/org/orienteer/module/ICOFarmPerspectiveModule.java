@@ -83,7 +83,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         perspective.save();
 
         ODocument item1 = getOrCreatePerspectiveItem("Tokens", perspective, helper);
-        item1.field("icon", FAIconType.usd.name());
+        item1.field("icon", FAIconType.money.name());
         item1.field("perspective", perspective);
         item1.field("url", "/browse/" + Token.CLASS_NAME);
         item1.save();

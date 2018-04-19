@@ -43,7 +43,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 21;
+	public static final int VERSION = 1;
 
 	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 
