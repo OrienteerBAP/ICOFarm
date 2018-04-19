@@ -7,7 +7,7 @@ import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
-import org.orienteer.model.TokenCurrency;
+import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 
 @OMethod(
@@ -27,7 +27,7 @@ public class BuyTokenFromWallet extends AbstractBuyTokenMethod {
 	}
 
 	@Override
-	protected TokenCurrency getTokenCurrency() {
+	protected Token getToken() {
 		return null;
 	}
 }

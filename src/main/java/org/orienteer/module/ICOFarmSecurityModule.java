@@ -99,8 +99,7 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
 
         investor.grant(ResourceGeneric.CLASS, Wallet.CLASS_NAME, 15);
 
-        investor.grant(ResourceGeneric.CLASS, Currency.CLASS_NAME, 2);
-        investor.grant(ResourceGeneric.CLASS, TokenCurrency.CLASS_NAME, 2);
+        investor.grant(ResourceGeneric.CLASS, Token.CLASS_NAME, 2);
 
         investor.grant(ResourceGeneric.CLASS, ICOFarmModule.REFERRAL, 2);
         investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);

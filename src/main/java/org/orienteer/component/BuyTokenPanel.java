@@ -16,7 +16,7 @@ import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.OrienteerFeedbackPanel;
 import org.orienteer.core.web.OrienteerBasePage;
 import org.orienteer.model.EthereumClientConfig;
-import org.orienteer.model.TokenCurrency;
+import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
@@ -27,14 +27,13 @@ import org.web3j.crypto.Credentials;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class BuyTokenPanel extends Panel {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BuyTokenPanel.class);
 
-	private final IModel<Wallet> wallet;
-	private final IModel<TokenCurrency> token;
+	private final IModel<Wallet> walletModel;
+	private final IModel<Token> tokenModel;
 
 	@Inject
 	private IEthereumService service;
@@ -42,10 +41,10 @@ public class BuyTokenPanel extends Panel {
 	@Inject
     private IDBService dbService;
 
-	public BuyTokenPanel(String id, IModel<Wallet> wallet, IModel<TokenCurrency> token) {
+	public BuyTokenPanel(String id, IModel<Wallet> wallet, IModel<Token> token) {
 		super(id);
-		this.wallet = wallet;
-		this.token = token;
+		this.walletModel = wallet;
+		this.tokenModel = token;
 	}
 
 	@Override
@@ -113,12 +112,12 @@ public class BuyTokenPanel extends Panel {
             @Override
             protected void onInitialize() {
                 super.onInitialize();
-				DropDownChoice<Wallet> select = new DropDownChoice<>("selectWallet", wallet, getUserWallets(), createChoiceRenderer());
+				DropDownChoice<Wallet> select = new DropDownChoice<>("selectWallet", walletModel, getUserWallets(), createChoiceRenderer());
 				select.setRequired(true);
 				add(select);
                 add(new Label("selectWalletLabel", new ResourceModel("buyToken.select.wallet")));
                 setOutputMarkupId(true);
-                setVisible(wallet.getObject() == null);
+                setVisible(walletModel.getObject() == null);
             }
 
             private ChoiceRenderer<Wallet> createChoiceRenderer() {
@@ -141,21 +140,20 @@ public class BuyTokenPanel extends Panel {
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
-				DropDownChoice<TokenCurrency> select = new DropDownChoice<>("selectToken", token, dbService.getTokenCurrency(), createChoiceRenderer());
+				DropDownChoice<Token> select = new DropDownChoice<>("selectToken", tokenModel, dbService.getTokens(), createChoiceRenderer());
 				select.setRequired(true);
 				add(select);
 				add(new Label("selectTokenLabel", new ResourceModel("buyToken.select.token")));
 				setOutputMarkupId(true);
-				setVisible(token.getObject() == null);
+				setVisible(tokenModel.getObject() == null);
 			}
 
-			private ChoiceRenderer<TokenCurrency> createChoiceRenderer() {
-				return new ChoiceRenderer<TokenCurrency>() {
+			private ChoiceRenderer<Token> createChoiceRenderer() {
+				return new ChoiceRenderer<Token>() {
 					@Override
-					public Object getDisplayValue(TokenCurrency token) {
-						Map<String, String> names = token.getNames();
-						String name = names.get(OrienteerWebSession.get().getLocale().toLanguageTag());
-						if (name == null) name = names.get(Locale.ENGLISH.toLanguageTag());
+					public Object getDisplayValue(Token token) {
+						String name = token.getName(OrienteerWebSession.get().getLocale().toLanguageTag());
+						if (name == null) name = token.getName(Locale.ENGLISH.toLanguageTag());
 						return name + " - " + token.getSymbol();
 					}
 				};
@@ -164,11 +162,13 @@ public class BuyTokenPanel extends Panel {
 	}
 
     private void buyTokens(String password, int quantity) throws Exception {
-		String tokenAddress = token.getObject().getContractAddress();
+	    Token token = tokenModel.getObject();
+	    Wallet wallet = walletModel.getObject();
+		String tokenAddress = token.getAddress();
 		EthereumClientConfig config = service.getConfig();
-		Credentials credentials = service.readWallet(password, wallet.getObject().getWalletJSON());
-		BigInteger gasPrice = config.getGasPriceFor(token.getObject());
-		BigInteger gasLimit = config.getGasLimitFor(token.getObject());
+		Credentials credentials = service.readWallet(password, wallet.getWalletJSON());
+		BigInteger gasPrice = token.getGasPrice().toBigInteger();
+		BigInteger gasLimit = token.getGasLimit().toBigInteger();
 		service.buyTokens(credentials, tokenAddress, BigInteger.valueOf(quantity), gasPrice, gasLimit); // TODO: add state which displays status of buying tokens
 	}
 

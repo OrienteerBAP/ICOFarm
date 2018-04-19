@@ -30,7 +30,7 @@ public interface IDBService extends IClusterable {
     public List<Wallet> getUserWallets(ODocument userDoc);
     public List<Wallet> getUserWallets(ICOFarmUser user);
 
-    public List<TokenCurrency> getTokenCurrency();
+    public List<Token> getTokens();
 
     public ICOFarmUser createInvestorUser(String email, String password, String firstName, String lastName, boolean active);
 

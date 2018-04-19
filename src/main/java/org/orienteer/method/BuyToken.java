@@ -7,13 +7,13 @@ import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
-import org.orienteer.model.TokenCurrency;
+import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 
 @OMethod(
 		icon = FAIconType.dollar,
 		filters = {
-				@OFilter(fClass = ODocumentFilter.class, fData = TokenCurrency.CLASS_NAME),
+				@OFilter(fClass = ODocumentFilter.class, fData = Token.CLASS_NAME),
 				@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
 		}
 )
@@ -26,9 +26,9 @@ public class BuyToken extends AbstractBuyTokenMethod {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected TokenCurrency getTokenCurrency() {
+	protected Token getToken() {
 		IModel<ODocument> docModel = (IModel<ODocument>) getContext().getDisplayObjectModel();
-		return new TokenCurrency(docModel.getObject());
+		return new Token(docModel.getObject());
 	}
 }
 

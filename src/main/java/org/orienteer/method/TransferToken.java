@@ -15,7 +15,6 @@ import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
 import org.orienteer.model.EthereumClientConfig;
-import org.orienteer.model.TokenCurrency;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.web3.IEthereumService;
 import org.slf4j.Logger;
@@ -51,21 +50,21 @@ public class TransferToken extends AbstractModalOMethod {
 
 			@Override
 			public boolean onSubmitForm(AjaxRequestTarget target) {
-				try {
-					IModel<String> password = getWalletPassword();
-					IModel<String> summ = getTokenQuantity();
-					IModel<String> targetWallet = getTargetWalletAddress();
-					String tokenAddress = getTokenCurrency().getContractAddress();
-					Credentials credentials = getCredentials(password.getObject(), getWallet());
-
-					getEthereumService().transferTokens(credentials, tokenAddress, targetWallet.getObject(), new BigInteger(summ.getObject()), GAS_PRICE, GAS_LIMIT);
-					//https://rinkeby.etherscan.io/address/0xf8f3d3d326c78f0d274f91f2428305a89002660e
-					//AbstractWidgetDisplayModeAwarePage<ODocument> page = new ODocumentPage(new ODocumentModel(session.getOTaskSessionPersisted().getDocument())).setModeObject(DisplayMode.VIEW);
-					return true;
-				} catch (Exception e) {
-					LOG.error("Can't transfer tokens!", e);
-					error(e.getMessage()+" ");
-				}
+//				try {
+//					IModel<String> password = getWalletPassword();
+//					IModel<String> summ = getTokenQuantity();
+//					IModel<String> targetWallet = getTargetWalletAddress();
+//					String tokenAddress = getToken().getContractAddress();
+//					Credentials credentials = getCredentials(password.getObject(), getWallet());
+//
+//					getEthereumService().transferTokens(credentials, tokenAddress, targetWallet.getObject(), new BigInteger(summ.getObject()), GAS_PRICE, GAS_LIMIT);
+//					//https://rinkeby.etherscan.io/address/0xf8f3d3d326c78f0d274f91f2428305a89002660e
+//					//AbstractWidgetDisplayModeAwarePage<ODocument> page = new ODocumentPage(new ODocumentModel(session.getOTaskSessionPersisted().getDocument())).setModeObject(DisplayMode.VIEW);
+//					return true;
+//				} catch (Exception e) {
+//					LOG.error("Can't transfer tokens!", e);
+//					error(e.getMessage()+" ");
+//				}
 				return false;
 			}
 
@@ -85,14 +84,6 @@ public class TransferToken extends AbstractModalOMethod {
 		}
 		return new Wallet(walletDoc);
 		
-	}
-	
-	protected TokenCurrency getTokenCurrency() throws Exception {
-		TokenCurrency tokenCurrency = getConfig().getMainTokenCurrency(); 
-		if (tokenCurrency.getDocument() == null) {
-			throw new Exception("Please set main token currency in ICOFarm module settings!");
-		}
-		return tokenCurrency;		
 	}
 
 	protected EthereumClientConfig getConfig(){

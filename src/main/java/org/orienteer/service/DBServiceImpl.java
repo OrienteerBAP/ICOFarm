@@ -85,9 +85,9 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
-    public List<TokenCurrency> getTokenCurrency() {
-        List<ODocument> docs = query(null, new OSQLSynchQuery<>("select from " + TokenCurrency.CLASS_NAME));
-        return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(TokenCurrency::new).collect(Collectors.toList());
+    public List<Token> getTokens() {
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>("select from " + Token.CLASS_NAME));
+        return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(Token::new).collect(Collectors.toList());
     }
 
     @Override

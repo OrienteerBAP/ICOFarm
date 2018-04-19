@@ -7,7 +7,7 @@ import org.apache.wicket.model.Model;
 import org.orienteer.component.BuyTokenPanel;
 import org.orienteer.core.component.command.AbstractModalWindowCommand;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
-import org.orienteer.model.TokenCurrency;
+import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 
 public abstract class AbstractBuyTokenMethod extends AbstractModalOMethod {
@@ -17,7 +17,7 @@ public abstract class AbstractBuyTokenMethod extends AbstractModalOMethod {
         modal.setMinimalWidth(370);
         modal.setAutoSize(true);
 
-        return new BuyTokenPanel(componentId, Model.of(getWallet()), Model.of(getTokenCurrency())) {
+        return new BuyTokenPanel(componentId, Model.of(getWallet()), Model.of(getToken())) {
 
             @Override
             public void onBuyTokens(AjaxRequestTarget target) {
@@ -28,5 +28,5 @@ public abstract class AbstractBuyTokenMethod extends AbstractModalOMethod {
     }
 
     protected abstract Wallet getWallet();
-    protected abstract TokenCurrency getTokenCurrency();
+    protected abstract Token getToken();
 }

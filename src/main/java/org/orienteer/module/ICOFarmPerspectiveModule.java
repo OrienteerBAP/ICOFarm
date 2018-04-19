@@ -17,6 +17,7 @@ import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OTransaction;
+import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 
 import java.util.*;
@@ -162,12 +163,16 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
 
         List<String> walletProperties = new ArrayList<>(1);
         walletProperties.add(Wallet.OPROPERTY_OWNER);
-        walletProperties.add(Wallet.OPROPERTY_CURRENCY);
+
+        List<String> tokenProperties = new ArrayList<>(2);
+        tokenProperties.add(Token.OPROPERTY_GAS_LIMIT);
+        tokenProperties.add(Token.OPROPERTY_GAS_PRICE);
 
         HIDDEN_PROPERTIES.put(ICOFarmUser.CLASS_NAME, userProperties);
         HIDDEN_PROPERTIES.put("ORestricted", restrictedProperties);
         HIDDEN_PROPERTIES.put(OIdentity.CLASS_NAME, identityProperties);
         HIDDEN_PROPERTIES.put(Wallet.CLASS_NAME, walletProperties);
+        HIDDEN_PROPERTIES.put(Token.CLASS_NAME, tokenProperties);
     }
 
     private void initHiddenWidgets() {

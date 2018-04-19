@@ -16,7 +16,6 @@ public class Wallet extends ODocumentWrapper {
 
 	public static final String OPROPERTY_OWNER        = "owner";
 	public static final String OPROPERTY_NAME         = "name";
-	public static final String OPROPERTY_CURRENCY     = "currency";
 	public static final String OPROPERTY_BALANCE      = "balance";
 	public static final String OPROPERTY_ADDRESS      = "address";
 	public static final String OPROPERTY_CREATED      = "created";
@@ -84,10 +83,6 @@ public class Wallet extends ODocumentWrapper {
 		List<ODocument> docs = transactions.stream().map(OTransaction::getDocument).collect(Collectors.toList());
 		document.field(OPROPERTY_TRANSACTIONS, docs);
 		return this;
-	}
-
-	public Currency getCurrency() {
-		return new Currency((ODocument) document.field(OPROPERTY_CURRENCY));
 	}
 
 	public Wallet setWalletJSON(byte [] data) {
