@@ -105,6 +105,9 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);
         investor.grant(ResourceGeneric.CLASS, ICOFarmModule.REGISTRATION, 0);
 
+        investor.grant(ResourceGeneric.CLASS, ICOFarmModule.BUY_TOKENS, 2);
+        investor.grant(ResourceGeneric.CLASS, ICOFarmModule.TRANSFER_TOKENS, 2);
+
         investor.grant(ResourceGeneric.CLUSTER, "*", 15);
 
         investor.save();

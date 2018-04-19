@@ -31,6 +31,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REFERRAL     = "Referral";
 	public static final String REGISTRATION = "Registration";
 
+	public static final String BUY_TOKENS = "BuyTokens";
+	public static final String TRANSFER_TOKENS = "TransferTokens";
+
 	public static final String OPROPERTY_REFERRAL_CREATED = "created";
 	public static final String OPROPERTY_REFERRAL_USER    = "user";
 	public static final String OPROPERTY_REFERRAL_BY      = "by";
@@ -40,7 +43,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 20;
+	public static final int VERSION = 21;
 
 	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 
@@ -99,6 +102,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true");
 
 		helper.oClass(REGISTRATION);
+		helper.oClass(BUY_TOKENS);
+		helper.oClass(TRANSFER_TOKENS);
 
 		helper.setupRelationship(Wallet.CLASS_NAME, Wallet.OPROPERTY_TRANSACTIONS, OTransaction.CLASS_NAME, OTransaction.OPROPERTY_WALLET);
 

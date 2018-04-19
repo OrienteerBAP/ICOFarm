@@ -22,8 +22,7 @@ import org.orienteer.model.Wallet;
 import java.util.*;
 
 import static org.orienteer.core.module.OWidgetsModule.*;
-import static org.orienteer.module.ICOFarmModule.REFERRAL;
-import static org.orienteer.module.ICOFarmModule.REGISTRATION;
+import static org.orienteer.module.ICOFarmModule.*;
 import static org.orienteer.module.ICOFarmSecurityModule.*;
 
 public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
@@ -31,11 +30,13 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     public static final String INVESTOR_PERSPECTIVE  = "Investor";
     public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
-    public static final String REFERRAL_WIDGET_ID       = "referrals-widget";
-    public static final String REGISTRATION_WIDGET_ID   = "registration";
-    public static final String SCHEMA_CLASSES_WIDGET_ID = "list-oclasses";
-    public static final String LIST_DOCUMENTS_WIDGET_ID = "list-all";
-    public static final String WALLETS_WIDGET_ID        = "wallets-widget";
+    public static final String REFERRAL_WIDGET_ID        = "referrals-widget";
+    public static final String REGISTRATION_WIDGET_ID    = "registration";
+    public static final String SCHEMA_CLASSES_WIDGET_ID  = "list-oclasses";
+    public static final String LIST_DOCUMENTS_WIDGET_ID  = "list-all";
+    public static final String WALLETS_WIDGET_ID         = "wallets-widget";
+    public static final String BUY_TOKENS_WIDGET_ID      = "buy-tokens-widget";
+    public static final String TRANSFER_TOKENS_WIDGET_ID = "transfer-tokens-widget";
 
     /**
      * Contains hidden properties for investors.
@@ -93,13 +94,25 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         item2.field("url", "/browse/" + Wallet.CLASS_NAME);
         item2.save();
 
-        ODocument item3 = getOrCreatePerspectiveItem("Referrals", perspective, helper);
-        item3.field("icon", FAIconType.users.name());
+        ODocument item3 = getOrCreatePerspectiveItem("Buy Tokens", perspective, helper);
+        item3.field("icon", FAIconType.dollar.name());
         item3.field("perspective", perspective);
-        item3.field("url", "/browse/" + REFERRAL);
+        item3.field("url", "/browse/" + BUY_TOKENS);
         item3.save();
 
-        perspective.field("menu", Arrays.asList(item1, item2, item3));
+        ODocument item4 = getOrCreatePerspectiveItem("Transfer Tokens", perspective, helper);
+        item4.field("icon", FAIconType.exchange.name());
+        item4.field("perspective", perspective);
+        item4.field("url", "/browse/" + TRANSFER_TOKENS);
+        item4.save();
+
+        ODocument item5 = getOrCreatePerspectiveItem("Referrals", perspective, helper);
+        item5.field("icon", FAIconType.users.name());
+        item5.field("perspective", perspective);
+        item5.field("url", "/browse/" + REFERRAL);
+        item5.save();
+
+        perspective.field("menu", Arrays.asList(item1, item2, item3, item4, item5));
         perspective.save();
 
         perspective = getOrCreatePerspective(ANONYMOUS_PERSPECTIVE, helper);
@@ -131,6 +144,9 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
 
     private void adjustDashboard(OSchemaHelper helper) {
         createWidgetIfNotExists(REGISTRATION_WIDGET_ID, REGISTRATION, helper);
+
+        createWidgetIfNotExists(BUY_TOKENS_WIDGET_ID, BUY_TOKENS, helper);
+        createWidgetIfNotExists(TRANSFER_TOKENS_WIDGET_ID, TRANSFER_TOKENS, helper);
 
         createWidgetIfNotExists(REFERRAL_WIDGET_ID, REFERRAL, helper);
         createWidgetIfNotExists(LIST_DOCUMENTS_WIDGET_ID, REFERRAL, helper);
