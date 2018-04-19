@@ -17,9 +17,9 @@ public final class ICOFarmUtils {
 
     public static Map<Object, Object> getUserMacros(ODocument doc) {
         Map<Object, Object> map = new HashMap<>(1);
-        map.put("firstName", doc.field(ICOFarmUser.FIRST_NAME));
-        map.put("lastName", doc.field(ICOFarmUser.LAST_NAME));
-        map.put("email", doc.field(ICOFarmUser.EMAIL));
+        map.put("firstName", doc.field(ICOFarmUser.OPROPERTY_FIRST_NAME));
+        map.put("lastName", doc.field(ICOFarmUser.OPROPERTY_LAST_NAME));
+        map.put("email", doc.field(ICOFarmUser.OPROPERTY_EMAIL));
         return map;
     }
 

@@ -102,7 +102,7 @@ public class ICOFarmRegistrationResource extends AbstractResource {
     }
 
     private ICOFarmUser getUserById(String id) {
-        return dbService.getUserBy(ICOFarmUser.ID, id);
+        return dbService.getUserBy(ICOFarmUser.OPROPERTY_ID, id);
     }
 
     public static void mount(OrienteerWebApplication app) {

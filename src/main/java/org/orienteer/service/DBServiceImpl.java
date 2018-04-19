@@ -85,6 +85,12 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
+    public List<TokenCurrency> getTokenCurrency() {
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>("select from " + TokenCurrency.CLASS_NAME));
+        return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(TokenCurrency::new).collect(Collectors.toList());
+    }
+
+    @Override
     public ICOFarmUser createInvestorUser(String email, String password, String firstName, String lastName, boolean active) {
         return (ICOFarmUser) dbClosure.get().execute(db -> {
             ORole role = getRoleByName(db, ICOFarmSecurityModule.INVESTOR_ROLE);
@@ -294,7 +300,7 @@ public class DBServiceImpl implements IDBService {
     }
 
     private OScheduledEvent createRestorePasswordSchedulerEvent(ODatabaseDocument db, ICOFarmUser user, String name) {
-        OProperty property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.RESTORE_ID);
+        OProperty property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.OPROPERTY_RESTORE_ID);
         OFunction f = getFunctionByName(db, FUN_REMOVE_RESTORE_ID_BY_EMAIL);
         long timeout = Long.parseLong(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property));
         Map<Object, Object> args = new HashMap<>(2);

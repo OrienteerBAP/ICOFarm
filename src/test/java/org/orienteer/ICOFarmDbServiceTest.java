@@ -46,7 +46,7 @@ public class ICOFarmDbServiceTest {
 
     @Test
     public void testQueryUsersById() {
-        ICOFarmUser icoFarmUser = dbService.getUserBy(ICOFarmUser.ID, user.getId());
+        ICOFarmUser icoFarmUser = dbService.getUserBy(ICOFarmUser.OPROPERTY_ID, user.getId());
         assertEquals(icoFarmUser, user);
     }
 

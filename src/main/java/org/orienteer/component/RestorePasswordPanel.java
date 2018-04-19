@@ -72,7 +72,7 @@ public class RestorePasswordPanel extends AbstractLoginPanel {
                 } else {
                     TextField<String> field = ((TextField<String>) get("email"));
                     String email = field.getModelObject();
-                    user = dbService.getUserBy(ICOFarmUser.EMAIL, email);
+                    user = dbService.getUserBy(ICOFarmUser.OPROPERTY_EMAIL, email);
                     service.restoreUserPassword(user);
                     success(new ResourceModel("restore.check.email").getObject());
                 }
@@ -106,7 +106,7 @@ public class RestorePasswordPanel extends AbstractLoginPanel {
 
             private ICOFarmUser getUser() {
                 String id = getWebPage().getPageParameters().get(ICOFarmRestorePasswordResource.RES_KEY).toString();
-                return dbService.getUserBy(ICOFarmUser.RESTORE_ID, id);
+                return dbService.getUserBy(ICOFarmUser.OPROPERTY_RESTORE_ID, id);
             }
         };
     }

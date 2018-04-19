@@ -60,7 +60,7 @@ public class ICOFarmReferralResource extends AbstractResource {
     }
 
     private boolean isExistsInDatabase(String id) {
-        return dbService.getUserBy(ICOFarmUser.ID, id) != null;
+        return dbService.getUserBy(ICOFarmUser.OPROPERTY_ID, id) != null;
     }
 
     public static void mount(OrienteerWebApplication app) {

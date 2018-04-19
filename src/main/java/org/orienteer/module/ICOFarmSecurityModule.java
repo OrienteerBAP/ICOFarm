@@ -57,12 +57,12 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         updateDefaultOrientDbUsers(helper.getDatabase());
 
         OClass user = helper.oClass(ICOFarmUser.CLASS_NAME)
-                .oProperty(ICOFarmUser.FIRST_NAME, OType.STRING, 0)
-                .oProperty(ICOFarmUser.LAST_NAME, OType.STRING, 10)
-                .oProperty(ICOFarmUser.EMAIL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE).markAsDocumentName()
-                .oProperty(ICOFarmUser.ID, OType.STRING).oIndex(OClass.INDEX_TYPE.UNIQUE).notNull()
-                .oProperty(ICOFarmUser.RESTORE_ID, OType.STRING).switchDisplayable(false)
-                .oProperty(ICOFarmUser.RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false).getOClass();
+                .oProperty(ICOFarmUser.OPROPERTY_FIRST_NAME, OType.STRING, 0)
+                .oProperty(ICOFarmUser.OPROPERTY_LAST_NAME, OType.STRING, 10)
+                .oProperty(ICOFarmUser.OPROPERTY_EMAIL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE).markAsDocumentName()
+                .oProperty(ICOFarmUser.OPROPERTY_ID, OType.STRING).oIndex(OClass.INDEX_TYPE.UNIQUE).notNull()
+                .oProperty(ICOFarmUser.OPROPERTY_RESTORE_ID, OType.STRING).switchDisplayable(false)
+                .oProperty(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false).getOClass();
 
         updateUserCustomAttributes(user);
 
@@ -77,15 +77,15 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
     }
 
     private void updateUserDocument(ODocument doc) {
-        doc.field(ICOFarmUser.EMAIL, UUID.randomUUID().toString() + "@gmail.com");
-        doc.field(ICOFarmUser.ID, UUID.randomUUID().toString());
+        doc.field(ICOFarmUser.OPROPERTY_EMAIL, UUID.randomUUID().toString() + "@gmail.com");
+        doc.field(ICOFarmUser.OPROPERTY_ID, UUID.randomUUID().toString());
         doc.field(ORESTRICTED_ALLOW_READ, Collections.singleton(doc));
         doc.save();
     }
 
     private void updateUserCustomAttributes(OClass user) {
-        ICOFarmApplication.REMOVE_CRON_RULE.setValue(user.getProperty(ICOFarmUser.RESTORE_ID), "0 0/1 * * * ?");
-        ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), "86400000");
+        ICOFarmApplication.REMOVE_CRON_RULE.setValue(user.getProperty(ICOFarmUser.OPROPERTY_RESTORE_ID), "0 0/1 * * * ?");
+        ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(user.getProperty(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED), "86400000");
         CustomAttribute.ORDER.setValue(user.getProperty("locale"), "40");
     }
 
@@ -100,6 +100,8 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         investor.grant(ResourceGeneric.CLASS, Wallet.CLASS_NAME, 15);
 
         investor.grant(ResourceGeneric.CLASS, Currency.CLASS_NAME, 2);
+        investor.grant(ResourceGeneric.CLASS, TokenCurrency.CLASS_NAME, 2);
+
         investor.grant(ResourceGeneric.CLASS, ICOFarmModule.REFERRAL, 2);
         investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);
         investor.grant(ResourceGeneric.CLASS, ICOFarmModule.REGISTRATION, 0);

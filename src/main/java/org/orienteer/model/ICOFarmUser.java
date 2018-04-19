@@ -12,13 +12,13 @@ import static org.orienteer.module.ICOFarmSecurityModule.ORESTRICTED_ALLOW_UPDAT
 public class ICOFarmUser extends OUser {
 	private static final long serialVersionUID = 1L;
 
-	public static final String FIRST_NAME         = "firstName";
-    public static final String LAST_NAME          = "lastName";
-    public static final String EMAIL              = "email";
-    public static final String ID                 = "id";
-    public static final String RESTORE_ID         = "restoreId";
-    public static final String RESTORE_ID_CREATED = "restoreIdCreated";
-    public static final String ETH_WALLET = "ethereumWallet";
+	public static final String OPROPERTY_FIRST_NAME         = "firstName";
+    public static final String OPROPERTY_LAST_NAME          = "lastName";
+    public static final String OPROPERTY_EMAIL              = "email";
+    public static final String OPROPERTY_ID                 = "id";
+    public static final String OPROPERTY_RESTORE_ID         = "restoreId";
+    public static final String ORPOPERTY_RESTORE_ID_CREATED = "restoreIdCreated";
+    public static final String OPROPERTY_ETH_WALLET         = "ethereumWallet";
 
     public ICOFarmUser() {
         super(ICOFarmUser.CLASS_NAME);
@@ -29,52 +29,52 @@ public class ICOFarmUser extends OUser {
     }
 
     public ICOFarmUser setFirstName(String firstName) {
-        document.field(FIRST_NAME, firstName);
+        document.field(OPROPERTY_FIRST_NAME, firstName);
         return this;
     }
 
     public String getFirstName() {
-        return document.field(FIRST_NAME);
+        return document.field(OPROPERTY_FIRST_NAME);
     }
 
     public ICOFarmUser setLastName(String lastName) {
-        document.field(LAST_NAME, lastName);
+        document.field(OPROPERTY_LAST_NAME, lastName);
         return this;
     }
 
     public String getLastName() {
-        return document.field(LAST_NAME);
+        return document.field(OPROPERTY_LAST_NAME);
     }
 
     public ICOFarmUser setEmail(String email) {
-        document.field(EMAIL, email);
+        document.field(OPROPERTY_EMAIL, email);
         return this;
     }
 
     public String getEmail() {
-        return document.field(EMAIL);
+        return document.field(OPROPERTY_EMAIL);
     }
 
     public ICOFarmUser setId(String id) {
-        document.field(ID, id);
+        document.field(OPROPERTY_ID, id);
         return this;
     }
 
     public String getId() {
-        return document.field(ID);
+        return document.field(OPROPERTY_ID);
     }
 
     public ICOFarmUser setRestoreId(String restoreId) {
-        document.field(RESTORE_ID, restoreId);
+        document.field(OPROPERTY_RESTORE_ID, restoreId);
         return this;
     }
 
     public String getRestoreId() {
-        return document.field(RESTORE_ID);
+        return document.field(OPROPERTY_RESTORE_ID);
     }
 
     public ICOFarmUser setRestoreIdCreated(Date date) {
-        document.field(RESTORE_ID_CREATED, date);
+        document.field(ORPOPERTY_RESTORE_ID_CREATED, date);
         return this;
     }
 
@@ -99,11 +99,11 @@ public class ICOFarmUser extends OUser {
     }
 
     public Date getRestoreIdCreated() {
-        return document.field(RESTORE_ID_CREATED);
+        return document.field(ORPOPERTY_RESTORE_ID_CREATED);
     }
 
     public Wallet getMainETHWallet() {
-    	ODocument wallet = document.field(ETH_WALLET);
-        return wallet!=null?new Wallet(wallet):null;
+    	ODocument wallet = document.field(OPROPERTY_ETH_WALLET);
+        return wallet != null ? new Wallet(wallet) : null;
     }
 }

@@ -13,25 +13,21 @@ import org.orienteer.model.Wallet;
 @OMethod(
 		icon = FAIconType.dollar,
 		filters = {
-			@OFilter(fClass = ODocumentFilter.class, fData = "Wallet"),
+			@OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME),
 			@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
 		}
 )
-public class BuyTokenFromWallet extends BuyToken{
-	private static final long serialVersionUID = 1L;
+public class BuyTokenFromWallet extends AbstractBuyTokenMethod {
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected Wallet getWallet() {
-		IModel<?> walletModel = getContext().getDisplayObjectModel();
-		return new Wallet((ODocument) walletModel.getObject());
+		IModel<ODocument> docModel = (IModel<ODocument>) getContext().getDisplayObjectModel();
+		return new Wallet(docModel.getObject());
 	}
-	
+
 	@Override
 	protected TokenCurrency getTokenCurrency() {
-		TokenCurrency tokenCurrency = getConfig().getMainTokenCurrency(); 
-		if (tokenCurrency == null) {
-			throw new IllegalStateException("Please set main token currency in ICOFarm module settings!");
-		}
-		return tokenCurrency;		
+		return null;
 	}
 }

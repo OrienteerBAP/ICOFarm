@@ -141,9 +141,9 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
 
     private void initHiddenProperties() {
         List<String> userProperties = new ArrayList<>(9);
-        userProperties.add(ICOFarmUser.ID);
-        userProperties.add(ICOFarmUser.RESTORE_ID);
-        userProperties.add(ICOFarmUser.RESTORE_ID_CREATED);
+        userProperties.add(ICOFarmUser.OPROPERTY_ID);
+        userProperties.add(ICOFarmUser.OPROPERTY_RESTORE_ID);
+        userProperties.add(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED);
         userProperties.add("name");
         userProperties.add("online");
         userProperties.add("status");

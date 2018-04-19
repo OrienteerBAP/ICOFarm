@@ -11,6 +11,10 @@ public class Currency extends ODocumentWrapper {
 
 	public static final String CLASS_NAME = "Currency";
 
+	public static final String OPROPERTY_NAME   = "name";
+	public static final String OPROPERTY_SYMBOL = "symbol";
+
+
 	public Currency() {
         super(CLASS_NAME);
     }
@@ -28,7 +32,7 @@ public class Currency extends ODocumentWrapper {
     }
 
     public Map<String, String> getNames() {
-        return document.field("name");
+        return document.field(OPROPERTY_NAME);
     }
 
     public Currency setNames(Map<String, String> names) {
@@ -36,4 +40,12 @@ public class Currency extends ODocumentWrapper {
         return this;
     }
 
+    public String getSymbol() {
+	    return document.field(OPROPERTY_SYMBOL);
+    }
+
+    public Currency setSymbol(String symbol) {
+	    document.field(OPROPERTY_SYMBOL, symbol);
+	    return this;
+    }
 }

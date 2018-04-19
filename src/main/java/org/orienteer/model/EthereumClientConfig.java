@@ -46,8 +46,9 @@ public class EthereumClientConfig extends ODocumentWrapper {
     	return document.field(OPROPERTY_TRANSACTIONS_BUFFER_NUM);
     }
 
-    public TokenCurrency getMainTokenCurrency(){
-    	return new TokenCurrency(document.field(OPROPERTY_MAIN_TOKEN_CURRENCY));
+    public TokenCurrency getMainTokenCurrency() {
+        ODocument doc = (ODocument) document.field(OPROPERTY_MAIN_TOKEN_CURRENCY);
+    	return doc != null ? new TokenCurrency(doc) : null;
     }
 
     public BigInteger getGasPriceFor(Currency currency) {
@@ -65,6 +66,6 @@ public class EthereumClientConfig extends ODocumentWrapper {
 
     @Override
     public <RET extends ODocumentWrapper> RET save(String iClusterName) {
-        throw new IllegalStateException("Can;t save config model!");
+        throw new IllegalStateException("Can't save config model!");
     }
 }

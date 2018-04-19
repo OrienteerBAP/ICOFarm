@@ -33,7 +33,7 @@ public class EmailExistsValidator implements IValidator<String> {
     }
 
     private boolean isUserExists(String email) {
-        return OrienteerWebApplication.get().getServiceInstance(IDBService.class).getUserBy(ICOFarmUser.EMAIL, email) != null;
+        return OrienteerWebApplication.get().getServiceInstance(IDBService.class).getUserBy(ICOFarmUser.OPROPERTY_EMAIL, email) != null;
     }
 
     private String getResource() {

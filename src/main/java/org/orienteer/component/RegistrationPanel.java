@@ -84,7 +84,7 @@ public class RegistrationPanel extends Panel {
 
             private void updateReferral(ICOFarmUser user) {
                 String id = (String) OrienteerWebSession.get().getAttribute("referral");
-                ICOFarmUser by = !Strings.isNullOrEmpty(id) ? dbService.getUserBy(ICOFarmUser.ID, id) : null;
+                ICOFarmUser by = !Strings.isNullOrEmpty(id) ? dbService.getUserBy(ICOFarmUser.OPROPERTY_ID, id) : null;
                 if (by != null) {
                     dbService.updateReferralInformation(user, by);
                 }

@@ -5,9 +5,7 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.util.io.IClusterable;
-import org.orienteer.model.ICOFarmUser;
-import org.orienteer.model.OMail;
-import org.orienteer.model.Wallet;
+import org.orienteer.model.*;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 
@@ -31,6 +29,8 @@ public interface IDBService extends IClusterable {
 
     public List<Wallet> getUserWallets(ODocument userDoc);
     public List<Wallet> getUserWallets(ICOFarmUser user);
+
+    public List<TokenCurrency> getTokenCurrency();
 
     public ICOFarmUser createInvestorUser(String email, String password, String firstName, String lastName, boolean active);
 

@@ -38,7 +38,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 13;
+	public static final int VERSION = 18;
 
 	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 
@@ -54,8 +54,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		OSchemaHelper helper = OSchemaHelper.bind(db);
 
 		
-		helper.oClass(Currency.CLASS_NAME, "OEnum");
-		helper.oClass(TokenCurrency.CLASS_NAME, Currency.CLASS_NAME);
+		helper.oClass(Currency.CLASS_NAME, "OEnum")
+				.oProperty(Currency.OPROPERTY_NAME, OType.EMBEDDEDMAP, 0).linkedType(OType.STRING).assignVisualization("localization").notNull()
+				.oProperty(Currency.OPROPERTY_SYMBOL, OType.STRING, 10).notNull();
+
+		helper.oClass(TokenCurrency.CLASS_NAME, Currency.CLASS_NAME)
+				.oProperty(TokenCurrency.OPROPERTY_ADDRESS, OType.STRING).notNull();
 		
 		helper.oClass(CLASS_NAME, ICOFarmModule.OMODULE_CLASS)
 				.oProperty(EthereumClientConfig.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName().notNull()
@@ -112,7 +116,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		};
 		String code = String.format("var res = db.command('UPDATE OUser SET %s = null, %s = null WHERE %s = ? AND %s <= (sysdate() - ?)', email, timeout);\n"
 				+ "if (res > 0) db.command('DELETE FROM OSchedule WHERE name = ?', eventName);",
-                ICOFarmUser.RESTORE_ID, ICOFarmUser.RESTORE_ID_CREATED, ICOFarmUser.EMAIL, ICOFarmUser.RESTORE_ID_CREATED
+                ICOFarmUser.OPROPERTY_RESTORE_ID, ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED, ICOFarmUser.OPROPERTY_EMAIL, ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED
         );
 		List<String> params = new LinkedList<>();
 		params.add(FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EMAIL);

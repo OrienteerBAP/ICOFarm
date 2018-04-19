@@ -41,7 +41,7 @@ public class RestorePasswordServiceTest {
             user.setName(UUID.randomUUID().toString())
                     .setPassword(UUID.randomUUID().toString())
                     .setAccountStatus(OSecurityUser.STATUSES.ACTIVE);
-            property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.RESTORE_ID);
+            property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.OPROPERTY_RESTORE_ID);
             cronValue = ICOFarmApplication.REMOVE_CRON_RULE.getValue(property);
             timeoutValue = ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property);
             ICOFarmApplication.REMOVE_CRON_RULE.setValue(property, "0 0/1 * 1/1 * ? *");

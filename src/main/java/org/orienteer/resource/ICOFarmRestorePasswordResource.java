@@ -30,7 +30,7 @@ public class ICOFarmRestorePasswordResource extends AbstractResource {
     }
 
     public static String getLinkForUser(ODocument doc) {
-        String id = doc.field(ICOFarmUser.RESTORE_ID);
+        String id = doc.field(ICOFarmUser.OPROPERTY_RESTORE_ID);
         PageParameters params = new PageParameters();
         params.add("id", id);
         CharSequence url = RequestCycle.get().urlFor(new SharedResourceReference(RES_KEY), params);
@@ -54,7 +54,7 @@ public class ICOFarmRestorePasswordResource extends AbstractResource {
             public void writeData(Attributes attributes) throws IOException {
                 String id = attributes.getParameters().get("id").toString();
                 PageParameters params = new PageParameters();
-                if (!Strings.isNullOrEmpty(id) && dbService.getUserBy(ICOFarmUser.RESTORE_ID, id) != null) {
+                if (!Strings.isNullOrEmpty(id) && dbService.getUserBy(ICOFarmUser.OPROPERTY_RESTORE_ID, id) != null) {
                     params.add(RES_KEY, id);
                 }
                 RequestCycle.get().setResponsePage(ICOFarmLoginPage.class, params);
