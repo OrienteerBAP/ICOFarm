@@ -179,6 +179,17 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
+    public Wallet getWalletByTransactionFromOrTo(ICOFarmUser owner, String from, String to) {
+        return getWalletByTransactionFromOrTo(owner.getDocument(), from, to);
+    }
+
+    @Override
+    public Wallet getWalletByTransactionFromOrTo(ODocument owner, String from, String to) {
+        ODocument doc = getWalletByTransactionFromOrTo(null, owner, from, to);
+        return doc != null ? new Wallet(doc) : null;
+    }
+
+    @Override
     public void confirmICOFarmTransactions(List<Transaction> transactions, Function<Transaction, EthBlock.Block> blockFunction) {
         dbClosure.get().execute(db -> {
             filterICOFarmTransactions(db, transactions)
@@ -201,6 +212,7 @@ public class DBServiceImpl implements IDBService {
             return null;
         });
     }
+
 
     private ODocument saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
         ODocument from = getUserByWalletAddress(database, transaction.getFrom());
@@ -247,9 +259,18 @@ public class DBServiceImpl implements IDBService {
 	    doc.field(OTransaction.OPROPERTY_HASH, transaction.getHash());
 	    doc.field(OTransaction.OPROPERTY_VALUE, transaction.getValue().toString());
         doc.field(OTransaction.OPROPERTY_CONFIRMED, confirmed);
+        doc.field(OTransaction.OPROPERTY_WALLET, getWalletByTransactionFromOrTo(null, owner, transaction.getFrom(), transaction.getTo()));
 	    doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singleton(owner));
         return doc;
     }
+
+    private ODocument getWalletByTransactionFromOrTo(ODatabaseDocument db, ODocument owner, String from, String to) {
+        String sql = String.format("select from %s where %s = ? or %s = ? and %s = ?",
+                Wallet.CLASS_NAME, Wallet.OPROPERTY_ADDRESS, Wallet.OPROPERTY_ADDRESS, Wallet.OPROPERTY_OWNER);
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), from, to, owner);
+        return isDocsNotEmpty(docs) ? docs.get(0) : null;
+    }
+
 
     private ODocument updateConfirmedTransaction(ODocument doc, Date date, EthBlock.Block block) {
         doc.field(OTransaction.OPROPERTY_CONFIRMED, true);

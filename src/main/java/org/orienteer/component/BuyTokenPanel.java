@@ -9,11 +9,15 @@ import org.apache.wicket.model.ResourceModel;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.web3.IEthereumService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigInteger;
 
 public class BuyTokenPanel extends AbstractTokenPanel {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BuyTokenPanel.class);
 
 	@Inject
 	private IEthereumService service;
@@ -27,22 +31,23 @@ public class BuyTokenPanel extends AbstractTokenPanel {
     protected void onFormSubmit(AjaxRequestTarget target, Form<?> form) {
 	    try {
 	        String password = ((TextField<String>) form.get("password")).getModelObject();
-	        long quantity = ((TextField<Long>) form.get("quantity")).getModelObject();
+	        int quantity = ((TextField<Integer>) form.get("quantity")).getModelObject();
 	        buyTokens(password, quantity);
 	        onBuyTokens(target);
         } catch (Exception ex) {
+	        LOG.error("Can't buy token(s)!", ex);
 	        error(new ResourceModel("buy.token.error").getObject());
         }
     }
 
-    private void buyTokens(String password, long quantity) throws Exception {
+    private void buyTokens(String password, int quantity) throws Exception {
         Token token = getTokenModel().getObject();
         Wallet wallet = getWalletModel().getObject();
         String tokenAddress = token.getAddress();
         Credentials credentials = service.readWallet(password, wallet.getWalletJSON());
         BigInteger gasPrice = token.getGasPrice().toBigInteger();
         BigInteger gasLimit = token.getGasLimit().toBigInteger();
-        service.buyTokens(credentials, tokenAddress, BigInteger.valueOf(quantity), gasPrice, gasLimit); // TODO: add state which displays status of buying tokens
+        service.buyTokens(credentials, tokenAddress, BigInteger.valueOf(quantity), gasPrice, gasLimit);// TODO: add state which displays status of buying tokens
     }
 
     protected void onBuyTokens(AjaxRequestTarget target) {

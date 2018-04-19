@@ -41,7 +41,7 @@ public abstract class AbstractTokenPanel extends Panel {
         add(new Label("panelTitle", getTitleModel()));
         Form<?> form = new Form<>("form");
         PasswordTextField password = new PasswordTextField("password", Model.of());
-        TextField<Long> quantityField = new TextField<>("quantity", Model.of(), Long.class);
+        TextField<Integer> quantityField = new TextField<>("quantity", Model.of(), Integer.class);
         quantityField.add(RangeValidator.minimum(0));
         quantityField.setRequired(true);
         form.add(password);

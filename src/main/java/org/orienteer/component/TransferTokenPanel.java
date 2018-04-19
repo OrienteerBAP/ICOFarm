@@ -11,11 +11,15 @@ import org.apache.wicket.model.ResourceModel;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.web3.IEthereumService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigInteger;
 
 public class TransferTokenPanel extends AbstractTokenPanel {
+
+	private static final Logger LOG = LoggerFactory.getLogger(TransferTokenPanel.class);
 
 	@Inject
 	private IEthereumService service;
@@ -38,16 +42,17 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 		try {
 			String password = ((TextField<String>) form.get("password")).getModelObject();
 			String targetAddress = ((TextField<String>) form.get("target")).getModelObject();
-			long quantity = ((TextField<Long>) form.get("quantity")).getModelObject();
+			int quantity = ((TextField<Integer>) form.get("quantity")).getModelObject();
 			transferTokens(password, quantity, targetAddress);
 
 			onTransferTokens(target);
 		} catch (Exception ex) {
+			LOG.error("Can't transfer token(s)!", ex);
 			error(new ResourceModel("transfer.token.error").getObject());
 		}
 	}
 
-	private void transferTokens(String password, long quantity, String target) throws Exception {
+	private void transferTokens(String password, int quantity, String target) throws Exception {
 		Token token = getTokenModel().getObject();
 		Wallet wallet = getWalletModel().getObject();
 		Credentials credentials = service.readWallet(password, wallet.getWalletJSON());

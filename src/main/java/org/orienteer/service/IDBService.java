@@ -48,6 +48,9 @@ public interface IDBService extends IClusterable {
 
     public Wallet createWalletForUser(ICOFarmUser user);
 
+    public Wallet getWalletByTransactionFromOrTo(ICOFarmUser owner, String from, String to);
+    public Wallet getWalletByTransactionFromOrTo(ODocument owner, String from, String to);
+
     public void confirmICOFarmTransactions(List<Transaction> transactions, Function<Transaction, EthBlock.Block> blockFunction);
     public void saveUnconfirmedICOFarmTransactions(List<Transaction> transactions);
 

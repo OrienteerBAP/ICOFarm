@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 
-import java.util.List;
-
 public class OTransactionHook extends ODocumentHookAbstract {
 
     private static final Logger LOG = LoggerFactory.getLogger(OTransactionHook.class);
@@ -63,15 +61,8 @@ public class OTransactionHook extends ODocumentHookAbstract {
     private ODocument getTransactionWallet(Transaction transaction) {
         IDBService dbService = OrienteerWebApplication.lookupApplication().getServiceInstance(IDBService.class);
         ODocument userDoc = OrienteerWebSession.get().getEffectiveUser().getDocument();
-        List<Wallet> wallets = dbService.getUserWallets(userDoc);
-        Wallet result = null;
-        for (Wallet wallet : wallets) {
-            if (wallet.getAddress().equals(transaction.getFrom()) || wallet.getAddress().equals(transaction.getTo())) {
-                result = wallet;
-                break;
-            }
-        }
-        return result != null ? result.getDocument() : null;
+        Wallet wallet = dbService.getWalletByTransactionFromOrTo(userDoc, transaction.getFrom(), transaction.getTo());
+        return wallet != null ? wallet.getDocument() : null;
     }
 
     @Override
