@@ -145,7 +145,6 @@ public abstract class AbstractTokenPanel extends Panel {
             protected void onInitialize() {
                 super.onInitialize();
                 setOutputMarkupPlaceholderTag(true);
-                setMaxMessages(2);
             }
 
             @Override
