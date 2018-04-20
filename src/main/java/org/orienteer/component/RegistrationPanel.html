@@ -17,6 +17,13 @@
 		<div class="form-group">
 			<input class="form-control" type="password" placeholder="Re enter password" wicket:id="repeatPassword"/>
 		</div>
-		<button type="submit" class="mx-auto btn btn-primary" wicket:id="submit">REGISTER</button>
+		<div class="mx-auto">
+			<button type="submit" class="mr-1 btn btn-primary" wicket:id="submit">
+				<wicket:message key="widget.registration.register"></wicket:message>
+			</button>
+			<a class="ml-1 btn btn-success" href="/login">
+				<wicket:message key="widget.registration.login"></wicket:message>
+			</a>
+		</div>
 	</form>
 </wicket:panel>
