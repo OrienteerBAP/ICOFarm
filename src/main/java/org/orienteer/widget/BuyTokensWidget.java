@@ -2,6 +2,8 @@ package org.orienteer.widget;
 
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -23,7 +25,12 @@ public class BuyTokensWidget extends AbstractWidget<OClass> {
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        add(new BuyTokenPanel("buyTokens", Model.of(), Model.of()));
+        add(new BuyTokenPanel("buyTokens", Model.of(), Model.of()) {
+            @Override
+            protected Panel createFeedbackPanel(String id) {
+                return new EmptyPanel(id);
+            }
+        });
     }
 
     @Override

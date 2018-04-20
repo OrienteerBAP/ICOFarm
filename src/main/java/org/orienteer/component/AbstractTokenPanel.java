@@ -139,7 +139,7 @@ public abstract class AbstractTokenPanel extends Panel {
     }
 
 
-    private FeedbackPanel createFeedbackPanel(String id) {
+    protected Panel createFeedbackPanel(String id) {
         return new FeedbackPanel(id, new ContainerFeedbackMessageFilter(this)) {
             @Override
             protected void onInitialize() {
