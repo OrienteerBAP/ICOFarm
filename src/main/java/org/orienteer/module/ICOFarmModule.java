@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import org.apache.wicket.model.ResourceModel;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
@@ -46,7 +47,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 6;
+	public static final int VERSION = 8;
 
 	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 
@@ -55,6 +56,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String WEI  = "WEI";
 
 	public static final String ZERO_ADDRESS = "0x0";
+
+	public static final String REGISTRATION_MAIL_NAME = "registration";
+	public static final String RESTORE_MAIL_NAME      = "restore";
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -121,6 +125,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		createRemoveRestoreIdFunction(helper);
 		createDefaultTokens();
+		createDefaultMails(helper);
 		return createModuleDocument(helper);
 	}
 
@@ -196,6 +201,63 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.setGasLimit(BigDecimal.ZERO)
 				.setAddress(ZERO_ADDRESS);
 	}
+
+	private void createDefaultMails(OSchemaHelper helper) {
+	    ODatabaseDocument db = helper.getDatabase();
+	    List<ODocument> docs = db.query(new OSQLSynchQuery<>("select from " + OMailSettings.CLASS_NAME), 1);
+	    ODocument config = docs != null && !docs.isEmpty() ? docs.get(0) : null;
+	    if (config == null) {
+            config = createDefaultMailConfig();
+        }
+
+        if (!isMailExists(REGISTRATION_MAIL_NAME, db)) {
+	        createMail(
+	                REGISTRATION_MAIL_NAME,
+                    new ResourceModel("mail.default.restore.subject").getObject(),
+                    new ResourceModel("mail.default.restore.from").getObject(),
+                    new ResourceModel("mail.default.restore.text").getObject(),
+                    config
+            );
+        }
+
+        if (!isMailExists(RESTORE_MAIL_NAME, db)) {
+            createMail(
+                    RESTORE_MAIL_NAME,
+                    new ResourceModel("mail.default.registration.subject").getObject(),
+                    new ResourceModel("mail.default.registration.from").getObject(),
+                    new ResourceModel("mail.default.registration.text").getObject(),
+                    config
+            );
+        }
+    }
+
+    private ODocument createDefaultMailConfig() {
+	    ODocument doc = new ODocument(OMailSettings.CLASS_NAME);
+	    doc.field(OMailSettings.EMAIL, "icofarm.default@gmail.com");
+	    doc.field(OMailSettings.PASSWORD, "default");
+	    doc.field(OMailSettings.SMTP_HOST, "smtp.gmail.com");
+	    doc.field(OMailSettings.SMTP_PORT, 587);
+	    doc.field(OMailSettings.TLS_SSL, true);
+	    doc.save();
+
+	    return doc;
+    }
+
+    private void createMail(String name, String subject, String from, String text, ODocument settings) {
+	    ODocument doc = new ODocument(OMail.CLASS_NAME);
+	    doc.field(OMail.NAME, name);
+        doc.field(OMail.SUBJECT, subject);
+	    doc.field(OMail.FROM, from);
+	    doc.field(OMail.TEXT, text);
+        doc.field(OMail.SETTINGS, settings);
+	    doc.save();
+    }
+
+
+    private boolean isMailExists(String name, ODatabaseDocument db) {
+        List<ODocument> docs = db.query(new OSQLSynchQuery<>("select from " + OMail.CLASS_NAME + " where name = ?", 1), name);
+        return docs != null && !docs.isEmpty();
+    }
 
 	@Override
 	public void onUpdate(OrienteerWebApplication app, ODatabaseDocument db, int oldVersion, int newVersion) {
