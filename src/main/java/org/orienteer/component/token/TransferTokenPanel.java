@@ -1,4 +1,4 @@
-package org.orienteer.component;
+package org.orienteer.component.token;
 
 import com.google.inject.Inject;
 import org.apache.wicket.ajax.AjaxRequestTarget;

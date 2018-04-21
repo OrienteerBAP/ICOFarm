@@ -1,4 +1,4 @@
-package org.orienteer.component;
+package org.orienteer.component.wallet;
 
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;

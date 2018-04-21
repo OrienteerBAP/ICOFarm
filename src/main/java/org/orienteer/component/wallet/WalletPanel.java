@@ -1,4 +1,4 @@
-package org.orienteer.component;
+package org.orienteer.component.wallet;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
