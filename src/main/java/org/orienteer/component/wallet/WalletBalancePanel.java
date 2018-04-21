@@ -85,7 +85,7 @@ public class WalletBalancePanel extends GenericPanel<Wallet> {
     }
 
     private Component createSelectToken(String id) {
-        List<Token> tokens = dbService.getTokens();
+        List<Token> tokens = dbService.getTokens(true);
         Token token = getModelObject().getDisplayableToken();
         IModel<Token> tokenModel = Model.of(tokens.get(tokens.indexOf(token)));
 

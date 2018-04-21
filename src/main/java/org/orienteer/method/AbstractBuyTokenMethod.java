@@ -16,8 +16,11 @@ public abstract class AbstractBuyTokenMethod extends AbstractModalOMethod {
     public Component getModalContent(String componentId, ModalWindow modal, AbstractModalWindowCommand<?> command) {
         modal.setMinimalWidth(370);
         modal.setAutoSize(true);
-
-        return new BuyTokenPanel(componentId, Model.of(getWallet()), Model.of(getToken())) {
+        Token token = getToken();
+        if (token != null) {
+            command.setVisible(!token.isEthereumCurrency());
+        }
+        return new BuyTokenPanel(componentId, Model.of(getWallet()), Model.of(token)) {
 
             @Override
             public void onBuyTokens(AjaxRequestTarget target) {

@@ -112,7 +112,7 @@ public abstract class AbstractTokenPanel extends Panel {
             @Override
             protected void onInitialize() {
                 super.onInitialize();
-                DropDownChoice<Token> select = new DropDownChoice<>("selectToken", tokenModel, dbService.getTokens(),
+                DropDownChoice<Token> select = new DropDownChoice<>("selectToken", tokenModel, getTokens(dbService),
                         ComponentUtils.getChoiceRendererForTokens());
                 select.setRequired(true);
                 add(select);
@@ -147,6 +147,8 @@ public abstract class AbstractTokenPanel extends Panel {
     }
 
     protected abstract void onFormSubmit(AjaxRequestTarget target, Form<?> form);
+
+    protected abstract List<Token> getTokens(IDBService dbService);
 
     protected abstract IModel<String> getTitleModel();
     protected abstract IModel<String> getPasswordLabelModel();

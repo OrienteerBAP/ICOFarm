@@ -10,12 +10,14 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
+import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigInteger;
+import java.util.List;
 
 public class TransferTokenPanel extends AbstractTokenPanel {
 
@@ -50,6 +52,11 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 			LOG.error("Can't transfer token(s)!", ex);
 			error(new ResourceModel("transfer.token.error").getObject());
 		}
+	}
+
+	@Override
+	protected List<Token> getTokens(IDBService dbService) {
+		return dbService.getTokens(true);
 	}
 
 	private void transferTokens(String password, int quantity, String target) throws Exception {
