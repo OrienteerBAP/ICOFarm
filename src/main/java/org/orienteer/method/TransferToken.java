@@ -4,9 +4,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 import org.orienteer.component.token.TransferTokenPanel;
 import org.orienteer.core.component.BootstrapType;
 import org.orienteer.core.component.FAIconType;
@@ -22,6 +20,7 @@ import org.orienteer.model.Wallet;
 		order = 2,
 		icon = FAIconType.exchange,
 		bootstrap = BootstrapType.WARNING,
+		titleKey = "method.token.transfer",
 		filters = {
 			@OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME),
 			@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
@@ -48,8 +47,4 @@ public class TransferToken extends AbstractModalOMethod {
 		return new Wallet(walletDoc);
 	}
 
-	@Override
-	protected IModel<String> getTitleModel() {
-		return new ResourceModel("method.token.transfer");
-	}
 }
