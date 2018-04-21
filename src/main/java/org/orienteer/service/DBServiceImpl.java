@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.schedule.OScheduler;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.orienteer.ICOFarmApplication;
 import org.orienteer.model.*;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.module.ICOFarmSecurityModule;
 import org.orienteer.util.ICOFarmUtils;
 import org.slf4j.Logger;
@@ -176,9 +177,18 @@ public class DBServiceImpl implements IDBService {
 
     @Override
     public Wallet createWalletForUser(ICOFarmUser user) {
+        return createWalletForUser(user, null, null);
+    }
+
+    @Override
+    public Wallet createWalletForUser(ICOFarmUser user, String address, byte[] json) {
         return (Wallet) dbClosure.get().execute(db -> {
             Wallet wallet = new Wallet();
             wallet.setOwner(user.getDocument());
+            wallet.setWalletJSON(json);
+            wallet.setAddress(address);
+            wallet.setCreated(new Date());
+            wallet.setDisplayableToken(getTokenBySymbol(ICOFarmModule.ETH).getDocument());
             wallet.getDocument().field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singletonList(user.getDocument()));
             wallet.save();
             return wallet;
@@ -219,7 +229,6 @@ public class DBServiceImpl implements IDBService {
             return null;
         });
     }
-
 
     private ODocument saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
         ODocument from = getUserByWalletAddress(database, transaction.getFrom());

@@ -49,6 +49,7 @@ public interface IDBService extends IClusterable {
     public void clearRestoreStatusForUser(ICOFarmUser user);
 
     public Wallet createWalletForUser(ICOFarmUser user);
+    public Wallet createWalletForUser(ICOFarmUser user, String address, byte[] json);
 
     public Wallet getWalletByTransactionFromOrTo(ICOFarmUser owner, String from, String to);
     public Wallet getWalletByTransactionFromOrTo(ODocument owner, String from, String to);
