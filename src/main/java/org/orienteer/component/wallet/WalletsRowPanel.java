@@ -45,6 +45,7 @@ public class WalletsRowPanel extends GenericPanel<List<Wallet>> {
                         WalletsRowPanel.this.onWalletDelete(target);
                     }
                 });
+                listItem.setRenderBodyOnly(true);
             }
         };
     }

@@ -1,5 +1,5 @@
 <wicket:panel xmlns:wicket="http://www.w3.org/1999/xhtml">
-	<div class="card wallet-card">
+	<div class="card h-100">
 		<div class="card-header">
 			<i class="fa fa-briefcase" aria-hidden="true"></i>
 			<span wicket:id="title">Wallet Name</span>
@@ -9,10 +9,10 @@
 		</div>
 		<div class="card-body">
 			<div class="text-center" wicket:id="balancePanel"></div>
-			<div class="mt-3">
-				<a class="card-link float-left" wicket:id="detailsLink"></a>
-				<div wicket:id="refillLink"></div>
-			</div>
+		</div>
+		<div class="card-footer">
+			<a class="card-link float-left" wicket:id="detailsLink"></a>
+			<div wicket:id="refillLink"></div>
 		</div>
 	</div>
 </wicket:panel>

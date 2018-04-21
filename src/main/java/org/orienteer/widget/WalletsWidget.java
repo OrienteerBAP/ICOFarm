@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -52,13 +53,17 @@ public class WalletsWidget extends AbstractICOFarmWidget<OClass> {
 
             @Override
             protected void populateItem(ListItem<List<Wallet>> listItem) {
-                listItem.setRenderBodyOnly(true);
-                listItem.add(new WalletsRowPanel("walletsRow", WalletsWidget.this.getModel(), listItem.getModel(), size) {
+                WalletsRowPanel row = new WalletsRowPanel("walletsRow", WalletsWidget.this.getModel(), listItem.getModel(), size) {
                     @Override
                     protected void onWalletDelete(AjaxRequestTarget target) {
                         target.add(WalletsWidget.this);
                     }
-                });
+                };
+                if (listItem.getIndex() != 0) {
+                    row.add(AttributeAppender.append("class", "mt-4"));
+                }
+                listItem.setRenderBodyOnly(true);
+                listItem.add(row);
             }
 
             private List<List<Wallet>> prepareWallets(List<Wallet> wallets, int size) {
