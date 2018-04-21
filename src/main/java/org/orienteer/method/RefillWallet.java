@@ -15,7 +15,7 @@ import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
 import org.orienteer.model.Wallet;
 
-@OMethod(order = 0, filters = { @OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME) })
+@OMethod(order = 0, icon = FAIconType.credit_card, filters = { @OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME) })
 public class RefillWallet extends AbstractModalOMethod {
 
     @Override
