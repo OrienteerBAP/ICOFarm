@@ -2,6 +2,7 @@ package org.orienteer.method;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
@@ -11,7 +12,7 @@ import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 
 @OMethod(
-		icon = FAIconType.dollar,
+		icon = FAIconType.money,
 		filters = {
 				@OFilter(fClass = ODocumentFilter.class, fData = Token.CLASS_NAME),
 				@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
@@ -29,6 +30,11 @@ public class BuyToken extends AbstractBuyTokenMethod {
 	protected Token getToken() {
 		IModel<ODocument> docModel = (IModel<ODocument>) getContext().getDisplayObjectModel();
 		return new Token(docModel.getObject());
+	}
+
+	@Override
+	protected IModel<String> getTitleModel() {
+		return new ResourceModel("method.token.buy");
 	}
 }
 

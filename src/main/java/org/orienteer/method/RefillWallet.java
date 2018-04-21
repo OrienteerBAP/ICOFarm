@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.orienteer.component.wallet.RefillWalletPopupPanel;
 import org.orienteer.core.component.BootstrapType;
 import org.orienteer.core.component.FAIconType;
@@ -26,5 +27,10 @@ public class RefillWallet extends AbstractModalOMethod {
         modal.setMinimalWidth(580);
         modal.setMinimalHeight(370);
         return new RefillWalletPopupPanel(componentId, model);
+    }
+
+    @Override
+    protected IModel<String> getTitleModel() {
+        return new ResourceModel("method.token.refill");
     }
 }
