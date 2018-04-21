@@ -4,6 +4,8 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.Token;
+import org.orienteer.module.ICOFarmModule;
 import org.web3j.protocol.core.methods.response.EthBlock;
 
 import java.util.*;
@@ -48,5 +50,9 @@ public final class ICOFarmUtils {
 
                 (a, b) -> a
         );
+    }
+
+    public static boolean isEthereumCurrency(Token token) {
+        return token.getAddress().equals(ICOFarmModule.ZERO_ADDRESS);
     }
 }

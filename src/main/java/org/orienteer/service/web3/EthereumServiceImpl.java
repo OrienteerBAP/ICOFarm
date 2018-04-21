@@ -5,6 +5,8 @@ import com.google.common.base.Strings;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
+import org.orienteer.model.Token;
+import org.orienteer.util.ICOFarmUtils;
 import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
@@ -13,7 +15,9 @@ import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.ReadonlyTransactionManager;
 import rx.Observable;
+import rx.Single;
 
 import java.math.BigInteger;
 import java.util.concurrent.Callable;
@@ -67,6 +71,17 @@ public class EthereumServiceImpl implements IEthereumService {
                                                                 BigInteger gasLimit) {
         ERC20Interface token = ERC20Interface.load(contractAddress, web3j, credentials, gasPrice, gasLimit);
         return token.transfer(targetAddress, ethQuantity).sendAsync();
+    }
+
+    @Override
+    public Observable<BigInteger> requestBalance(String address, Token token) {
+        if (!ICOFarmUtils.isEthereumCurrency(token)) {
+            ERC20Interface erc20 = ERC20Interface.load(token.getAddress(), web3j, new ReadonlyTransactionManager(web3j, address),
+                    token.getGasPrice().toBigInteger(), token.getGasLimit().toBigInteger());
+            return erc20.balanceOf(address).observable();
+        }
+
+        return requestEthereumBalance(address);
     }
 
     @Override
@@ -126,5 +141,15 @@ public class EthereumServiceImpl implements IEthereumService {
                 callback.accept(e, null);
             }
         });
+    }
+
+    private Observable<BigInteger> requestEthereumBalance(String address) {
+        return Single.fromCallable(() -> {
+            try {
+                return requestBalance(address);
+            } catch (Exception ex) {
+                return BigInteger.valueOf(0);
+            }
+        }).toObservable();
     }
 }

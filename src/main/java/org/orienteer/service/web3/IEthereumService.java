@@ -3,6 +3,7 @@ package org.orienteer.service.web3;
 import com.google.inject.ImplementedBy;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
+import org.orienteer.model.Token;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
@@ -31,14 +32,16 @@ public interface IEthereumService {
                                                            String contractAddress,
                                                            BigInteger ethQuantity,
                                                            BigInteger gasPrice,
-                                                           BigInteger gasLimit); // TODO: think about gasPrice and gasLimit
+                                                           BigInteger gasLimit);
 
     public CompletableFuture<TransactionReceipt> transferTokens(Credentials credentials,
                                                                 String contractAddress,
                                                                 String targetAddress,
                                                                 BigInteger ethQuantity,
                                                                 BigInteger gasPrice,
-                                                                BigInteger gasLimit); // TODO: think about gasPrice and gasLimit
+                                                                BigInteger gasLimit);
+
+    public Observable<BigInteger> requestBalance(String address, Token token);
 
     public Observable<Transaction> getTransactionsObservable();
 
