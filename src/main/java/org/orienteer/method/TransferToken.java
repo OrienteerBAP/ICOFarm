@@ -16,6 +16,7 @@ import org.orienteer.core.method.methods.AbstractModalOMethod;
 import org.orienteer.model.Wallet;
 
 @OMethod(
+		order = 2,
 		icon = FAIconType.external_link,
 		titleKey = "withdraw",
 		filters = {

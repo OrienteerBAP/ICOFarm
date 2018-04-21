@@ -11,6 +11,7 @@ import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 
 @OMethod(
+		order = 1,
 		icon = FAIconType.dollar,
 		filters = {
 			@OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME),
