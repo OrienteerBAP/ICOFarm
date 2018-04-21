@@ -4,19 +4,16 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
-import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
-import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -41,7 +38,6 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
             ethereumService.init(config);
 
             compositeSubscription.addAll(
-                    subscribeOnUpdateBalanceByTimeout(),
                     subscribeOnPendingTransactions(),
                     subscribeOnUpdateTransactions()
             );
@@ -52,13 +48,6 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     public void destroy() {
         compositeSubscription.clear();
         ethereumService.destroy();
-    }
-
-    private Subscription subscribeOnUpdateBalanceByTimeout() {
-        Observable<Long> obs = Observable.interval(ethereumService.getConfig().getTimeout(), TimeUnit.MINUTES)
-                .subscribeOn(Schedulers.io());
-
-        return obs.subscribe(l -> updateBalance(dbService.getWallets()));
     }
 
     private Subscription subscribeOnUpdateTransactions() {
@@ -91,21 +80,4 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 (t) -> LOG.error("Can't receive pending transactions!", t));
     }
 
-    private void updateBalance(List<Wallet> wallets) {
-        wallets.forEach(wallet -> {
-            try {
-                BigInteger balance = ethereumService.requestBalance(wallet.getAddress());
-                updateWalletBalance(wallet.getDocument(), balance);
-            } catch (Exception e) {
-                LOG.error("Can't get balance for address: {}", wallet.getAddress(), e);
-            }
-        });
-    }
-
-    private void updateWalletBalance(ODocument doc, BigInteger balance) {
-        if (balance != null) {
-            doc.field(Wallet.OPROPERTY_BALANCE, balance);
-            DBClosure.sudoSave(doc);
-        }
-    }
 }

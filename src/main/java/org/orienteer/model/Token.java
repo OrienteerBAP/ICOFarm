@@ -2,6 +2,7 @@ package org.orienteer.model;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
+import org.orienteer.util.ICOFarmUtils;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -17,6 +18,10 @@ public class Token extends ODocumentWrapper {
     public static final String OPROPERTY_ETH_COST    = "ethereumCost";
     public static final String OPROPERTY_GAS_PRICE   = "gasPrice";
     public static final String OPROPERTY_GAS_LIMIT   = "gasLimit";
+
+    public Token() {
+        super(CLASS_NAME);
+    }
 
     public Token(ODocument iDocument) {
         super(iDocument);
@@ -87,5 +92,9 @@ public class Token extends ODocumentWrapper {
     public Token setGasLimit(BigDecimal gasLimit) {
         document.field(OPROPERTY_GAS_LIMIT, gasLimit);
         return this;
+    }
+
+    public boolean isEthereumCurrency() {
+        return ICOFarmUtils.isEthereumCurrency(this);
     }
 }

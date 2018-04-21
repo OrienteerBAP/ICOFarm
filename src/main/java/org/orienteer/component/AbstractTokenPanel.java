@@ -9,7 +9,10 @@ import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.PasswordTextField;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -21,9 +24,9 @@ import org.orienteer.core.web.OrienteerBasePage;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
+import org.orienteer.util.ComponentUtils;
 
 import java.util.List;
-import java.util.Locale;
 
 public abstract class AbstractTokenPanel extends Panel {
 
@@ -89,21 +92,13 @@ public abstract class AbstractTokenPanel extends Panel {
             @Override
             protected void onInitialize() {
                 super.onInitialize();
-                DropDownChoice<Wallet> select = new DropDownChoice<>("selectWallet", walletModel, getUserWallets(), createChoiceRenderer());
+                DropDownChoice<Wallet> select = new DropDownChoice<>("selectWallet", walletModel, getUserWallets(),
+                        ComponentUtils.getChoiceRendererForWallets());
                 select.setRequired(true);
                 add(select);
                 add(new Label("selectWalletLabel", getSelectWalletLabelModel()));
                 setOutputMarkupId(true);
                 setVisible(isSelectWalletContainerVisible());
-            }
-
-            private ChoiceRenderer<Wallet> createChoiceRenderer() {
-                return new ChoiceRenderer<Wallet>() {
-                    @Override
-                    public Object getDisplayValue(Wallet wallet) {
-                        return wallet.getName() + " - " + wallet.getBalance();
-                    }
-                };
             }
 
             private List<Wallet> getUserWallets() {
@@ -117,23 +112,13 @@ public abstract class AbstractTokenPanel extends Panel {
             @Override
             protected void onInitialize() {
                 super.onInitialize();
-                DropDownChoice<Token> select = new DropDownChoice<>("selectToken", tokenModel, dbService.getTokens(), createChoiceRenderer());
+                DropDownChoice<Token> select = new DropDownChoice<>("selectToken", tokenModel, dbService.getTokens(),
+                        ComponentUtils.getChoiceRendererForTokens());
                 select.setRequired(true);
                 add(select);
                 add(new Label("selectTokenLabel", getSelectTokenLabelModel()));
                 setOutputMarkupId(true);
                 setVisible(isSelectTokenContainerVisible());
-            }
-
-            private ChoiceRenderer<Token> createChoiceRenderer() {
-                return new ChoiceRenderer<Token>() {
-                    @Override
-                    public Object getDisplayValue(Token token) {
-                        String name = token.getName(OrienteerWebSession.get().getLocale().toLanguageTag());
-                        if (name == null) name = token.getName(Locale.ENGLISH.toLanguageTag());
-                        return name + " - " + token.getSymbol();
-                    }
-                };
             }
         };
     }

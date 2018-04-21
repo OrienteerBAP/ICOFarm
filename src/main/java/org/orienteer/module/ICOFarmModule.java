@@ -12,14 +12,17 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
+import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.*;
+import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumUpdateService;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -31,7 +34,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REFERRAL     = "Referral";
 	public static final String REGISTRATION = "Registration";
 
-	public static final String BUY_TOKENS = "BuyTokens";
+	public static final String BUY_TOKENS      = "BuyTokens";
 	public static final String TRANSFER_TOKENS = "TransferTokens";
 
 	public static final String OPROPERTY_REFERRAL_CREATED = "created";
@@ -43,12 +46,21 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 1;
+	public static final int VERSION = 6;
 
 	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 
+	public static final String ETH  = "ETH";
+	public static final String GWEI = "GWEI";
+	public static final String WEI  = "WEI";
+
+	public static final String ZERO_ADDRESS = "0x0";
+
 	@Inject
 	private IEthereumUpdateService updateService;
+
+	@Inject
+	private IDBService dbService;
 
 	protected ICOFarmModule() {
 		super(NAME, VERSION);
@@ -61,7 +73,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(Token.CLASS_NAME)
 				.oProperty(Token.OPROPERTY_NAME, OType.EMBEDDEDMAP, 0).assignVisualization("localization").markAsDocumentName()
 				.oProperty(Token.OPROPERTY_DESCRIPTION, OType.STRING, 10)
-				.oProperty(Token.OPROPERTY_SYMBOL, OType.STRING, 20).notNull()
+				.oProperty(Token.OPROPERTY_SYMBOL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE)
 				.oProperty(Token.OPROPERTY_ETH_COST, OType.DECIMAL, 30).notNull()
 				.oProperty(Token.OPROPERTY_ADDRESS, OType.STRING, 40).notNull()
 				.oProperty(Token.OPROPERTY_GAS_PRICE, OType.DECIMAL, 50).notNull().defaultValue(Convert.toWei(BigDecimal.ONE, Convert.Unit.GWEI).toString())
@@ -95,10 +107,10 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(Wallet.CLASS_NAME)
 				.oProperty(Wallet.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName()
 				.oProperty(Wallet.OPROPERTY_OWNER, OType.LINK, 10).linkedClass(ICOFarmUser.CLASS_NAME)
-				.oProperty(Wallet.OPROPERTY_BALANCE, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, "true")
 				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 30)
 				.oProperty(Wallet.OPROPERTY_TRANSACTIONS, OType.LINKSET, 40).assignVisualization("table").assignTab(Wallet.OPROPERTY_TRANSACTIONS)
 				.oProperty(Wallet.OPROPERTY_WALLET_JSON, OType.BINARY, 50)
+				.oProperty(Wallet.OPROPERTY_DISPLAYABLE_TOKEN, OType.LINK, 60).linkedClass(Token.CLASS_NAME).assignVisualization("listbox").notNull()
 				.oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true");
 
 		helper.oClass(REGISTRATION);
@@ -108,6 +120,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.setupRelationship(Wallet.CLASS_NAME, Wallet.OPROPERTY_TRANSACTIONS, OTransaction.CLASS_NAME, OTransaction.OPROPERTY_WALLET);
 
 		createRemoveRestoreIdFunction(helper);
+		createDefaultTokens();
 		return createModuleDocument(helper);
 	}
 
@@ -154,6 +167,34 @@ public class ICOFarmModule extends AbstractOrienteerModule {
         doc.save();
 
         return doc;
+	}
+
+	private void createDefaultTokens() {
+
+		if (dbService.getTokenBySymbol(ETH) == null) {
+			createEthereumCurrency().setNames(CommonUtils.toMap(Locale.ENGLISH.toLanguageTag(), "Ether"))
+					.setSymbol(ETH)
+					.setEthCost(BigDecimal.ONE).save();
+		}
+
+		if (dbService.getTokenBySymbol(GWEI) == null) {
+			createEthereumCurrency().setNames(CommonUtils.toMap(Locale.ENGLISH.toLanguageTag(), "Gwei"))
+					.setSymbol(GWEI)
+					.setEthCost(new BigDecimal("0.000000001")).save();
+		}
+
+		if (dbService.getTokenBySymbol(WEI) == null) {
+			createEthereumCurrency().setNames(CommonUtils.toMap(Locale.ENGLISH.toLanguageTag(), "Wei"))
+					.setSymbol(WEI)
+					.setEthCost(new BigDecimal("0.000000000000000001")).save();
+		}
+	}
+
+	private Token createEthereumCurrency() {
+		return new Token()
+				.setGasPrice(BigDecimal.ZERO)
+				.setGasLimit(BigDecimal.ZERO)
+				.setAddress(ZERO_ADDRESS);
 	}
 
 	@Override

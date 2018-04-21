@@ -8,9 +8,12 @@
 			</a>
 		</div>
 		<div class="card-body">
-			<h1 class="card-text text-center m-2">
-				<strong wicket:id="balance">Wallet Balance</strong>
-			</h1>
+			<div class="text-center">
+				<h1 class="card-text m-2">
+					<strong wicket:id="balance">Wallet Balance</strong>
+				</h1>
+				<select class="custom-select select-token" wicket:id="selectToken"></select>
+			</div>
 			<div class="mt-3">
 				<a class="card-link float-left" wicket:id="detailsLink"></a>
 				<div wicket:id="refillLink"></div>

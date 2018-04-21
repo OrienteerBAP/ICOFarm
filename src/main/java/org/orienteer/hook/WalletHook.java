@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
 
-import java.math.BigInteger;
 import java.util.Date;
 
 public class WalletHook extends ODocumentHookAbstract {
@@ -41,7 +40,6 @@ public class WalletHook extends ODocumentHookAbstract {
         }
 
         doc.field(Wallet.OPROPERTY_CREATED, new Date());
-        updateWalletBalance(doc, service);
 
         return super.onRecordBeforeCreate(doc);
     }
@@ -64,13 +62,6 @@ public class WalletHook extends ODocumentHookAbstract {
         } catch (Exception e) {
             LOG.error("Can't create new wallet: {}", doc, e);
         }
-    }
-
-    private void updateWalletBalance(ODocument doc, IEthereumService service) {
-        try {
-            BigInteger balance = service.requestBalance(doc.field(Wallet.OPROPERTY_ADDRESS));
-            if (balance != null) doc.field(Wallet.OPROPERTY_BALANCE, balance.toString());
-        } catch (Exception e) {}
     }
 
     private void checkIfAddressValid(ODocument doc, IEthereumService service) {

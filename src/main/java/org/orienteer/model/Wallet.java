@@ -14,13 +14,13 @@ public class Wallet extends ODocumentWrapper {
 
 	public static final String CLASS_NAME = "Wallet";
 
-	public static final String OPROPERTY_OWNER        = "owner";
-	public static final String OPROPERTY_NAME         = "name";
-	public static final String OPROPERTY_BALANCE      = "balance";
-	public static final String OPROPERTY_ADDRESS      = "address";
-	public static final String OPROPERTY_CREATED      = "created";
-	public static final String OPROPERTY_TRANSACTIONS = "transactions";
-	public static final String OPROPERTY_WALLET_JSON  = "walletJSON";
+	public static final String OPROPERTY_OWNER             = "owner";
+	public static final String OPROPERTY_NAME              = "name";
+	public static final String OPROPERTY_ADDRESS           = "address";
+	public static final String OPROPERTY_CREATED           = "created";
+	public static final String OPROPERTY_TRANSACTIONS      = "transactions";
+	public static final String OPROPERTY_WALLET_JSON       = "walletJSON";
+	public static final String OPROPERTY_DISPLAYABLE_TOKEN = "displayableToken";
 
 	public Wallet(ODocument wallet) {
 		super(wallet);
@@ -39,17 +39,13 @@ public class Wallet extends ODocumentWrapper {
 		return this;
 	}
 
-	public String getBalance() {
-		return document.field(OPROPERTY_BALANCE);
-	}
-
-	public Wallet setBalance(String balance) {
-		document.field(OPROPERTY_BALANCE, balance);
-		return this;
-	}
-
 	public String getAddress() {
 		return document.field(OPROPERTY_ADDRESS);
+	}
+
+	public Wallet setAddress(String address) {
+		document.field(OPROPERTY_ADDRESS, address);
+		return this;
 	}
 
 	public ODocument getOwner() {
@@ -93,6 +89,15 @@ public class Wallet extends ODocumentWrapper {
 	public byte[] getWalletJSON(){
 		byte [] data = getDocument().field(OPROPERTY_WALLET_JSON);
 		return data != null ? data : new byte[0];
+	}
+
+	public Token getDisplayableToken() {
+		return new Token((ODocument) document.field(OPROPERTY_DISPLAYABLE_TOKEN));
+	}
+
+	public Wallet setDisplayableToken(ODocument token) {
+		document.field(OPROPERTY_DISPLAYABLE_TOKEN, token);
+		return this;
 	}
 
 	public String getWalletJSONName(){

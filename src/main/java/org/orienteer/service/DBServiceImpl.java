@@ -91,6 +91,13 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
+    public Token getTokenBySymbol(String symbol) {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_SYMBOL);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), symbol);
+        return getFromDocs(docs, Token::new);
+    }
+
+    @Override
     public ICOFarmUser createInvestorUser(String email, String password, String firstName, String lastName, boolean active) {
         return (ICOFarmUser) dbClosure.get().execute(db -> {
             ORole role = getRoleByName(db, ICOFarmSecurityModule.INVESTOR_ROLE);

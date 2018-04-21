@@ -32,6 +32,8 @@ public interface IDBService extends IClusterable {
 
     public List<Token> getTokens();
 
+    public Token getTokenBySymbol(String symbol);
+
     public ICOFarmUser createInvestorUser(String email, String password, String firstName, String lastName, boolean active);
 
     public void updateReferralInformation(ICOFarmUser user, ICOFarmUser by);
