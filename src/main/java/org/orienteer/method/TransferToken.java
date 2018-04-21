@@ -8,6 +8,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.orienteer.component.token.TransferTokenPanel;
+import org.orienteer.core.component.BootstrapType;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.component.command.AbstractModalWindowCommand;
 import org.orienteer.core.method.OFilter;
@@ -20,6 +21,7 @@ import org.orienteer.model.Wallet;
 @OMethod(
 		order = 2,
 		icon = FAIconType.exchange,
+		bootstrap = BootstrapType.WARNING,
 		filters = {
 			@OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME),
 			@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),

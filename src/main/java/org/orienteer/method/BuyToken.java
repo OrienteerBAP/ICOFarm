@@ -3,6 +3,7 @@ package org.orienteer.method;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.orienteer.core.component.BootstrapType;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
@@ -13,6 +14,7 @@ import org.orienteer.model.Wallet;
 
 @OMethod(
 		icon = FAIconType.money,
+		bootstrap = BootstrapType.SUCCESS	,
 		filters = {
 				@OFilter(fClass = ODocumentFilter.class, fData = Token.CLASS_NAME),
 				@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
