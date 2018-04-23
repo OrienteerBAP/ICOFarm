@@ -16,9 +16,12 @@ import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.ReadonlyTransactionManager;
+import org.web3j.tx.Transfer;
+import org.web3j.utils.Convert;
 import rx.Observable;
 import rx.Single;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -66,11 +69,19 @@ public class EthereumServiceImpl implements IEthereumService {
     public CompletableFuture<TransactionReceipt> transferTokens(Credentials credentials,
                                                                 String contractAddress,
                                                                 String targetAddress,
-                                                                BigInteger ethQuantity,
+                                                                BigInteger quantity,
                                                                 BigInteger gasPrice,
                                                                 BigInteger gasLimit) {
         ERC20Interface token = ERC20Interface.load(contractAddress, web3j, credentials, gasPrice, gasLimit);
-        return token.transfer(targetAddress, ethQuantity).sendAsync();
+        return token.transfer(targetAddress, quantity).sendAsync();
+    }
+
+    @Override
+    public CompletableFuture<TransactionReceipt> transferCurrency(Credentials credentials,
+                                                                  String targetAddress,
+                                                                  BigDecimal value,
+                                                                  Convert.Unit unit) throws Exception {
+        return Transfer.sendFunds(web3j, credentials, targetAddress, value, unit).sendAsync();
     }
 
     @Override

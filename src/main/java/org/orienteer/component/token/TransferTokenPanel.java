@@ -10,12 +10,15 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
+import org.web3j.utils.Convert;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -59,13 +62,18 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 		return dbService.getTokens(true);
 	}
 
-	private void transferTokens(String password, int quantity, String target) throws Exception {
+	private void transferTokens(String password, double quantity, String target) throws Exception {
 		Token token = getTokenModel().getObject();
 		Wallet wallet = getWalletModel().getObject();
 		Credentials credentials = service.readWallet(password, wallet.getWalletJSON());
-		BigInteger gasPrice = token.getGasPrice().toBigInteger();
-		BigInteger gasLimit = token.getGasLimit().toBigInteger();
-		service.transferTokens(credentials, token.getAddress(), target, BigInteger.valueOf(quantity), gasPrice, gasLimit);
+		String address = token.getAddress();
+		if (!address.equals(ICOFarmModule.ZERO_ADDRESS)) {
+			BigInteger gasPrice = token.getGasPrice().toBigInteger();
+			BigInteger gasLimit = token.getGasLimit().toBigInteger();
+			service.transferTokens(credentials, token.getAddress(), target, BigDecimal.valueOf(quantity).toBigInteger(), gasPrice, gasLimit);
+		} else {
+			service.transferCurrency(credentials, target, BigDecimal.valueOf(quantity), Convert.Unit.fromString(token.getName("en")));
+		}
 	}
 
 	protected void onTransferTokens(AjaxRequestTarget target) {

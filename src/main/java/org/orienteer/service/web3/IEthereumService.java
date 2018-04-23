@@ -8,8 +8,10 @@ import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.utils.Convert;
 import rx.Observable;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -37,9 +39,14 @@ public interface IEthereumService {
     public CompletableFuture<TransactionReceipt> transferTokens(Credentials credentials,
                                                                 String contractAddress,
                                                                 String targetAddress,
-                                                                BigInteger ethQuantity,
+                                                                BigInteger quantity,
                                                                 BigInteger gasPrice,
                                                                 BigInteger gasLimit);
+
+    public CompletableFuture<TransactionReceipt> transferCurrency(Credentials credentials,
+                                                                  String targetAddress,
+                                                                  BigDecimal value,
+                                                                  Convert.Unit unit) throws Exception;
 
     public Observable<BigInteger> requestBalance(String address, Token token);
 
