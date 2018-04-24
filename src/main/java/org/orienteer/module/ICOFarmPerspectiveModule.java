@@ -38,8 +38,10 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     public static final String BUY_TOKENS_WIDGET_ID      = "buy-tokens-widget";
     public static final String TRANSFER_TOKENS_WIDGET_ID = "transfer-tokens-widget";
     public static final String WALLET_BALANCE_WIDGET_ID  = "balance-widget";
+    public static final String WALLET_TRANSACTIONS_WIDGET_ID = "transactions-widget";
 
     public static final String WALLET_BALANCE_TAB = "Balance";
+    public static final String WALLET_TRANSACTIONS_TAB = "Transactions";
 
     /**
      * Contains hidden properties for investors.

@@ -5,10 +5,7 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
-import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.model.OTransaction;
-import org.orienteer.model.Wallet;
-import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.util.ICOFarmUtils;
 import org.slf4j.Logger;
@@ -41,14 +38,12 @@ public class OTransactionHook extends ODocumentHookAbstract {
                 Transaction transaction = service.requestTransactionByHash(hash);
                 if (transaction != null) {
                     EthBlock block = service.requestBlock(transaction.getBlockNumberRaw());
-                    ODocument wallet = getTransactionWallet(transaction);
                     doc.field(OTransaction.OPROPERTY_FROM, transaction.getFrom());
                     doc.field(OTransaction.OPROPERTY_TO, transaction.getTo());
                     doc.field(OTransaction.OPROPERTY_VALUE, transaction.getValue().toString());
                     doc.field(OTransaction.OPROPERTY_BLOCK, transaction.getBlockNumber().toString());
                     doc.field(OTransaction.OPROPERTY_TIMESTAMP, ICOFarmUtils.computeTimestamp(block.getBlock()));
                     doc.field(OTransaction.OPROPERTY_CONFIRMED, true);
-                    doc.field(OTransaction.OPROPERTY_WALLET, wallet);
                     return;
                 }
             } catch (Exception ex) {
@@ -56,13 +51,6 @@ public class OTransactionHook extends ODocumentHookAbstract {
             }
         }
         throw new IllegalStateException("Can't create transaction: " + doc);
-    }
-
-    private ODocument getTransactionWallet(Transaction transaction) {
-        IDBService dbService = OrienteerWebApplication.lookupApplication().getServiceInstance(IDBService.class);
-        ODocument userDoc = OrienteerWebSession.get().getEffectiveUser().getDocument();
-        Wallet wallet = dbService.getWalletByTransactionFromOrTo(userDoc, transaction.getFrom(), transaction.getTo());
-        return wallet != null ? wallet.getDocument() : null;
     }
 
     @Override

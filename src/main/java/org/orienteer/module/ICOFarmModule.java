@@ -47,8 +47,6 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_EVENT_NAME = "eventName";
 	public static final String FUN_REMOVE_RESTORE_ID_BY_EMAIL_ARGS_TIMEOUT    = "timeout";
 
-	public static final int VERSION = 8;
-
 	public static final String EVENT_RESTORE_PASSWORD_PREFIX = "removeUserRestoreId";
 
 	public static final String ETH  = "ETH";
@@ -59,6 +57,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 	public static final String REGISTRATION_MAIL_NAME = "registration";
 	public static final String RESTORE_MAIL_NAME      = "restore";
+
+	public static final int VERSION = 6;
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -99,8 +99,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(OTransaction.OPROPERTY_VALUE, OType.STRING, 30).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
 				.oProperty(OTransaction.OPROPERTY_HASH, OType.STRING, 40).notNull()
 				.oProperty(OTransaction.OPROPERTY_BLOCK, OType.STRING, 50).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
-				.oProperty(OTransaction.OPROPERTY_CONFIRMED, OType.BOOLEAN, 60).notNull().updateCustomAttribute(CustomAttribute.UI_READONLY, true).defaultValue("false")
-				.oProperty(OTransaction.OPROPERTY_WALLET, OType.LINK, 70);
+				.oProperty(OTransaction.OPROPERTY_CONFIRMED, OType.BOOLEAN, 60).notNull()
+				.updateCustomAttribute(CustomAttribute.UI_READONLY, true).defaultValue("false");
 
 
 		helper.oClass(REFERRAL)
@@ -112,16 +112,13 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(Wallet.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName()
 				.oProperty(Wallet.OPROPERTY_OWNER, OType.LINK, 10).linkedClass(ICOFarmUser.CLASS_NAME)
 				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 30)
-				.oProperty(Wallet.OPROPERTY_TRANSACTIONS, OType.LINKSET, 40).assignVisualization("table").assignTab(Wallet.OPROPERTY_TRANSACTIONS)
-				.oProperty(Wallet.OPROPERTY_WALLET_JSON, OType.BINARY, 50)
-				.oProperty(Wallet.OPROPERTY_DISPLAYABLE_TOKEN, OType.LINK, 60).linkedClass(Token.CLASS_NAME).assignVisualization("listbox").notNull()
+				.oProperty(Wallet.OPROPERTY_WALLET_JSON, OType.BINARY, 40)
+				.oProperty(Wallet.OPROPERTY_DISPLAYABLE_TOKEN, OType.LINK, 50).linkedClass(Token.CLASS_NAME).assignVisualization("listbox").notNull()
 				.oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true");
 
 		helper.oClass(REGISTRATION);
 		helper.oClass(BUY_TOKENS);
 		helper.oClass(TRANSFER_TOKENS);
-
-		helper.setupRelationship(Wallet.CLASS_NAME, Wallet.OPROPERTY_TRANSACTIONS, OTransaction.CLASS_NAME, OTransaction.OPROPERTY_WALLET);
 
 		createRemoveRestoreIdFunction(helper);
 		createDefaultTokens();

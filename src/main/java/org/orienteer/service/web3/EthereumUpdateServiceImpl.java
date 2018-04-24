@@ -66,7 +66,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
             return result != null ? result.getBlock() : null;
         };
 
-        return obs.subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction),
+        return obs.distinct().subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction),
                 (t) -> LOG.error("Can't receive new transactions!", t));
     }
 
@@ -76,7 +76,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
                 .subscribeOn(Schedulers.io());
 
-        return obs.subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions),
+        return obs.distinct().subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions),
                 (t) -> LOG.error("Can't receive pending transactions!", t));
     }
 

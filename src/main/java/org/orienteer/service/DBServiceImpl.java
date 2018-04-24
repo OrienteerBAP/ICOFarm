@@ -231,19 +231,27 @@ public class DBServiceImpl implements IDBService {
         });
     }
 
-    private ODocument saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
+    private List<ODocument> saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
         ODocument from = getUserByWalletAddress(database, transaction.getFrom());
-        ODocument to = from == null ? getUserByWalletAddress(database, transaction.getTo()) : null;
-        ODocument result = createTransactionDocument(transaction, from != null ? from : to, false);
+        ODocument to = getUserByWalletAddress(database, transaction.getTo());
+        List<ODocument> docs = new LinkedList<>();
+        if (from != null) docs.add(createTransactionDocument(transaction, from, false));
+        if (to != null && !to.equals(from)) docs.add(createTransactionDocument(transaction, to, false));
 
         if (database == null) {
             dbClosure.get().execute(db -> {
-                result.save();
+                for (ODocument doc : docs) {
+                    doc.save();
+                }
                 return null;
             });
-        } else result.save();
+        } else {
+            for (ODocument doc : docs) {
+                doc.save();
+            }
+        }
 
-        return result;
+        return docs;
     }
 
     private void saveConfirmedTransaction(ODatabaseDocument db, Transaction transaction, EthBlock.Block block) {
@@ -253,8 +261,10 @@ public class DBServiceImpl implements IDBService {
         if (isDocsNotEmpty(docs)) {
             docs.forEach(doc -> updateConfirmedTransaction(doc, date, block).save());
         } else {
-            ODocument doc = saveUnconfirmedTransaction(db, transaction);
-            updateConfirmedTransaction(doc, date, block).save();
+            List<ODocument> unconfirmedTransactions = saveUnconfirmedTransaction(db, transaction);
+            for (ODocument doc : unconfirmedTransactions) {
+                updateConfirmedTransaction(doc, date, block).save();
+            }
         }
     }
 
@@ -276,7 +286,6 @@ public class DBServiceImpl implements IDBService {
 	    doc.field(OTransaction.OPROPERTY_HASH, transaction.getHash());
 	    doc.field(OTransaction.OPROPERTY_VALUE, transaction.getValue().toString());
         doc.field(OTransaction.OPROPERTY_CONFIRMED, confirmed);
-        doc.field(OTransaction.OPROPERTY_WALLET, getWalletByTransactionFromOrTo(null, owner, transaction.getFrom(), transaction.getTo()));
 	    doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singleton(owner));
         return doc;
     }
