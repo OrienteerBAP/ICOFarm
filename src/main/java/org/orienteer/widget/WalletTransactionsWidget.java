@@ -1,5 +1,6 @@
 package org.orienteer.widget;
 
+import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -8,6 +9,7 @@ import org.orienteer.core.widget.Widget;
 import org.orienteer.model.OTransaction;
 import org.orienteer.model.Wallet;
 import org.orienteer.module.ICOFarmPerspectiveModule;
+import ru.ydn.wicket.wicketorientdb.model.OQueryDataProvider;
 
 @Widget(id = ICOFarmPerspectiveModule.WALLET_TRANSACTIONS_WIDGET_ID,
         domain = "document",
@@ -25,6 +27,11 @@ public class WalletTransactionsWidget extends CalculatedDocumentsWidget {
         return String.format("select from %s where @this['%s'] = $doc['%s'] or @this['%s'] = $doc['%s']",
                 OTransaction.CLASS_NAME, OTransaction.OPROPERTY_FROM, Wallet.OPROPERTY_ADDRESS,
                 OTransaction.OPROPERTY_TO, Wallet.OPROPERTY_ADDRESS);
+    }
+
+    @Override
+    protected OClass getExpectedClass(OQueryDataProvider<ODocument> provider) {
+        return getSchema().getClass(OTransaction.CLASS_NAME);
     }
 
     @Override
