@@ -3,23 +3,19 @@ package org.orienteer.component.token;
 import com.google.inject.Inject;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.feedback.ContainerFeedbackMessageFilter;
-import org.apache.wicket.feedback.FeedbackMessage;
-import org.apache.wicket.markup.head.CssHeaderItem;
-import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.validation.validator.RangeValidator;
 import org.orienteer.core.OrienteerWebSession;
+import org.orienteer.core.component.OrienteerFeedbackPanel;
 import org.orienteer.core.web.OrienteerBasePage;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
@@ -29,8 +25,6 @@ import org.orienteer.util.ComponentUtils;
 import java.util.List;
 
 public abstract class AbstractTokenPanel extends Panel {
-
-    public static final CssResourceReference TOKEN_PANEL_CSS = new CssResourceReference(AbstractTokenPanel.class, "token-panel.css");
 
     private final IModel<Wallet> walletModel;
     private final IModel<Token> tokenModel;
@@ -125,13 +119,7 @@ public abstract class AbstractTokenPanel extends Panel {
 
 
     protected Panel createFeedbackPanel(String id) {
-        return new FeedbackPanel(id, new ContainerFeedbackMessageFilter(this)) {
-            @Override
-            protected void onInitialize() {
-                super.onInitialize();
-                setOutputMarkupPlaceholderTag(true);
-            }
-
+        return new OrienteerFeedbackPanel(id) {
             @Override
             protected void onBeforeRender() {
                 super.onBeforeRender();
@@ -140,8 +128,8 @@ public abstract class AbstractTokenPanel extends Panel {
             }
 
             @Override
-            protected String getCSSClass(FeedbackMessage message) {
-                return "alert alert-danger";
+            public void onEvent(IEvent<?> event) {
+
             }
         };
     }
@@ -173,9 +161,4 @@ public abstract class AbstractTokenPanel extends Panel {
         return tokenModel;
     }
 
-    @Override
-    public void renderHead(IHeaderResponse response) {
-        super.renderHead(response);
-        response.render(CssHeaderItem.forReference(TOKEN_PANEL_CSS));
-    }
 }
