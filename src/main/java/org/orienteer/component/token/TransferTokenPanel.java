@@ -35,10 +35,10 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 
 	@Override
 	protected void onInitialize(Form<?> form) {
-		TextField<String> target = new TextField<>("target", Model.of());
-		target.setRequired(true);
+	    ChooseWalletAddressPanel panel = new ChooseWalletAddressPanel("chooseWalletPanel", Model.of());
+	    panel.setRequired(true);
 		form.add(new Label("targetLabel", new ResourceModel("transfer.token.target.wallet")));
-		form.add(target);
+		form.add(panel);
 	}
 
 	@Override
@@ -46,14 +46,14 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 	protected void onFormSubmit(AjaxRequestTarget target, Form<?> form) {
 		try {
 			String password = ((TextField<String>) form.get("password")).getModelObject();
-			String targetAddress = ((TextField<String>) form.get("target")).getModelObject();
+			String targetAddress = ((ChooseWalletAddressPanel) form.get("chooseWalletPanel")).getModelObject();
 			int quantity = ((TextField<Integer>) form.get("quantity")).getModelObject();
 			transferTokens(password, quantity, targetAddress);
 
 			onTransferTokens(target);
 		} catch (Exception ex) {
 			LOG.error("Can't transfer token(s)!", ex);
-			error(new ResourceModel("transfer.token.error").getObject());
+			error(new ResourceModel("transfer.token.error").getObject() + "\n" + ex.getMessage());
 		}
 	}
 

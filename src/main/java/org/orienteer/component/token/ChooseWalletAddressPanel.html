@@ -1,0 +1,34 @@
+<wicket:panel xmlns:wicket="http://www.w3.org/1999/xhtml">
+	<div class="card">
+		<div class="card-header">
+			<ul class="nav nav-tabs card-header-tabs">
+				<li class="nav-item">
+					<a wicket:id="selectWalletLink" class="nav-link active" href="#icofarm-wallet" role="tab" aria-controls="icofarm-wallet" data-toggle="tab"></a>
+				</li>
+				<li class="nav-item">
+					<a wicket:id="inputAddressLink" class="nav-link" href="#custom-wallet" role="tab" aria-controls="custom-wallet" data-toggle="tab"></a>
+				</li>
+			</ul>
+		</div>
+		<div class="card-body">
+			<div class="tab-content">
+				<div class="tab-pane fade show active" id="icofarm-wallet">
+					<div class="form-group">
+						<label>
+							<wicket:message key="choose.wallet.icofarm.wallet"></wicket:message>
+						</label>
+						<select class="custom-select" wicket:id="selectWallet"></select>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="custom-wallet">
+					<div class="form-group">
+						<label>
+							<wicket:message key="choose.wallet.custom.wallet"></wicket:message>
+						</label>
+						<input type="text" wicket:id="inputAddress" class="form-control"/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</wicket:panel>
