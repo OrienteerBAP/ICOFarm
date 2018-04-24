@@ -1,0 +1,20 @@
+<wicket:panel xmlns:wicket="http://www.w3.org/1999/xhtml">
+	<div class="container-fluid p-3">
+		<h3 class="text-center">
+			<wicket:message key="delete.wallet.title"></wicket:message>
+		</h3>
+		<p wicket:id="description"></p>
+		<div wicket:id="feedback"></div>
+		<form wicket:id="form">
+			<div class="form-group">
+				<label>
+					<wicket:message key="delete.wallet.password"></wicket:message>
+				</label>
+				<input type="password" class="form-control" wicket:id="password"/>
+			</div>
+			<div class="text-center">
+				<a wicket:id="confirm" class="btn btn-danger"></a>
+			</div>
+		</form>
+	</div>
+</wicket:panel>

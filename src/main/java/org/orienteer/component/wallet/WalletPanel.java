@@ -1,11 +1,9 @@
 package org.orienteer.component.wallet;
 
 import com.google.common.base.Strings;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -14,7 +12,9 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.GenericPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.orienteer.core.OrienteerWebSession;
+import org.orienteer.core.component.BootstrapSize;
+import org.orienteer.core.component.BootstrapType;
+import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.component.command.AbstractModalWindowCommand;
 import org.orienteer.core.component.command.Command;
 import org.orienteer.core.web.ODocumentPage;
@@ -55,14 +55,29 @@ public class WalletPanel extends GenericPanel<Wallet> {
         };
     }
 
-    private AjaxLink<ODocument> createDeleteCommand(String id) {
-        return new AjaxLink<ODocument>(id, getDocumentModel()) {
+    private AbstractModalWindowCommand<Wallet> createDeleteCommand(String id) {
+        return new AbstractModalWindowCommand<Wallet>(id, new ResourceModel("widget.wallet.delete"), getModel()) {
+
             @Override
-            public void onClick(AjaxRequestTarget target) {
-                ODatabaseDocument db = OrienteerWebSession.get().getDatabase();
-                db.delete(getModelObject());
-                db.commit(true);
-                onWalletDelete(target);
+            protected void onInstantiation() {
+                super.onInstantiation();
+                setBootstrapType(BootstrapType.DANGER);
+                setBootstrapSize(BootstrapSize.EXTRA_SMALL);
+                setIcon(FAIconType.times);
+            }
+
+            @Override
+            protected void initializeContent(ModalWindow modal) {
+                modal.setAutoSize(true);
+                modal.setMinimalWidth(400);
+                modal.setTitle(new ResourceModel("wallet.modal.title"));
+                modal.setContent(new DeleteWalletPanel(modal.getContentId(), getModel()) {
+                    @Override
+                    protected void onDelete(AjaxRequestTarget target) {
+                        onWalletDelete(target);
+                        modal.close(target);
+                    }
+                });
             }
         };
     }
