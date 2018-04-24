@@ -5,6 +5,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.orienteer.component.InfoMessagePanel;
 import org.orienteer.component.token.TransferTokenPanel;
 import org.orienteer.core.component.BootstrapType;
 import org.orienteer.core.component.FAIconType;
@@ -36,7 +38,15 @@ public class TransferToken extends AbstractModalOMethod {
 		return new TransferTokenPanel(componentId, Model.of(getWallet()), Model.of()) {
 			@Override
 			protected void onTransferTokens(AjaxRequestTarget target) {
+				modal.setContent(new InfoMessagePanel(modal.getContentId(), new ResourceModel("transfer.token.success.text")) {
+					@Override
+					protected void onOkClick(AjaxRequestTarget target) {
+						modal.close(target);
+					}
+				});
+				modal.setTitle(new ResourceModel("info.title"));
 				modal.close(target);
+				modal.show(target);
 				command.onAfterModalSubmit();
 			}
 		};

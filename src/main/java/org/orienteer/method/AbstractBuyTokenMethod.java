@@ -4,6 +4,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.orienteer.component.InfoMessagePanel;
 import org.orienteer.component.token.BuyTokenPanel;
 import org.orienteer.core.component.command.AbstractModalWindowCommand;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
@@ -18,13 +20,24 @@ public abstract class AbstractBuyTokenMethod extends AbstractModalOMethod {
         modal.setAutoSize(true);
         Token token = getToken();
         if (token != null) {
-            command.setVisible(!token.isEthereumCurrency());
+            if (token.getAddress() == null) {
+                command.setVisible(false);
+            } else command.setVisible(!token.isEthereumCurrency());
         }
+
         return new BuyTokenPanel(componentId, Model.of(getWallet()), Model.of(token)) {
 
             @Override
             public void onBuyTokens(AjaxRequestTarget target) {
+                modal.setContent(new InfoMessagePanel(modal.getContentId(), new ResourceModel("buy.token.success.text")) {
+                    @Override
+                    protected void onOkClick(AjaxRequestTarget target) {
+                        modal.close(target);
+                    }
+                });
+                modal.setTitle(new ResourceModel("info.title"));
                 modal.close(target);
+                modal.show(target);
                 command.onAfterModalSubmit();
             }
         };
