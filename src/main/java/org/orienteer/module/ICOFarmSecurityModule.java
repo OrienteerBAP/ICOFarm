@@ -59,7 +59,7 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         OClass user = helper.oClass(ICOFarmUser.CLASS_NAME)
                 .oProperty(ICOFarmUser.OPROPERTY_FIRST_NAME, OType.STRING, 0)
                 .oProperty(ICOFarmUser.OPROPERTY_LAST_NAME, OType.STRING, 10)
-                .oProperty(ICOFarmUser.OPROPERTY_EMAIL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE).markAsDocumentName()
+                .oProperty(ICOFarmUser.OPROPERTY_EMAIL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE)
                 .oProperty(ICOFarmUser.OPROPERTY_ID, OType.STRING).oIndex(OClass.INDEX_TYPE.UNIQUE).notNull()
                 .oProperty(ICOFarmUser.OPROPERTY_RESTORE_ID, OType.STRING).switchDisplayable(false)
                 .oProperty(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false).getOClass();
@@ -87,6 +87,17 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         ICOFarmApplication.REMOVE_CRON_RULE.setValue(user.getProperty(ICOFarmUser.OPROPERTY_RESTORE_ID), "0 0/1 * * * ?");
         ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(user.getProperty(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED), "86400000");
         CustomAttribute.ORDER.setValue(user.getProperty("locale"), "40");
+
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty(ICOFarmUser.OPROPERTY_FIRST_NAME), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty(ICOFarmUser.OPROPERTY_LAST_NAME), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty(ICOFarmUser.OPROPERTY_RESTORE_ID), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("roles"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("password"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("perspective"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("perspectiveItem"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("lastSessionId"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("locale"), false);
     }
 
     private void updateInvestorPermissions(ODatabaseDocument db) {
