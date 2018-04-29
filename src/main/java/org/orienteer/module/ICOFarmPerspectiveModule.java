@@ -9,13 +9,16 @@ import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import org.orienteer.component.visualizer.HashVisualizer;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.component.FAIconType;
+import org.orienteer.core.component.visualizer.UIVisualizersRegistry;
 import org.orienteer.core.module.AbstractOrienteerModule;
 import org.orienteer.core.module.PerspectivesModule;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.ICOFarmUser;
+import org.orienteer.model.OTransaction;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 
@@ -79,6 +82,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db) {
         initHiddenProperties();
         initHiddenWidgets();
+        registerVisualizers(app);
     }
 
     private void createPerspectives(OSchemaHelper helper) {
@@ -117,7 +121,13 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         item5.field("url", "/browse/" + REFERRAL);
         item5.save();
 
-        perspective.field("menu", Arrays.asList(item1, item2, item3, item4, item5));
+        ODocument item6 = getOrCreatePerspectiveItem("Transactions", perspective, helper);
+        item6.field("icon", FAIconType.align_justify.getCssClass());
+        item6.field("perspective", perspective);
+        item6.field("url", "/browse/" + OTransaction.CLASS_NAME);
+        item6.save();
+
+        perspective.field("menu", Arrays.asList(item1, item2, item3, item4, item5, item6));
         perspective.save();
 
         perspective = getOrCreatePerspective(ANONYMOUS_PERSPECTIVE, helper);
@@ -198,6 +208,11 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     private void initHiddenWidgets() {
         HIDDEN_WIDGETS.put(REFERRAL, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
         HIDDEN_WIDGETS.put(Wallet.CLASS_NAME, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
+    }
+
+    private void registerVisualizers(OrienteerWebApplication app) {
+        UIVisualizersRegistry registry = app.getUIVisualizersRegistry();
+        registry.registerUIComponentFactory(new HashVisualizer());
     }
 
     private ODocument getOrCreatePerspective(String name, OSchemaHelper helper) {
