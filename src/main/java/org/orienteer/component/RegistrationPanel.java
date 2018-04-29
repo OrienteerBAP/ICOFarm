@@ -17,6 +17,7 @@ import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OMail;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.IOMailService;
@@ -103,7 +104,7 @@ public class RegistrationPanel extends Panel {
             private void sendActivationEmail(ICOFarmUser user) {
                 Map<Object, Object> macros = ICOFarmUtils.getUserMacros(user);
                 String email = user.getEmail();
-                OMail oMail = dbService.getMailByName("registration");
+                OMail oMail = dbService.getMailByName(ICOFarmModule.REGISTRATION_MAIL_NAME);
                 macros.put("link", ICOFarmRegistrationResource.genRegistrationLink(user));
                 oMail.setMacros(macros);
                 mailService.sendMailAsync(email, oMail);
@@ -113,7 +114,8 @@ public class RegistrationPanel extends Panel {
                 try {
                     byte [] json = ethService.createWallet(password);
                     Credentials credentials = ethService.readWallet(password, json);
-                    dbService.createWalletForUser(user, credentials.getAddress(), json);
+                    String name = new ResourceModel("wallet.default.name").getObject();
+                    dbService.createWalletForUser(user, name, credentials.getAddress(), json);
                 } catch (Exception e) {
                     LOG.error("Can't create wallet for user :(", e);
                 }

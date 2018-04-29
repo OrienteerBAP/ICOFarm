@@ -185,13 +185,14 @@ public class DBServiceImpl implements IDBService {
 
     @Override
     public Wallet createWalletForUser(ICOFarmUser user) {
-        return createWalletForUser(user, null, null);
+        return createWalletForUser(user, null, null, null);
     }
 
     @Override
-    public Wallet createWalletForUser(ICOFarmUser user, String address, byte[] json) {
+    public Wallet createWalletForUser(ICOFarmUser user, String name, String address, byte[] json) {
         return (Wallet) dbClosure.get().execute(db -> {
             Wallet wallet = new Wallet();
+            wallet.setName(name);
             wallet.setOwner(user.getDocument());
             wallet.setWalletJSON(json);
             wallet.setAddress(address);
