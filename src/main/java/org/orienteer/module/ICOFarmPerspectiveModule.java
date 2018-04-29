@@ -33,19 +33,21 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     public static final String INVESTOR_PERSPECTIVE  = "Investor";
     public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
 
-    public static final String REFERRAL_WIDGET_ID        = "referrals-widget";
-    public static final String REGISTRATION_WIDGET_ID    = "registration";
-    public static final String SCHEMA_CLASSES_WIDGET_ID  = "list-oclasses";
-    public static final String LIST_DOCUMENTS_WIDGET_ID  = "list-all";
-    public static final String WALLETS_WIDGET_ID         = "wallets-widget";
-    public static final String BUY_TOKENS_WIDGET_ID      = "buy-tokens-widget";
-    public static final String TRANSFER_TOKENS_WIDGET_ID = "transfer-tokens-widget";
-    public static final String WALLET_BALANCE_WIDGET_ID  = "balance-widget";
-    public static final String WALLET_TRANSACTIONS_WIDGET_ID = "transactions-widget";
+    public static final String REFERRAL_WIDGET_ID            = "referrals-widget";
+    public static final String REGISTRATION_WIDGET_ID        = "registration";
+    public static final String SCHEMA_CLASSES_WIDGET_ID      = "list-oclasses";
+    public static final String LIST_DOCUMENTS_WIDGET_ID      = "list-all";
+    public static final String WALLETS_WIDGET_ID             = "wallets-widget";
+    public static final String BUY_TOKENS_WIDGET_ID          = "buy-tokens-widget";
+    public static final String TRANSFER_TOKENS_WIDGET_ID     = "transfer-tokens-widget";
+    public static final String WALLET_BALANCE_WIDGET_ID      = "balance-widget";
+    public static final String WALLET_TRANSACTIONS_WIDGET_ID = "wallet-transactions-widget";
+    public static final String TOKEN_TRANSACTIONS_WIDGET_ID  = "token-transactions-widget";
 
     public static final String WALLET_BALANCE_TAB = "Balance";
     public static final String WALLET_TRANSACTIONS_TAB = "Transactions";
 
+    public static final String TOKEN_TRANSACTIONS_TAB = "Transactions";
     /**
      * Contains hidden properties for investors.
      * key - class name
