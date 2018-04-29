@@ -59,7 +59,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REGISTRATION_MAIL_NAME = "registration";
 	public static final String RESTORE_MAIL_NAME      = "restore";
 
-	public static final int VERSION = 2;
+	public static final int VERSION = 1;
 
 	@Inject
 	private IEthereumUpdateService updateService;

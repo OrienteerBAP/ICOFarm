@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.orienteer.component.wallet.WalletBalancePanel;
+import org.orienteer.component.wallet.WalletTableBalancePanel;
 import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.AbstractWidget;
@@ -27,7 +27,7 @@ public class WalletBalanceWidget extends AbstractWidget<ODocument> {
     protected void onInitialize() {
         super.onInitialize();
         ODocument doc = getModelObject();
-        add(new WalletBalancePanel("balancePanel", Model.of(new Wallet(doc))));
+        add(new WalletTableBalancePanel("balancePanel", Model.of(new Wallet(doc))));
     }
 
     @Override
