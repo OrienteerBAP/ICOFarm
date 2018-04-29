@@ -88,19 +88,19 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     private void createPerspectives(OSchemaHelper helper) {
         ODocument perspective = getOrCreatePerspective(INVESTOR_PERSPECTIVE, helper);
         perspective.field("icon", FAIconType.usd.name());
-        perspective.field("homeUrl", "/browse/" + Token.CLASS_NAME);
+        perspective.field("homeUrl", "/browse/" + Wallet.CLASS_NAME);
         perspective.save();
 
-        ODocument item1 = getOrCreatePerspectiveItem("Tokens", perspective, helper);
-        item1.field("icon", FAIconType.money.name());
+        ODocument item1 = getOrCreatePerspectiveItem("Wallets", perspective, helper);
+        item1.field("icon", FAIconType.briefcase.name());
         item1.field("perspective", perspective);
-        item1.field("url", "/browse/" + Token.CLASS_NAME);
+        item1.field("url", "/browse/" + Wallet.CLASS_NAME);
         item1.save();
 
-        ODocument item2 = getOrCreatePerspectiveItem("Wallets", perspective, helper);
-        item2.field("icon", FAIconType.briefcase.name());
+        ODocument item2 = getOrCreatePerspectiveItem("Tokens", perspective, helper);
+        item2.field("icon", FAIconType.money.name());
         item2.field("perspective", perspective);
-        item2.field("url", "/browse/" + Wallet.CLASS_NAME);
+        item2.field("url", "/browse/" + Token.CLASS_NAME);
         item2.save();
 
         ODocument item3 = getOrCreatePerspectiveItem("Buy Tokens", perspective, helper);
