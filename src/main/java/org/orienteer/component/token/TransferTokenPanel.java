@@ -47,8 +47,8 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 		try {
 			String password = ((TextField<String>) form.get("password")).getModelObject();
 			String targetAddress = ((ChooseWalletAddressPanel) form.get("chooseWalletPanel")).getModelObject();
-			int quantity = ((TextField<Integer>) form.get("quantity")).getModelObject();
-			transferTokens(password, quantity, targetAddress);
+			String quantity = ((TextField<String>) form.get("quantity")).getModelObject();
+			transferTokens(password, new BigDecimal(quantity), targetAddress);
 
 			onTransferTokens(target);
 		} catch (Exception ex) {
@@ -62,7 +62,7 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 		return dbService.getTokens(true);
 	}
 
-	private void transferTokens(String password, double quantity, String target) throws Exception {
+	private void transferTokens(String password, BigDecimal quantity, String target) throws Exception {
 		Token token = getTokenModel().getObject();
 		Wallet wallet = getWalletModel().getObject();
 		Credentials credentials = service.readWallet(password, wallet.getWalletJSON());
@@ -70,9 +70,9 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 		if (!address.equals(ICOFarmModule.ZERO_ADDRESS)) {
 			BigInteger gasPrice = token.getGasPrice().toBigInteger();
 			BigInteger gasLimit = token.getGasLimit().toBigInteger();
-			service.transferTokens(credentials, token.getAddress(), target, BigDecimal.valueOf(quantity).toBigInteger(), gasPrice, gasLimit);
+			service.transferTokens(credentials, token.getAddress(), target, quantity.toBigInteger(), gasPrice, gasLimit);
 		} else {
-			service.transferCurrency(credentials, target, BigDecimal.valueOf(quantity), Convert.Unit.fromString(token.getName("en")));
+			service.transferCurrency(credentials, target, quantity, Convert.Unit.fromString(token.getName("en")));
 		}
 	}
 
