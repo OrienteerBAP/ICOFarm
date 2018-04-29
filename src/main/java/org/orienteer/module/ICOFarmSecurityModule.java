@@ -129,7 +129,6 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         OSchema schema = db.getMetadata().getSchema();
         OClass restricted = schema.getClass("ORestricted");
 
-        setRestricted(restricted, schema.getClass(OTransaction.CLASS_NAME));
         setRestricted(restricted, schema.getClass(ICOFarmModule.REFERRAL));
         setRestricted(restricted, schema.getClass(Wallet.CLASS_NAME));
         setRestricted(restricted, schema.getClass(OUser.CLASS_NAME));
