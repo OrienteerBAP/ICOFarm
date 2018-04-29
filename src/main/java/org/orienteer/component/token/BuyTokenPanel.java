@@ -1,10 +1,14 @@
 package org.orienteer.component.token;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
@@ -13,6 +17,7 @@ import org.orienteer.service.web3.IEthereumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
+import org.web3j.utils.Convert;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -27,6 +32,71 @@ public class BuyTokenPanel extends AbstractTokenPanel {
 	public BuyTokenPanel(String id, IModel<Wallet> wallet, IModel<Token> token) {
 		super(id, wallet, token);
 	}
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void onInitialize(Form<?> form) {
+        TextField<String> field = new TextField<>("tokensQuantity", Model.of());
+        field.setOutputMarkupId(true);
+        adjustTokensInputFields((TextField<String>) form.get("quantity"), field);
+        form.add(field);
+    }
+
+    private void adjustTokensInputFields(TextField<String> weiInputField, TextField<String> tokensInputField) {
+        weiInputField.add(createEthFieldEventBehavior(weiInputField, tokensInputField));
+	    tokensInputField.add(createTokensFieldEventBehavior(weiInputField, tokensInputField));
+    }
+
+    private AjaxEventBehavior createEthFieldEventBehavior(TextField<String> weiInputField, TextField<String> tokensInputField) {
+	    return new AjaxFormComponentUpdatingBehavior("input") {
+            @Override
+            protected void onUpdate(AjaxRequestTarget target) {
+                String weiValue = weiInputField.getModelObject();
+                Token token = getTokenModel().getObject();
+                if (!Strings.isNullOrEmpty(weiValue) && token != null) {
+                    try {
+                        BigInteger wei = new BigInteger(weiValue);
+                        BigInteger weiCost = Convert.toWei(token.getEthCost(), Convert.Unit.ETHER).toBigInteger();
+                        BigInteger tokensQuantity = wei.divide(weiCost);
+                        String tokensValue = tokensInputField.getModelObject();
+
+                        if (Strings.isNullOrEmpty(tokensValue) || !tokensQuantity.equals(new BigInteger(tokensValue))) {
+                            tokensInputField.setModelObject(tokensQuantity.toString());
+                            target.add(tokensInputField);
+                        }
+                    } catch (NumberFormatException ex) {
+
+                    }
+                }
+            }
+        };
+    }
+
+    private AjaxEventBehavior createTokensFieldEventBehavior(TextField<String> weiInputField, TextField<String> tokensInputField) {
+	    return new AjaxFormComponentUpdatingBehavior("input") {
+            @Override
+            protected void onUpdate(AjaxRequestTarget target) {
+                String tokensValue = tokensInputField.getModelObject();
+                Token token = getTokenModel().getObject();
+                if (!Strings.isNullOrEmpty(tokensValue) && token != null) {
+                    try {
+                        BigInteger tokens = new BigInteger(tokensValue);
+
+                        BigInteger weiCost = Convert.toWei(getTokenModel().getObject().getEthCost(), Convert.Unit.ETHER).toBigInteger();
+                        BigInteger weiQuantity = tokens.multiply(weiCost);
+                        String weiValue = weiInputField.getModelObject();
+
+                        if (Strings.isNullOrEmpty(weiValue) || !weiQuantity.equals(new BigInteger(weiValue))) {
+                            weiInputField.setModelObject(weiQuantity.toString());
+                            target.add(weiInputField);
+                        }
+                    } catch (NumberFormatException ex) {
+
+                    }
+                }
+            }
+        };
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -83,7 +153,7 @@ public class BuyTokenPanel extends AbstractTokenPanel {
 
     @Override
     protected IModel<String> getQuantityLabelModel() {
-        return new ResourceModel("buy.token.quantity");
+        return new ResourceModel("buy.token.eth.quantity");
     }
 
     @Override

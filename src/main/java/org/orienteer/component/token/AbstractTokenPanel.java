@@ -2,6 +2,7 @@ package org.orienteer.component.token;
 
 import com.google.inject.Inject;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -13,7 +14,6 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.validation.validator.RangeValidator;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.core.component.OrienteerFeedbackPanel;
 import org.orienteer.core.web.OrienteerBasePage;
@@ -44,9 +44,8 @@ public abstract class AbstractTokenPanel extends Panel {
         add(new Label("panelTitle", getTitleModel()));
         Form<?> form = new Form<>("form");
         PasswordTextField password = new PasswordTextField("password", Model.of());
-        TextField<Integer> quantityField = new TextField<>("quantity", Model.of(), Integer.class);
-        quantityField.add(RangeValidator.minimum(0));
-        quantityField.setRequired(true);
+        TextField<String> quantityField = new TextField<>("quantity", Model.of());
+        quantityField.setOutputMarkupId(true);
         form.add(password);
         form.add(quantityField);
         form.add(createSubmitButton("submitButton"));
@@ -88,6 +87,10 @@ public abstract class AbstractTokenPanel extends Panel {
                 super.onInitialize();
                 DropDownChoice<Wallet> select = new DropDownChoice<>("selectWallet", walletModel, getUserWallets(),
                         ComponentUtils.getChoiceRendererForWallets());
+                select.add(new AjaxFormComponentUpdatingBehavior("change") {
+                    @Override
+                    protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {}
+                });
                 select.setRequired(true);
                 add(select);
                 add(new Label("selectWalletLabel", getSelectWalletLabelModel()));
@@ -108,6 +111,10 @@ public abstract class AbstractTokenPanel extends Panel {
                 super.onInitialize();
                 DropDownChoice<Token> select = new DropDownChoice<>("selectToken", tokenModel, getTokens(dbService),
                         ComponentUtils.getChoiceRendererForTokens());
+                select.add(new AjaxFormComponentUpdatingBehavior("change") {
+                    @Override
+                    protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {}
+                });
                 select.setRequired(true);
                 add(select);
                 add(new Label("selectTokenLabel", getSelectTokenLabelModel()));
