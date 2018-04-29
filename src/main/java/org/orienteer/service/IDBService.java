@@ -25,6 +25,8 @@ public interface IDBService extends IClusterable {
 
     public ORole getRoleByName(String name);
 
+    public OTransaction getTransactionByHash(String hash);
+
     public List<Wallet> getWallets();
 
     public List<Wallet> getUserWallets(ODocument userDoc);
@@ -56,5 +58,7 @@ public interface IDBService extends IClusterable {
 
     public void confirmICOFarmTransactions(List<Transaction> transactions, Function<Transaction, EthBlock.Block> blockFunction);
     public void saveUnconfirmedICOFarmTransactions(List<Transaction> transactions);
+
+    public OTransaction saveTransaction(Transaction transaction, EthBlock.Block block);
 
 }

@@ -67,6 +67,13 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
+    public OTransaction getTransactionByHash(String hash) {
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(String.format("select from %s where %s = ?", OTransaction.CLASS_NAME,
+                OTransaction.OPROPERTY_HASH), 1), hash);
+        return getFromDocs(docs, OTransaction::new);
+    }
+
+    @Override
     public List<Wallet> getWallets() {
         List<ODocument> docs = query(null, new OSQLSynchQuery<>("select from " + Wallet.CLASS_NAME));
         return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(Wallet::new).collect(Collectors.toList());
@@ -213,7 +220,7 @@ public class DBServiceImpl implements IDBService {
             filterICOFarmTransactions(db, transactions)
                     .forEach(t -> {
                         LOG.info("save confirmed transaction: {} {}", t.getHash(), Thread.currentThread().getName()); //TODO: remove in next stable version
-                        saveConfirmedTransaction(db, t, blockFunction.apply(t));
+                        updateOrCreateConfirmedTransaction(db, t, blockFunction.apply(t));
                     });
             return null;
         });
@@ -231,41 +238,46 @@ public class DBServiceImpl implements IDBService {
         });
     }
 
-    private List<ODocument> saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
-        ODocument from = getUserByWalletAddress(database, transaction.getFrom());
-        ODocument to = getUserByWalletAddress(database, transaction.getTo());
-        List<ODocument> docs = new LinkedList<>();
-        if (from != null) docs.add(createTransactionDocument(transaction, from, false));
-        if (to != null && !to.equals(from)) docs.add(createTransactionDocument(transaction, to, false));
+    @Override
+    public OTransaction saveTransaction(Transaction transaction, EthBlock.Block block) {
+        return (OTransaction) dbClosure.get().execute(db -> {
+            ODocument doc;
+            if (block != null) {
+                doc = saveConfirmedTransaction(db, transaction, ICOFarmUtils.computeTimestamp(block));
+            } else doc = saveUnconfirmedTransaction(db, transaction);
 
+            return new OTransaction(doc);
+        });
+    }
+
+    private ODocument saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
+        ODocument doc = createTransactionDocument(transaction, false);
         if (database == null) {
             dbClosure.get().execute(db -> {
-                for (ODocument doc : docs) {
-                    doc.save();
-                }
+                doc.save();
                 return null;
             });
         } else {
-            for (ODocument doc : docs) {
-                doc.save();
-            }
+            doc.save();
         }
-
-        return docs;
+        return doc;
     }
 
-    private void saveConfirmedTransaction(ODatabaseDocument db, Transaction transaction, EthBlock.Block block) {
+    private void updateOrCreateConfirmedTransaction(ODatabaseDocument db, Transaction transaction, EthBlock.Block block) {
         String sql = String.format("select from %s where %s = ?", OTransaction.CLASS_NAME, OTransaction.OPROPERTY_HASH);
         List<ODocument> docs = db.query(new OSQLSynchQuery<>(sql), transaction.getHash());
         Date date = ICOFarmUtils.computeTimestamp(block);
         if (isDocsNotEmpty(docs)) {
-            docs.forEach(doc -> updateConfirmedTransaction(doc, date, block).save());
+            docs.forEach(doc -> updateConfirmedTransaction(doc, date, transaction).save());
         } else {
-            List<ODocument> unconfirmedTransactions = saveUnconfirmedTransaction(db, transaction);
-            for (ODocument doc : unconfirmedTransactions) {
-                updateConfirmedTransaction(doc, date, block).save();
-            }
+            saveConfirmedTransaction(db, transaction, date);
         }
+    }
+
+    private ODocument saveConfirmedTransaction(ODatabaseDocument db, Transaction transaction, Date date) {
+        ODocument doc = saveUnconfirmedTransaction(db, transaction);
+        updateConfirmedTransaction(doc, date, transaction).save();
+        return doc;
     }
 
     private Stream<Transaction> filterICOFarmTransactions(ODatabaseDocument db, List<Transaction> transactions) {
@@ -279,14 +291,13 @@ public class DBServiceImpl implements IDBService {
         return isDocsNotEmpty(docs);
     }
 
-    private ODocument createTransactionDocument(Transaction transaction, ODocument owner, boolean confirmed) {
+    private ODocument createTransactionDocument(Transaction transaction, boolean confirmed) {
         ODocument doc = new ODocument(OTransaction.CLASS_NAME);
         doc.field(OTransaction.OPROPERTY_FROM, transaction.getFrom());
 	    doc.field(OTransaction.OPROPERTY_TO, transaction.getTo());
 	    doc.field(OTransaction.OPROPERTY_HASH, transaction.getHash());
 	    doc.field(OTransaction.OPROPERTY_VALUE, transaction.getValue().toString());
         doc.field(OTransaction.OPROPERTY_CONFIRMED, confirmed);
-	    doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singleton(owner));
         return doc;
     }
 
@@ -298,9 +309,9 @@ public class DBServiceImpl implements IDBService {
     }
 
 
-    private ODocument updateConfirmedTransaction(ODocument doc, Date date, EthBlock.Block block) {
+    private ODocument updateConfirmedTransaction(ODocument doc, Date date, Transaction transaction) {
         doc.field(OTransaction.OPROPERTY_CONFIRMED, true);
-        doc.field(OTransaction.OPROPERTY_BLOCK, block.getNumber().toString());
+        doc.field(OTransaction.OPROPERTY_BLOCK, transaction.getBlockNumber().toString());
         doc.field(OTransaction.OPROPERTY_TIMESTAMP, date);
         return doc;
     }

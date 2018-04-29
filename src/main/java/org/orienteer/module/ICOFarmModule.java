@@ -59,7 +59,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REGISTRATION_MAIL_NAME = "registration";
 	public static final String RESTORE_MAIL_NAME      = "restore";
 
-	public static final int VERSION = 3;
+	public static final int VERSION = 2;
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -94,12 +94,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 
 		helper.oClass(OTransaction.CLASS_NAME)
-				.oProperty(OTransaction.OPROPERTY_TIMESTAMP, OType.DATETIME, 0).markAsDocumentName().updateCustomAttribute(CustomAttribute.UI_READONLY, true)
+				.oProperty(OTransaction.OPROPERTY_HASH, OType.STRING, 0).markAsDocumentName().notNull().assignVisualization(HashVisualizer.NAME).oIndex(OClass.INDEX_TYPE.UNIQUE)
 				.oProperty(OTransaction.OPROPERTY_FROM, OType.STRING, 10).updateCustomAttribute(CustomAttribute.UI_READONLY, true).assignVisualization(HashVisualizer.NAME)
 				.oProperty(OTransaction.OPROPERTY_TO, OType.STRING, 20).updateCustomAttribute(CustomAttribute.UI_READONLY, true).assignVisualization(HashVisualizer.NAME)
 				.oProperty(OTransaction.OPROPERTY_VALUE, OType.STRING, 30).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
-				.oProperty(OTransaction.OPROPERTY_HASH, OType.STRING, 40).notNull().assignVisualization(HashVisualizer.NAME)
-				.oProperty(OTransaction.OPROPERTY_BLOCK, OType.STRING, 50).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
+				.oProperty(OTransaction.OPROPERTY_BLOCK, OType.STRING, 40).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
+				.oProperty(OTransaction.OPROPERTY_TIMESTAMP, OType.DATETIME, 50).updateCustomAttribute(CustomAttribute.UI_READONLY, true)
 				.oProperty(OTransaction.OPROPERTY_CONFIRMED, OType.BOOLEAN, 60).notNull()
 				.updateCustomAttribute(CustomAttribute.UI_READONLY, true).defaultValue("false");
 
