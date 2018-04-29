@@ -59,7 +59,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REGISTRATION_MAIL_NAME = "registration";
 	public static final String RESTORE_MAIL_NAME      = "restore";
 
-	public static final int VERSION = 2;
+	public static final int VERSION = 1;
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -208,9 +208,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
             config = createDefaultMailConfig();
         }
 
-        if (!isMailExists(REGISTRATION_MAIL_NAME, db)) {
+        if (!isMailExists(RESTORE_MAIL_NAME, db)) {
 	        createMail(
-	                REGISTRATION_MAIL_NAME,
+	                RESTORE_MAIL_NAME,
                     new ResourceModel("mail.default.restore.subject").getObject(),
                     new ResourceModel("mail.default.restore.from").getObject(),
                     new ResourceModel("mail.default.restore.text").getObject(),
@@ -218,9 +218,9 @@ public class ICOFarmModule extends AbstractOrienteerModule {
             );
         }
 
-        if (!isMailExists(RESTORE_MAIL_NAME, db)) {
+        if (!isMailExists(REGISTRATION_MAIL_NAME, db)) {
             createMail(
-                    RESTORE_MAIL_NAME,
+                    REGISTRATION_MAIL_NAME,
                     new ResourceModel("mail.default.registration.subject").getObject(),
                     new ResourceModel("mail.default.registration.from").getObject(),
                     new ResourceModel("mail.default.registration.text").getObject(),
