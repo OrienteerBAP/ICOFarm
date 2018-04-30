@@ -252,7 +252,13 @@ public class DBServiceImpl implements IDBService {
     }
 
     private ODocument saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
-        ODocument doc = createTransactionDocument(transaction, false);
+        ODocument from = getUserByWalletAddress(database, transaction.getFrom());
+        ODocument to = getUserByWalletAddress(database, transaction.getTo());
+        Set<ODocument> readers = new HashSet<>();
+        if (from != null) readers.add(from);
+        if (to != null) readers.add(to);
+
+        ODocument doc = createTransactionDocument(transaction, readers, false);
         if (database == null) {
             dbClosure.get().execute(db -> {
                 doc.save();
@@ -292,13 +298,14 @@ public class DBServiceImpl implements IDBService {
         return isDocsNotEmpty(docs);
     }
 
-    private ODocument createTransactionDocument(Transaction transaction, boolean confirmed) {
+    private ODocument createTransactionDocument(Transaction transaction, Collection<ODocument> readers, boolean confirmed) {
         ODocument doc = new ODocument(OTransaction.CLASS_NAME);
         doc.field(OTransaction.OPROPERTY_FROM, transaction.getFrom());
 	    doc.field(OTransaction.OPROPERTY_TO, transaction.getTo());
 	    doc.field(OTransaction.OPROPERTY_HASH, transaction.getHash());
 	    doc.field(OTransaction.OPROPERTY_VALUE, transaction.getValue().toString());
         doc.field(OTransaction.OPROPERTY_CONFIRMED, confirmed);
+        doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ, readers);
         return doc;
     }
 

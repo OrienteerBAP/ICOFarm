@@ -143,6 +143,7 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         setRestricted(restricted, schema.getClass(ICOFarmModule.REFERRAL));
         setRestricted(restricted, schema.getClass(Wallet.CLASS_NAME));
         setRestricted(restricted, schema.getClass(OUser.CLASS_NAME));
+        setRestricted(restricted, schema.getClass(OTransaction.CLASS_NAME));
     }
 
     private void setRestricted(OClass restricted, OClass oClass) {
