@@ -40,7 +40,6 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		List<Class<? extends ORecordHook>> hooks = getOrientDbSettings().getORecordHooks();
 		hooks.add(OWidgetHook.class);
 		hooks.add(WalletHook.class);
-		hooks.add(OTransactionHook.class);
 	}
 
 	@Override
