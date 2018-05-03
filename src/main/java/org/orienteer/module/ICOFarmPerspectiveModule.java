@@ -9,13 +9,13 @@ import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import org.apache.commons.collections4.map.HashedMap;
 import org.orienteer.component.visualizer.HashVisualizer;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.component.visualizer.UIVisualizersRegistry;
 import org.orienteer.core.module.AbstractOrienteerModule;
 import org.orienteer.core.module.PerspectivesModule;
-import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.OTransaction;
@@ -30,8 +30,8 @@ import static org.orienteer.module.ICOFarmSecurityModule.*;
 
 public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
 
-    public static final String INVESTOR_PERSPECTIVE  = "Investor";
-    public static final String ANONYMOUS_PERSPECTIVE = "Anonymous";
+    public static final String INVESTOR_PERSPECTIVE_KEY  = "perspective.name.investor";
+    public static final String ANONYMOUS_PERSPECTIVE_KEY = "perspective.name.anonymous";
 
     public static final String REFERRAL_WIDGET_ID            = "referrals-widget";
     public static final String REGISTRATION_WIDGET_ID        = "registration";
@@ -88,42 +88,44 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     }
 
     private void createPerspectives(OSchemaHelper helper) {
-        ODocument perspective = getOrCreatePerspective(INVESTOR_PERSPECTIVE, helper);
+        List<String> tags = createDefaultLanguageTags();
+
+        ODocument perspective = getOrCreatePerspective(INVESTOR_PERSPECTIVE_KEY, helper, tags);
         perspective.field("icon", FAIconType.usd.name());
         perspective.field("homeUrl", "/browse/" + Wallet.CLASS_NAME);
         perspective.save();
 
-        ODocument item1 = getOrCreatePerspectiveItem("Wallets", perspective, helper);
+        ODocument item1 = getOrCreatePerspectiveItem("perspective.menu.item.wallets", perspective, helper, tags);
         item1.field("icon", FAIconType.briefcase.name());
         item1.field("perspective", perspective);
         item1.field("url", "/browse/" + Wallet.CLASS_NAME);
         item1.save();
 
-        ODocument item2 = getOrCreatePerspectiveItem("Tokens", perspective, helper);
+        ODocument item2 = getOrCreatePerspectiveItem("perspective.menu.item.tokens", perspective, helper, tags);
         item2.field("icon", FAIconType.money.name());
         item2.field("perspective", perspective);
         item2.field("url", "/browse/" + Token.CLASS_NAME);
         item2.save();
 
-        ODocument item3 = getOrCreatePerspectiveItem("Buy Tokens", perspective, helper);
+        ODocument item3 = getOrCreatePerspectiveItem("perspective.menu.item.buyTokens", perspective, helper, tags);
         item3.field("icon", FAIconType.dollar.name());
         item3.field("perspective", perspective);
         item3.field("url", "/browse/" + BUY_TOKENS);
         item3.save();
 
-        ODocument item4 = getOrCreatePerspectiveItem("Transfer Tokens", perspective, helper);
+        ODocument item4 = getOrCreatePerspectiveItem("perspective.menu.item.transferTokens", perspective, helper, tags);
         item4.field("icon", FAIconType.exchange.name());
         item4.field("perspective", perspective);
         item4.field("url", "/browse/" + TRANSFER_TOKENS);
         item4.save();
 
-        ODocument item5 = getOrCreatePerspectiveItem("Referrals", perspective, helper);
+        ODocument item5 = getOrCreatePerspectiveItem("perspective.menu.item.referrals", perspective, helper, tags);
         item5.field("icon", FAIconType.users.name());
         item5.field("perspective", perspective);
         item5.field("url", "/browse/" + REFERRAL);
         item5.save();
 
-        ODocument item6 = getOrCreatePerspectiveItem("Transactions", perspective, helper);
+        ODocument item6 = getOrCreatePerspectiveItem("perspective.menu.item.transactions", perspective, helper, tags);
         item6.field("icon", FAIconType.align_justify.getCssClass());
         item6.field("perspective", perspective);
         item6.field("url", "/browse/" + OTransaction.CLASS_NAME);
@@ -132,12 +134,12 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         perspective.field("menu", Arrays.asList(item1, item2, item3, item4, item5, item6));
         perspective.save();
 
-        perspective = getOrCreatePerspective(ANONYMOUS_PERSPECTIVE, helper);
+        perspective = getOrCreatePerspective(ANONYMOUS_PERSPECTIVE_KEY, helper, tags);
         perspective.field("icon", FAIconType.user_secret.name());
         perspective.field("homeUrl", "/browse/Registration");
         perspective.save();
 
-        item1 = getOrCreatePerspectiveItem("Registration", perspective, helper);
+        item1 = getOrCreatePerspectiveItem("perspective.menu.item.registration", perspective, helper, tags);
         item1.field("icon", FAIconType.info.name());
         item1.field("perspective", perspective);
         item1.field("url", "/browse/Registration");
@@ -155,8 +157,8 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         if (!perspectiveClass.isSubClassOf(restricted)) {
             perspectiveClass.addSuperClass(restricted);
         }
-        updateUser(db, ANONYMOUS_PERSPECTIVE, ORESTRICTED_ALLOW_READ, "reader");
-        updateRole(db, INVESTOR_PERSPECTIVE, ORESTRICTED_ALLOW_READ, INVESTOR_ROLE);
+        updateUser(db, ANONYMOUS_PERSPECTIVE_KEY, ORESTRICTED_ALLOW_READ, "reader");
+        updateRole(db, INVESTOR_PERSPECTIVE_KEY, ORESTRICTED_ALLOW_READ, INVESTOR_ROLE);
     }
 
     private void adjustDashboard(OSchemaHelper helper) {
@@ -217,23 +219,26 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         registry.registerUIComponentFactory(new HashVisualizer());
     }
 
-    private ODocument getOrCreatePerspective(String name, OSchemaHelper helper) {
-        PerspectivesModule perspectivesModule = OrienteerWebApplication.get().getServiceInstance(PerspectivesModule.class);
-        ODocument doc = perspectivesModule.getPerspectiveByName(helper.getDatabase(), name);
+    private ODocument getOrCreatePerspective(String key, OSchemaHelper helper, List<String> tags) {
+        OrienteerWebApplication app = OrienteerWebApplication.get();
+        Map<String, String> localizedStrings = getLocalizedStrings(app, key, tags);
+        PerspectivesModule perspectivesModule = app.getServiceInstance(PerspectivesModule.class);
+        ODocument doc = perspectivesModule.getPerspectiveByName(helper.getDatabase(), localizedStrings.get("en"));
         if (doc == null) {
             doc = new ODocument(PerspectivesModule.OCLASS_PERSPECTIVE);
-            doc.field("name", CommonUtils.toMap("en", name));
+            doc.field("name", localizedStrings);
         }
         return doc;
     }
 
-    private ODocument getOrCreatePerspectiveItem(String name, ODocument perspective, OSchemaHelper helper) {
+    private ODocument getOrCreatePerspectiveItem(String key, ODocument perspective, OSchemaHelper helper, List<String> tags) {
+        Map<String, String> localizedStrings = getLocalizedStrings(OrienteerWebApplication.get(), key, tags);
         List<ODocument> docs = helper.getDatabase().query(new OSQLSynchQuery<>("select from " + PerspectivesModule.OCLASS_ITEM
-                + " where name.values() contains ? and perspective = ?"), name, perspective);
+                + " where name.values() contains ? and perspective = ?"), localizedStrings.get("en"), perspective);
         ODocument doc = docs != null && !docs.isEmpty() ? docs.get(0) : null;
         if (doc == null) {
             doc = new ODocument(PerspectivesModule.OCLASS_ITEM);
-            doc.field("name", CommonUtils.toMap("en", name));
+            doc.field("name", localizedStrings);
         }
         return doc;
     }
@@ -269,10 +274,9 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
                 .anyMatch(widget -> typeId.equals(((ODocument)widget.getRecord()).field(OPROPERTY_TYPE_ID)));
     }
 
-    private void updateRole(ODatabaseDocument db, String perspectiveName, String field, String roleName) {
+    private void updateRole(ODatabaseDocument db, String key, String field, String roleName) {
         OSecurity security = db.getMetadata().getSecurity();
-        PerspectivesModule perspectivesModule = OrienteerWebApplication.get().getServiceInstance(PerspectivesModule.class);
-        ODocument perspective = perspectivesModule.getPerspectiveByName(db, perspectiveName);
+        ODocument perspective = getPerspectiveByNameKey(db, key);
         ORole role = security.getRole(roleName);
         role.getDocument().field("perspective", perspective);
         perspective.field(field, Collections.singletonList(role.getDocument()));
@@ -280,14 +284,35 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         perspective.save();
     }
 
-    private void updateUser(ODatabaseDocument db, String perspectiveName, String field, String username) {
+    private void updateUser(ODatabaseDocument db, String key, String field, String username) {
         OSecurity security = db.getMetadata().getSecurity();
-        PerspectivesModule perspectivesModule = OrienteerWebApplication.get().getServiceInstance(PerspectivesModule.class);
-        ODocument perspective = perspectivesModule.getPerspectiveByName(db, perspectiveName);
+        ODocument perspective = getPerspectiveByNameKey(db, key);
         OUser user = security.getUser(username);
         user.getDocument().field("perspective", perspective);
         perspective.field(field, Collections.singletonList(user.getDocument()));
         user.save();
         perspective.save();
+    }
+
+    private ODocument getPerspectiveByNameKey(ODatabaseDocument db, String key) {
+        OrienteerWebApplication app = OrienteerWebApplication.get();
+        PerspectivesModule perspectivesModule = app.getServiceInstance(PerspectivesModule.class);
+        return perspectivesModule.getPerspectiveByName(db, getLocalizedStrings(app, key, createDefaultLanguageTags()).get("en"));
+    }
+
+    private List<String> createDefaultLanguageTags() {
+        return Arrays.asList("en", "ru", "uk");
+    }
+
+    private Map<String, String> getLocalizedStrings(OrienteerWebApplication app, String key, List<String> tags) {
+        Map<String, String> localized = new HashedMap<>(3);
+        for (String tag : tags) {
+            localized.put(tag, getString(app, key, Locale.forLanguageTag(tag)));
+        }
+        return localized;
+    }
+
+    private String getString(OrienteerWebApplication app, String key, Locale locale) {
+        return app.getResourceSettings().getLocalizer().getString(key, null, null, locale, null, "");
     }
 }
