@@ -2,12 +2,7 @@
 	<div class="referral-widget">
 		<div class="mx-auto col-sm-8">
 			<h1 class="text-center"><strong wicket:id="referralTitle"></strong></h1>
-			<p>
-				This is your Orienteer referral link.
-				You can use it to share the project with your friends and other interested parties.
-				If any of them sign up with this link, they will get reward amounts to 2% from purchased amount and will be added to your referral program.
-				Your reward amounts to 5.0% of all Orienteer tokens purchased by your referrals.
-			</p>
+			<p><wicket:message key="widget.referral.text"></wicket:message></p>
 			<div class="input-group">
 				<input wicket:id="referralLink" id="referral-link" class="form-control disabled" type="text" readonly="readonly"/>
 				<div class="input-group-addon copy-link" wicket:id="copyContainer">
@@ -18,14 +13,22 @@
 
 
 		<div class="mx-auto col-sm-8">
-			<h1 class="text-center"><strong>Your statistics</strong></h1>
+			<h1 class="text-center">
+				<strong>
+					<wicket:message key="widget.referral.statistics.title"></wicket:message>
+				</strong>
+			</h1>
 			<div class="row">
 				<div class="col text-center">
-					<p>Your total bonus</p>
+					<p>
+						<wicket:message key="widget.referral.statistics.bonus"></wicket:message>
+					</p>
 					<h3><strong wicket:id="totalBonus"></strong></h3>
 				</div>
 				<div class="col text-center">
-					<p>Your followers</p>
+					<p>
+						<wicket:message key="widget.referral.statistics.followers"></wicket:message>
+					</p>
 					<h3><strong wicket:id="followers"></strong></h3>
 				</div>
 			</div>
