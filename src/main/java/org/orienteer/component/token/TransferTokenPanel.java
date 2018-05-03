@@ -35,9 +35,13 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 
 	@Override
 	protected void onInitialize(Form<?> form) {
+		TextField<String> tokenField = new TextField<>("token", Model.of());
+		tokenField.setOutputMarkupId(true);
 	    ChooseWalletAddressPanel panel = new ChooseWalletAddressPanel("chooseWalletPanel", Model.of());
 	    panel.setRequired(true);
+	    form.add(tokenField);
 		form.add(new Label("targetLabel", new ResourceModel("transfer.token.target.wallet")));
+		form.add(new Label("tokenLabel", new ResourceModel("transfer.token.quantity")));
 		form.add(panel);
 	}
 
@@ -47,7 +51,7 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 		try {
 			String password = ((TextField<String>) form.get("password")).getModelObject();
 			String targetAddress = ((ChooseWalletAddressPanel) form.get("chooseWalletPanel")).getModelObject();
-			String quantity = ((TextField<String>) form.get("quantity")).getModelObject();
+			String quantity = ((TextField<String>) form.get("token")).getModelObject();
 			transferTokens(password, new BigDecimal(quantity), targetAddress);
 
 			onTransferTokens(target);
@@ -100,10 +104,6 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 		return new ResourceModel("transfer.token.select.token");
 	}
 
-	@Override
-	protected IModel<String> getQuantityLabelModel() {
-		return new ResourceModel("transfer.token.quantity");
-	}
 
 	@Override
 	protected IModel<String> getSubmitBtnLabelModel() {

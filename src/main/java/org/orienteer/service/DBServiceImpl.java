@@ -94,9 +94,15 @@ public class DBServiceImpl implements IDBService {
 
     @Override
     public List<Token> getTokens(boolean allTokens) {
-        List<ODocument> docs = query(null, new OSQLSynchQuery<>("select from " + Token.CLASS_NAME));
-        List<Token> tokens = !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(Token::new).collect(Collectors.toList());
-        return allTokens ? tokens : tokens.stream().filter(t -> !t.isEthereumCurrency()).collect(Collectors.toList());
+        String sql = allTokens ? "select from " + Token.CLASS_NAME : String.format("select from %s where %s != ?",
+                Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
+        return getTokens(null, sql, allTokens ? null : ICOFarmModule.ZERO_ADDRESS);
+    }
+
+    @Override
+    public List<Token> getCurrencyTokens() {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
+        return getTokens(null, sql, ICOFarmModule.ZERO_ADDRESS);
     }
 
     @Override
@@ -359,6 +365,11 @@ public class DBServiceImpl implements IDBService {
         List<ODocument> docs = query(db, new OSQLSynchQuery<>("select from " + OFunction.CLASS_NAME
                 + " where name = ?", 1), name);
         return getFromDocs(docs, OFunction::new);
+    }
+
+    private List<Token> getTokens(ODatabaseDocument db, String sql, Object...args) {
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql), args);
+        return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(Token::new).collect(Collectors.toList());
     }
 
     private <T> T getFromDocs(List<ODocument> docs, Function<ODocument, T> f) {

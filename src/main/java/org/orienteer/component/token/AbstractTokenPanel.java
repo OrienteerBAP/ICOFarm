@@ -10,7 +10,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -44,15 +43,11 @@ public abstract class AbstractTokenPanel extends Panel {
         add(new Label("panelTitle", getTitleModel()));
         Form<?> form = new Form<>("form");
         PasswordTextField password = new PasswordTextField("password", Model.of());
-        TextField<String> quantityField = new TextField<>("quantity", Model.of());
-        quantityField.setOutputMarkupId(true);
         form.add(password);
-        form.add(quantityField);
         form.add(createSubmitButton("submitButton"));
         form.add(createSelectWalletContainer("selectWalletContainer"));
         form.add(createSelectTokenContainer("selectTokenContainer"));
         form.add(new Label("passwordLabel", getPasswordLabelModel()));
-        form.add(new Label("quantityLabel", getQuantityLabelModel()));
         onInitialize(form);
         add(form);
         add(createFeedbackPanel("feedback"));
@@ -89,7 +84,9 @@ public abstract class AbstractTokenPanel extends Panel {
                         ComponentUtils.getChoiceRendererForWallets());
                 select.add(new AjaxFormComponentUpdatingBehavior("change") {
                     @Override
-                    protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {}
+                    protected void onUpdate(AjaxRequestTarget target) {
+                        onChangeWallet(select.getModelObject(), target);
+                    }
                 });
                 select.setRequired(true);
                 add(select);
@@ -113,7 +110,9 @@ public abstract class AbstractTokenPanel extends Panel {
                         ComponentUtils.getChoiceRendererForTokens());
                 select.add(new AjaxFormComponentUpdatingBehavior("change") {
                     @Override
-                    protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {}
+                    protected void onUpdate(AjaxRequestTarget target) {
+                        onChangeToken(select.getModelObject(), target);
+                    }
                 });
                 select.setRequired(true);
                 add(select);
@@ -149,8 +148,15 @@ public abstract class AbstractTokenPanel extends Panel {
     protected abstract IModel<String> getPasswordLabelModel();
     protected abstract IModel<String> getSelectWalletLabelModel();
     protected abstract IModel<String> getSelectTokenLabelModel();
-    protected abstract IModel<String> getQuantityLabelModel();
     protected abstract IModel<String> getSubmitBtnLabelModel();
+
+    protected void onChangeWallet(Wallet wallet, AjaxRequestTarget target) {
+
+    }
+
+    protected void onChangeToken(Token token, AjaxRequestTarget target) {
+
+    }
 
     protected boolean isSelectWalletContainerVisible() {
         return walletModel.getObject() == null;
@@ -168,4 +174,7 @@ public abstract class AbstractTokenPanel extends Panel {
         return tokenModel;
     }
 
+    protected Form<?> getForm() {
+        return (Form<?>) get("form");
+    }
 }

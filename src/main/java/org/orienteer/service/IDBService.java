@@ -34,6 +34,8 @@ public interface IDBService extends IClusterable {
 
     public List<Token> getTokens(boolean allTokens);
 
+    public List<Token> getCurrencyTokens();
+
     public Token getTokenBySymbol(String symbol);
 
     public ICOFarmUser createInvestorUser(String email, String password, String firstName, String lastName, boolean active);

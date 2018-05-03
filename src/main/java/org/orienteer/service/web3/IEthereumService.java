@@ -32,7 +32,7 @@ public interface IEthereumService {
 
     public CompletableFuture<TransactionReceipt> buyTokens(Credentials credentials,
                                                            String contractAddress,
-                                                           BigInteger ethQuantity,
+                                                           BigInteger weiQuantity,
                                                            BigInteger gasPrice,
                                                            BigInteger gasLimit);
 

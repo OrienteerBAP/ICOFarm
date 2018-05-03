@@ -1,8 +1,24 @@
 <wicket:extend xmlns:wicket="http://www.w3.org/1999/xhtml">
+
+	<div class="form-row">
+		<div class="form-group col-md-8">
+			<label>
+				<wicket:message key="buy.token.input.currency"></wicket:message>
+			</label>
+			<input type="text" wicket:id="currency" class="form-control"/>
+		</div>
+		<div class="col-md-4">
+			<label>
+				<wicket:message key="buy.token.select.currency"></wicket:message>
+			</label>
+			<select class="custom-select" wicket:id="currencyDropDown"></select>
+		</div>
+	</div>
+
 	<div class="form-group">
 		<label>
 			<wicket:message key="buy.token.quantity"></wicket:message>
 		</label>
-		<input wicket:id="tokensQuantity" type="text" class="form-control"/>
+		<input wicket:id="token" type="text" class="form-control"/>
 	</div>
 </wicket:extend>

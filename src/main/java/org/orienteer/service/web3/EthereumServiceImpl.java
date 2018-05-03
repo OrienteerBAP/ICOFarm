@@ -58,11 +58,11 @@ public class EthereumServiceImpl implements IEthereumService {
     @Override
     public CompletableFuture<TransactionReceipt> buyTokens(Credentials credentials,
                                                            String contractAddress,
-                                                           BigInteger ethQuantity,
+                                                           BigInteger weiQuantity,
                                                            BigInteger gasPrice,
                                                            BigInteger gasLimit) {
         Buyable token = Buyable.load(contractAddress, web3j, credentials, gasPrice, gasLimit);
-        return token.buy(ethQuantity).sendAsync();
+        return token.buy(weiQuantity).sendAsync();
     }
 
     @Override
