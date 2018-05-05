@@ -7,7 +7,11 @@ import org.orienteer.model.ICOFarmUser;
 import org.orienteer.model.Token;
 import org.orienteer.module.ICOFarmModule;
 import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.utils.Convert;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.*;
 import java.util.stream.Collector;
 
@@ -32,6 +36,15 @@ public final class ICOFarmUtils {
 
     public static Date computeTimestamp(EthBlock.Block block) {
         return new Date(1000 * block.getTimestamp().longValue());
+    }
+
+    public static BigInteger toWei(BigDecimal value, Token token) {
+        if (token.isEthereumCurrency()) {
+            Convert.Unit unit = Convert.Unit.fromString(token.getName("en"));
+            return Convert.toWei(value, unit).toBigInteger();
+        }
+        BigDecimal weiCost = Convert.toWei(token.getEthCost(), Convert.Unit.ETHER);
+        return weiCost.multiply(value, MathContext.UNLIMITED).toBigInteger();
     }
 
     public static <T> Collector<T, List<List<T>>, List<List<T>>> getCollectorForGroupList(int num) {

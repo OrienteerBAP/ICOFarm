@@ -16,6 +16,7 @@ import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.ITokenEstimate;
 import org.orienteer.service.web3.IEthereumService;
+import org.orienteer.util.BuyTokensTransactionValidator;
 import org.orienteer.util.ComponentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,19 +46,21 @@ public class BuyTokenPanel extends AbstractTokenPanel {
     @Override
     @SuppressWarnings("unchecked")
     protected void onInitialize(Form<?> form) {
-        TextField<String> currencyField = createCurrencyField("currency");
+	    IModel<Token> currencyModel = Model.of();
+        TextField<String> currencyField = createCurrencyField("currency", currencyModel);
         TextField<String> tokenField = createTokenField("token");
 
         adjustTokensInputFields(currencyField, tokenField);
 
         form.add(tokenField);
         form.add(currencyField);
-        form.add(createCurrencyDropDown("currencyDropDown"));
+        form.add(createCurrencyDropDown("currencyDropDown", currencyModel));
     }
 
-    private TextField<String> createCurrencyField(String id) {
+    private TextField<String> createCurrencyField(String id, IModel<Token> currencyModel) {
 	    TextField<String> field = new TextField<>(id, Model.of());
         field.setOutputMarkupId(true);
+        field.add(new BuyTokensTransactionValidator(getWalletModel(), currencyModel, getTokenModel()));
         return field;
     }
 
@@ -132,9 +135,10 @@ public class BuyTokenPanel extends AbstractTokenPanel {
 	    return result;
     }
 
-    private DropDownChoice<Token> createCurrencyDropDown(String id) {
+    private DropDownChoice<Token> createCurrencyDropDown(String id, IModel<Token> currencyModel) {
         List<Token> currencyTokens = dbService.getCurrencyTokens();
-        DropDownChoice<Token> choice = new DropDownChoice<>(id, Model.of(currencyTokens.get(0)), currencyTokens,
+        currencyModel.setObject(currencyTokens.get(0));
+        DropDownChoice<Token> choice = new DropDownChoice<>(id, currencyModel, currencyTokens,
                 ComponentUtils.getChoiceRendererForTokens());
 	    choice.setOutputMarkupId(true);
 	    choice.setRequired(true);
@@ -231,8 +235,13 @@ public class BuyTokenPanel extends AbstractTokenPanel {
 	    return ((TextField<String>) getForm().get("token")).getModelObject();
     }
 
-    @SuppressWarnings("unchecked")
+
     private Token getCurrency() {
-	    return ((DropDownChoice<Token>) getForm().get("currencyDropDown")).getModelObject();
+	    return getCurrencyModel().getObject();
+    }
+
+    @SuppressWarnings("unchecked")
+    private IModel<Token> getCurrencyModel() {
+	    return ((DropDownChoice<Token>) getForm().get("currencyDropDown")).getModel();
     }
 }

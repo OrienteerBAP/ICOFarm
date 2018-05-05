@@ -15,6 +15,7 @@ import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.ClientTransactionManager;
 import org.web3j.tx.ReadonlyTransactionManager;
 import org.web3j.tx.Transfer;
 import org.web3j.utils.Convert;
@@ -120,6 +121,22 @@ public class EthereumServiceImpl implements IEthereumService {
     @Override
     public Observable<Transaction> getPendingTransactionsObservable() {
         return web3j.pendingTransactionObservable();
+    }
+
+    @Override
+    public IICOFarmSmartContract loadSmartContract(Credentials credentials, Token token) {
+        if (token.isEthereumCurrency()) {
+            throw new IllegalStateException("Can't load contract from Ethereum currency!");
+        }
+        return ICOFarmSmartContract.load(token.getAddress(), web3j, credentials);
+    }
+
+    @Override
+    public IICOFarmSmartContract loadSmartContract(String from, Token token) {
+        if (token.isEthereumCurrency()) {
+            throw new IllegalStateException("Can't load contract from Ethereum currency!");
+        }
+        return ICOFarmSmartContract.load(token.getAddress(), web3j, new ClientTransactionManager(web3j, from));
     }
 
     @Override

@@ -54,6 +54,9 @@ public interface IEthereumService {
 
     public Observable<Transaction> getPendingTransactionsObservable();
 
+    public IICOFarmSmartContract loadSmartContract(Credentials credentials, Token token);
+    public IICOFarmSmartContract loadSmartContract(String from, Token token);
+
     public boolean isAddressValid(String address);
 
     public EthereumClientConfig getConfig();

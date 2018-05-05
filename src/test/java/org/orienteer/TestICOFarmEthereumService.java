@@ -9,8 +9,7 @@ import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.orienteer.service.web3.IICOFarmSmartContract;
 import org.web3j.crypto.Credentials;
 import org.web3j.utils.Convert;
 import rx.observers.AssertableSubscriber;
@@ -29,10 +28,10 @@ import static junit.framework.TestCase.assertNull;
 @RunWith(OrienteerTestRunner.class)
 public class TestICOFarmEthereumService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TestICOFarmEthereumService.class);
-
     private static Wallet wallet;
     private static String password;
+
+    private static Token testToken;
 
     @Inject
     private IEthereumService ethService;
@@ -50,6 +49,11 @@ public class TestICOFarmEthereumService {
         wallet.setAddress("0x610804919c1adb474c24cc9ea05c1c0949dfb919");
         wallet.setWalletJSON(json);
         password = "1WrcOCTQIQH28iOX";
+
+        testToken = new Token();
+        testToken.setAddress("0xa4613F269117EE521717921Ed4EDaAdcfdfa6FAC");
+        testToken.setGasLimit(new BigDecimal("200000"));
+        testToken.setGasPrice(Convert.toWei(BigDecimal.ONE, Convert.Unit.GWEI));
     }
 
 
@@ -97,16 +101,22 @@ public class TestICOFarmEthereumService {
 
     @Test
     public void testRequestTokenBalance() throws Exception {
-        Token token = new Token();
-        token.setAddress("0xa4613F269117EE521717921Ed4EDaAdcfdfa6FAC");
-        token.setGasLimit(new BigDecimal("200000"));
-        token.setGasPrice(Convert.toWei(BigDecimal.ONE, Convert.Unit.GWEI));
-
-        AssertableSubscriber<BigInteger> test = ethService.requestBalance(wallet.getAddress(), token).test();
+        AssertableSubscriber<BigInteger> test = ethService.requestBalance(wallet.getAddress(), testToken).test();
         test.assertNoErrors();
         test.assertCompleted();
         test.awaitTerminalEventAndUnsubscribeOnTimeout(10, TimeUnit.SECONDS);
 
         Thread.currentThread().join(10_000);
+    }
+
+    @Test
+    public void testEstimateGasCost() throws Exception {
+        IICOFarmSmartContract smartContract = ethService.loadSmartContract(wallet.getAddress(), testToken);
+        AssertableSubscriber<BigInteger> test = smartContract.estimateGasForBuy(new BigInteger("1000000000")).test();//36854
+        test.assertNoErrors();
+        test.assertCompleted();
+        test.assertValue(new BigInteger("36854"));
+        test.awaitTerminalEventAndUnsubscribeOnTimeout(5, TimeUnit.SECONDS);
+        Thread.currentThread().join(5_000);
     }
 }
