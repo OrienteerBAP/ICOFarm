@@ -62,7 +62,7 @@ public class TestICOFarmEthereumService {
         String password = "qwerty";
         byte[] wallet = ethService.createWallet(password);
         assertNotNull(wallet);
-        Credentials credentials = ethService.readWallet(password, wallet);
+        Credentials credentials = ethService.readWallet(password, wallet).toBlocking().value();
         assertNotNull(credentials);
         assertNotNull(credentials.getAddress());
         assertNotNull(credentials.getEcKeyPair());
@@ -101,7 +101,8 @@ public class TestICOFarmEthereumService {
 
     @Test
     public void testRequestTokenBalance() throws Exception {
-        AssertableSubscriber<BigInteger> test = ethService.requestBalance(wallet.getAddress(), testToken).test();
+        AssertableSubscriber<BigInteger> test = ethService.loadSmartContract(wallet.getAddress(), testToken)
+                .getBalance().test();
         test.assertNoErrors();
         test.assertCompleted();
         test.awaitTerminalEventAndUnsubscribeOnTimeout(10, TimeUnit.SECONDS);

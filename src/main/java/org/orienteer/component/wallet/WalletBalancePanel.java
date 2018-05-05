@@ -18,13 +18,8 @@ import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.util.ComponentUtils;
-import org.orienteer.util.ICOFarmUtils;
-import org.web3j.utils.Convert;
-import rx.Observable;
 
-import java.math.BigInteger;
 import java.util.List;
-import java.util.Locale;
 
 public class WalletBalancePanel extends GenericPanel<Wallet> {
 
@@ -73,13 +68,7 @@ public class WalletBalancePanel extends GenericPanel<Wallet> {
             }
 
             private String getDisplayableBalance(Wallet wallet, Token token) {
-                Observable<BigInteger> balanceObs = ethService.requestBalance(wallet.getAddress(), token);
-                String balance = balanceObs.toBlocking().first().toString();
-                if (ICOFarmUtils.isEthereumCurrency(token)) {
-                    Convert.Unit unit = Convert.Unit.fromString(token.getName(Locale.ENGLISH.toLanguageTag()));
-                    balance = Convert.fromWei(balance, unit).toString();
-                }
-                return balance;
+                return ethService.requestBalance(wallet.getAddress(), token).toBlocking().value().toString();
             }
         };
     }

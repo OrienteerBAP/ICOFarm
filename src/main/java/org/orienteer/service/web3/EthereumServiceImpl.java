@@ -6,7 +6,6 @@ import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
 import org.orienteer.model.Token;
-import org.orienteer.util.ICOFarmUtils;
 import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
@@ -16,7 +15,6 @@ import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.ClientTransactionManager;
-import org.web3j.tx.ReadonlyTransactionManager;
 import org.web3j.tx.Transfer;
 import org.web3j.utils.Convert;
 import rx.Observable;
@@ -41,9 +39,12 @@ public class EthereumServiceImpl implements IEthereumService {
     }
 
     @Override
-    public Credentials readWallet(String password, byte [] data) throws Exception {
-        WalletFile walletFile = new ObjectMapper().readValue(data, WalletFile.class);
-        return Credentials.create(Wallet.decrypt(password, walletFile));
+    public Single<Credentials> readWallet(String password, byte [] data) {
+        return Single.fromCallable(() -> new ObjectMapper().readValue(data, WalletFile.class))
+                .flatMap(walletFile ->
+                        Single.fromCallable(() -> Wallet.decrypt(password, walletFile))
+                                .map(Credentials::create)
+                );
     }
 
     @Override
@@ -57,49 +58,29 @@ public class EthereumServiceImpl implements IEthereumService {
     }
 
     @Override
-    public CompletableFuture<TransactionReceipt> buyTokens(Credentials credentials,
-                                                           String contractAddress,
-                                                           BigInteger weiQuantity,
-                                                           BigInteger gasPrice,
-                                                           BigInteger gasLimit) {
-        Buyable token = Buyable.load(contractAddress, web3j, credentials, gasPrice, gasLimit);
-        return token.buy(weiQuantity).sendAsync();
-    }
-
-    @Override
-    public CompletableFuture<TransactionReceipt> transferTokens(Credentials credentials,
-                                                                String contractAddress,
-                                                                String targetAddress,
-                                                                BigInteger quantity,
-                                                                BigInteger gasPrice,
-                                                                BigInteger gasLimit) {
-        ERC20Interface token = ERC20Interface.load(contractAddress, web3j, credentials, gasPrice, gasLimit);
-        return token.transfer(targetAddress, quantity).sendAsync();
-    }
-
-    @Override
-    public CompletableFuture<TransactionReceipt> transferCurrency(Credentials credentials,
+    public Single<TransactionReceipt> transferCurrency(Credentials credentials,
                                                                   String targetAddress,
                                                                   BigDecimal value,
-                                                                  Convert.Unit unit) throws Exception {
-        return Transfer.sendFunds(web3j, credentials, targetAddress, value, unit).sendAsync();
+                                                                  Convert.Unit unit) {
+        return Single.fromCallable(() -> Transfer.sendFunds(web3j, credentials, targetAddress, value, unit).observable())
+                .flatMap(Observable::toSingle);
     }
 
     @Override
-    public Observable<BigInteger> requestBalance(String address, Token token) {
-        if (!ICOFarmUtils.isEthereumCurrency(token)) {
-            ERC20Interface erc20 = ERC20Interface.load(token.getAddress(), web3j, new ReadonlyTransactionManager(web3j, address),
-                    token.getGasPrice().toBigInteger(), token.getGasLimit().toBigInteger());
-            return erc20.balanceOf(address).observable();
+    public Single<BigInteger> requestBalance(String address) {
+        return web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST)
+                .observable().map(EthGetBalance::getBalance).toSingle();
+    }
+
+    @Override
+    public Single<BigDecimal> requestBalance(String address, Token token) {
+        if (token.isEthereumCurrency()) {
+            return requestBalance(address).map(wei -> {
+                Convert.Unit unit = Convert.Unit.fromString(token.getName("en"));
+                return Convert.fromWei(new BigDecimal(wei), unit);
+            });
         }
-
-        return requestEthereumBalance(address);
-    }
-
-    @Override
-    public BigInteger requestBalance(String address) throws Exception {
-        EthGetBalance balance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
-        return balance.getBalance();
+        return loadSmartContract(address, token).getBalance().map(BigDecimal::new);
     }
 
     @Override
@@ -169,15 +150,5 @@ public class EthereumServiceImpl implements IEthereumService {
                 callback.accept(e, null);
             }
         });
-    }
-
-    private Observable<BigInteger> requestEthereumBalance(String address) {
-        return Single.fromCallable(() -> {
-            try {
-                return requestBalance(address);
-            } catch (Exception ex) {
-                return BigInteger.valueOf(0);
-            }
-        }).toObservable();
     }
 }

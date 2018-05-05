@@ -21,7 +21,10 @@ import org.orienteer.util.ComponentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.utils.Convert;
+import rx.Single;
+import rx.schedulers.Schedulers;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -153,24 +156,22 @@ public class BuyTokenPanel extends AbstractTokenPanel {
     protected void onFormSubmit(AjaxRequestTarget target, Form<?> form) {
         Credentials credentials = readCredentials(form);
         if (credentials != null) {
-            try {
-                buyTokens(credentials);
-                onBuyTokens(target);
-            } catch (Exception ex) {
-                LOG.error("Can't buy tokens!", ex);
-                error(new ResourceModel("buy.token.error").getObject());
-            }
-        }
+            buyTokens(credentials)
+                .subscribeOn(Schedulers.io())
+                .doOnSubscribe(() -> onBuyTokens(target))
+                .subscribe(
+                        tr -> {},
+                        err -> LOG.error("Can't buy tokens!", err)
+                );
+        } else error(new ResourceModel("buy.token.wrong.password").getObject());
     }
 
-    private void buyTokens(Credentials credentials) throws Exception {
+    private Single<TransactionReceipt> buyTokens(Credentials credentials) {
         Token token = getTokenModel().getObject();
-        String tokenAddress = token.getAddress();
-        BigInteger gasPrice = token.getGasPrice().toBigInteger();
-        BigInteger gasLimit = token.getGasLimit().toBigInteger();
         Convert.Unit unit = Convert.Unit.fromString(getCurrency().getName("en"));
         BigInteger weiValue = Convert.toWei(getCurrencyValue(), unit).toBigInteger();
-        service.buyTokens(credentials, tokenAddress, weiValue, gasPrice, gasLimit);// TODO: add state which displays status of buying tokens
+
+        return service.loadSmartContract(credentials, token).buy(weiValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -178,10 +179,9 @@ public class BuyTokenPanel extends AbstractTokenPanel {
         String password = ((TextField<String>) form.get("password")).getModelObject();
         Wallet wallet = getWalletModel().getObject();
         try {
-            return service.readWallet(password, wallet.getWalletJSON());
+            return service.readWallet(password, wallet.getWalletJSON()).toBlocking().value();
         } catch (Exception ex) {
             LOG.error("Password is wrong!", ex);
-            error(new ResourceModel("buy.token.wrong.password").getObject());
         }
         return null;
     }

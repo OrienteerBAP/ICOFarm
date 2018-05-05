@@ -70,8 +70,8 @@ public class BuyTokensTransactionValidator implements IValidator<String> {
     }
 
     private BigInteger getWeiFromWallet(IEthereumService ethService) {
-        return ethService.requestBalance(walletModel.getObject().getAddress(), currencyModel.getObject())
-                .toBlocking().first();
+        return ethService.requestBalance(walletModel.getObject().getAddress())
+                .toBlocking().value();
     }
 
     private Single<BigInteger> getGasForBuy(IEthereumService ethService, BigInteger weiAmount) {

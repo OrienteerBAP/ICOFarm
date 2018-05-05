@@ -56,7 +56,7 @@ public class WalletHook extends ODocumentHookAbstract {
         try {
             String password = OrienteerWebSession.get().getPassword();
             byte [] wallet = service.createWallet(password);
-            Credentials credentials = service.readWallet(password, wallet);
+            Credentials credentials = service.readWallet(password, wallet).toBlocking().value();
             doc.field(Wallet.OPROPERTY_ADDRESS, credentials.getAddress());
             doc.field(Wallet.OPROPERTY_WALLET_JSON, wallet);
         } catch (Exception e) {

@@ -10,10 +10,10 @@ import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.utils.Convert;
 import rx.Observable;
+import rx.Single;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 @ImplementedBy(EthereumServiceImpl.class)
@@ -21,34 +21,21 @@ public interface IEthereumService {
 
     public byte[] createWallet(String password) throws Exception;
 
-    public Credentials readWallet(String password, byte[] data) throws Exception;
+    public Single<Credentials> readWallet(String password, byte[] data);
 
-    public BigInteger requestBalance(String address) throws Exception;
+    public Single<BigInteger> requestBalance(String address);
+    public Single<BigDecimal> requestBalance(String address, Token token);
+
     public void requestBalanceAsync(String address, BiConsumer<Exception, BigInteger> callback);
 
     public EthBlock requestBlock(String number) throws Exception;
 
     public Transaction requestTransactionByHash(String hash) throws Exception;
 
-    public CompletableFuture<TransactionReceipt> buyTokens(Credentials credentials,
-                                                           String contractAddress,
-                                                           BigInteger weiQuantity,
-                                                           BigInteger gasPrice,
-                                                           BigInteger gasLimit);
-
-    public CompletableFuture<TransactionReceipt> transferTokens(Credentials credentials,
-                                                                String contractAddress,
-                                                                String targetAddress,
-                                                                BigInteger quantity,
-                                                                BigInteger gasPrice,
-                                                                BigInteger gasLimit);
-
-    public CompletableFuture<TransactionReceipt> transferCurrency(Credentials credentials,
+    public Single<TransactionReceipt> transferCurrency(Credentials credentials,
                                                                   String targetAddress,
                                                                   BigDecimal value,
-                                                                  Convert.Unit unit) throws Exception;
-
-    public Observable<BigInteger> requestBalance(String address, Token token);
+                                                                  Convert.Unit unit);
 
     public Observable<Transaction> getTransactionsObservable();
 

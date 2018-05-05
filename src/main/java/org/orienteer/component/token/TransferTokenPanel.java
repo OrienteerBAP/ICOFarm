@@ -10,13 +10,15 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
-import org.orienteer.module.ICOFarmModule;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.utils.Convert;
+import rx.Single;
+import rx.schedulers.Schedulers;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -48,17 +50,20 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void onFormSubmit(AjaxRequestTarget target, Form<?> form) {
-		try {
-			String password = ((TextField<String>) form.get("password")).getModelObject();
-			String targetAddress = ((ChooseWalletAddressPanel) form.get("chooseWalletPanel")).getModelObject();
-			String quantity = ((TextField<String>) form.get("token")).getModelObject();
-			transferTokens(password, new BigDecimal(quantity), targetAddress);
+        String password = ((TextField<String>) form.get("password")).getModelObject();
+        String targetAddress = ((ChooseWalletAddressPanel) form.get("chooseWalletPanel")).getModelObject();
+        String quantity = ((TextField<String>) form.get("token")).getModelObject();
+		Credentials credentials = readWallet(password);
 
-			onTransferTokens(target);
-		} catch (Exception ex) {
-			LOG.error("Can't transfer token(s)!", ex);
-			error(new ResourceModel("transfer.token.error").getObject() + "\n" + ex.getMessage());
-		}
+		if (credentials != null) {
+			transferTokens(credentials, targetAddress, quantity)
+					.subscribeOn(Schedulers.io())
+					.doOnSubscribe(() -> onTransferTokens(target))
+					.subscribe(
+							(tr) -> {},
+							(err) -> LOG.error("Can't buy tokens!", err)
+					);
+		} else error(new ResourceModel("transfer.token.wrong.password").getObject());
 	}
 
 	@Override
@@ -66,18 +71,31 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 		return dbService.getTokens(true);
 	}
 
-	private void transferTokens(String password, BigDecimal quantity, String target) throws Exception {
-		Token token = getTokenModel().getObject();
-		Wallet wallet = getWalletModel().getObject();
-		Credentials credentials = service.readWallet(password, wallet.getWalletJSON());
-		String address = token.getAddress();
-		if (!address.equals(ICOFarmModule.ZERO_ADDRESS)) {
-			BigInteger gasPrice = token.getGasPrice().toBigInteger();
-			BigInteger gasLimit = token.getGasLimit().toBigInteger();
-			service.transferTokens(credentials, token.getAddress(), target, quantity.toBigInteger(), gasPrice, gasLimit);
-		} else {
-			service.transferCurrency(credentials, target, quantity, Convert.Unit.fromString(token.getName("en")));
+	private Single<TransactionReceipt> transferTokens(Credentials credentials, String target, String quantity) {
+		if (getTokenModel().getObject().isEthereumCurrency()) {
+			return transferCurrency(credentials, target, new BigDecimal(quantity));
 		}
+		return transferTokens(credentials, target, new BigInteger(quantity));
+	}
+
+	private Single<TransactionReceipt> transferTokens(Credentials credentials, String target, BigInteger amount) {
+		return service.loadSmartContract(credentials, getTokenModel().getObject())
+				.transfer(target, amount);
+	}
+
+	private Single<TransactionReceipt> transferCurrency(Credentials credentials, String target, BigDecimal amount) {
+        String unitName = getTokenModel().getObject().getName("en");
+        Convert.Unit unit = Convert.Unit.fromString(unitName);
+        return service.transferCurrency(credentials, target, amount, unit);
+	}
+
+	private Credentials readWallet(String password) {
+		try {
+			return service.readWallet(password, getWalletModel().getObject().getWalletJSON()).toBlocking().value();
+		} catch (Exception ex) {
+			LOG.error("Password is wrong!", ex);
+		}
+		return null;
 	}
 
 	protected void onTransferTokens(AjaxRequestTarget target) {

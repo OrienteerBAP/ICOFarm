@@ -20,7 +20,6 @@ import org.web3j.utils.Convert;
 import ru.ydn.wicket.wicketorientdb.model.OQueryDataProvider;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -65,7 +64,7 @@ public class WalletTableBalancePanel extends GenericPanel<Wallet> {
             public void populateItem(Item<ICellPopulator<ODocument>> item, String id, IModel<ODocument> rowModel) {
                 String address = WalletTableBalancePanel.this.getModelObject().getAddress();
                 Token token = new Token(rowModel.getObject());
-                String balance = ethService.requestBalance(address, token).toBlocking().firstOrDefault(BigInteger.ZERO).toString();
+                String balance = ethService.requestBalance(address, token).onErrorReturn(t -> BigDecimal.ZERO).toBlocking().value().toString();
                 if (token.isEthereumCurrency()) {
                     Convert.Unit unit = Convert.Unit.fromString(token.getName(Locale.ENGLISH.toLanguageTag()));
                     balance = Convert.fromWei(new BigDecimal(balance), unit).toString();

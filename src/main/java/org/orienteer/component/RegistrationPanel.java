@@ -113,7 +113,7 @@ public class RegistrationPanel extends Panel {
             private void createWalletForUser(ICOFarmUser user, String password) {
                 try {
                     byte [] json = ethService.createWallet(password);
-                    Credentials credentials = ethService.readWallet(password, json);
+                    Credentials credentials = ethService.readWallet(password, json).toBlocking().value();
                     String name = new ResourceModel("wallet.default.name").getObject();
                     dbService.createWalletForUser(user, name, credentials.getAddress(), json);
                 } catch (Exception e) {
