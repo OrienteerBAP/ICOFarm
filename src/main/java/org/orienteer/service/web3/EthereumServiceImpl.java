@@ -9,10 +9,7 @@ import org.orienteer.model.Token;
 import org.web3j.crypto.*;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.EthGetBalance;
-import org.web3j.protocol.core.methods.response.Transaction;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.core.methods.response.*;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.ClientTransactionManager;
 import org.web3j.tx.Transfer;
@@ -140,6 +137,22 @@ public class EthereumServiceImpl implements IEthereumService {
     @Override
     public boolean isAddressValid(String address) {
         return !Strings.isNullOrEmpty(address) && WalletUtils.isValidAddress(address);
+    }
+
+    @Override
+    public Single<Boolean> isEnoughMoneyForGas(String address, BigInteger gas) {
+        return requestBalance(address)
+                .flatMap(wei ->
+                        web3j.ethGasPrice().observable().toSingle()
+                                .map(EthGasPrice::getGasPrice)
+                                .map(gas::multiply)
+                                .map(cost -> wei.subtract(cost).compareTo(BigInteger.ZERO) >= 0)
+                );
+    }
+
+    @Override
+    public Single<BigInteger> getGasPrice() {
+        return web3j.ethGasPrice().observable().map(EthGasPrice::getGasPrice).toSingle();
     }
 
     private <T> void wrapAndRunAsync(BiConsumer<Exception, T> callback, Callable<T> callable) {

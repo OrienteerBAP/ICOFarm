@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.RequiredTextField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -12,6 +13,7 @@ import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
+import org.orienteer.util.TransferTokensTransactionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
@@ -37,14 +39,17 @@ public class TransferTokenPanel extends AbstractTokenPanel {
 
 	@Override
 	protected void onInitialize(Form<?> form) {
-		TextField<String> tokenField = new TextField<>("token", Model.of());
-		tokenField.setOutputMarkupId(true);
 	    ChooseWalletAddressPanel panel = new ChooseWalletAddressPanel("chooseWalletPanel", Model.of());
 	    panel.setRequired(true);
-	    form.add(tokenField);
+
+		TextField<String> tokenField = new RequiredTextField<>("token", Model.of());
+		tokenField.setOutputMarkupId(true);
+		tokenField.add(new TransferTokensTransactionValidator(getWalletModel(), panel.getModel(), getTokenModel()));
+
+		form.add(panel);
+		form.add(tokenField);
 		form.add(new Label("targetLabel", new ResourceModel("transfer.token.target.wallet")));
 		form.add(new Label("tokenLabel", new ResourceModel("transfer.token.quantity")));
-		form.add(panel);
 	}
 
 	@Override

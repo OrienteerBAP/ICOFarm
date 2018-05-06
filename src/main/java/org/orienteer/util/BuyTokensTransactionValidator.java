@@ -46,17 +46,18 @@ public class BuyTokensTransactionValidator implements IValidator<String> {
         BigInteger delta = walletWei.subtract(wei);
         int compared = delta.compareTo(BigInteger.ZERO);
         if (compared > 0) {
-            getGasForBuy(ethService, wei).subscribe(
-                    gas -> {
-                        if (delta.subtract(gas).compareTo(BigInteger.ZERO) < 0) {
-                            error(validatable, "validator.transaction.gas.not.enough.money");
+            getGasInWeiForBuy(ethService, wei)
+                .subscribe(
+                    gasInWei -> {
+                        if (delta.subtract(gasInWei).compareTo(BigInteger.ZERO) < 0) {
+                            error(validatable, "validator.transaction.buy.gas.not.enough.money");
                         }
                     },
                     t -> error(validatable, "validator.transaction.error")
             );
         } else if (compared == 0) {
-            error(validatable, "validator.transaction.gas.not.enough.money");
-        } else error(validatable, "validator.transaction.not.enough.money");
+            error(validatable, "validator.transaction.buy.gas.not.enough.money");
+        } else error(validatable, "validator.transaction.buy.not.enough.money");
     }
 
     private BigDecimal getValueFromString(String value) {
@@ -74,9 +75,10 @@ public class BuyTokensTransactionValidator implements IValidator<String> {
                 .toBlocking().value();
     }
 
-    private Single<BigInteger> getGasForBuy(IEthereumService ethService, BigInteger weiAmount) {
+    private Single<BigInteger> getGasInWeiForBuy(IEthereumService ethService, BigInteger weiAmount) {
         return ethService.loadSmartContract(walletModel.getObject().getAddress(), tokenModel.getObject())
-                .estimateGasForBuy(weiAmount);
+                .estimateGasForBuy(weiAmount)
+                .flatMap(gas -> ethService.getGasPrice().map(gas::multiply));
     }
 
 

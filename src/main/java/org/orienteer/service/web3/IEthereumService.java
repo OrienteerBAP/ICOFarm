@@ -46,6 +46,10 @@ public interface IEthereumService {
 
     public boolean isAddressValid(String address);
 
+    public Single<Boolean> isEnoughMoneyForGas(String address, BigInteger gas);
+
+    public Single<BigInteger> getGasPrice();
+
     public EthereumClientConfig getConfig();
 
     public void init(ODocument config);

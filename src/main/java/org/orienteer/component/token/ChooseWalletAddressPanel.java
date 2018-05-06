@@ -33,11 +33,12 @@ public class ChooseWalletAddressPanel extends FormComponentPanel<String> {
 
     @Override
     public void convertInput() {
-        super.convertInput();
         if (selectWallet) {
             Wallet wallet = walletSelect.getConvertedInput();
             setConvertedInput(wallet != null ? wallet.getAddress() : null);
         } else setConvertedInput(addressInput.getConvertedInput());
+
+        setModelObject(getConvertedInput());
     }
 
     @Override
@@ -47,6 +48,7 @@ public class ChooseWalletAddressPanel extends FormComponentPanel<String> {
         add(newInputAddressLink("inputAddressLink"));
         add(walletSelect = createSelectWalletDropdown("selectWallet"));
         add(addressInput = createInputAddressField("inputAddress"));
+        setOutputMarkupPlaceholderTag(true);
     }
 
     private DropDownChoice<Wallet> createSelectWalletDropdown(String id) {
