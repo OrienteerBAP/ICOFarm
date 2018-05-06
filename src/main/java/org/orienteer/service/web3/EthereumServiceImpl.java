@@ -140,17 +140,6 @@ public class EthereumServiceImpl implements IEthereumService {
     }
 
     @Override
-    public Single<Boolean> isEnoughMoneyForGas(String address, BigInteger gas) {
-        return requestBalance(address)
-                .flatMap(wei ->
-                        web3j.ethGasPrice().observable().toSingle()
-                                .map(EthGasPrice::getGasPrice)
-                                .map(gas::multiply)
-                                .map(cost -> wei.subtract(cost).compareTo(BigInteger.ZERO) >= 0)
-                );
-    }
-
-    @Override
     public Single<BigInteger> getGasPrice() {
         return web3j.ethGasPrice().observable().map(EthGasPrice::getGasPrice).toSingle();
     }
