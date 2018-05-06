@@ -6,7 +6,9 @@ import org.apache.wicket.markup.html.WebPage;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.service.IFilterPredicateFactory;
-import org.orienteer.hook.*;
+import org.orienteer.hook.OWidgetHook;
+import org.orienteer.hook.TokenHook;
+import org.orienteer.hook.WalletHook;
 import org.orienteer.module.ICOFarmModule;
 import org.orienteer.module.ICOFarmPerspectiveModule;
 import org.orienteer.module.ICOFarmSecurityModule;
@@ -40,6 +42,7 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		List<Class<? extends ORecordHook>> hooks = getOrientDbSettings().getORecordHooks();
 		hooks.add(OWidgetHook.class);
 		hooks.add(WalletHook.class);
+		hooks.add(TokenHook.class);
 	}
 
 	@Override

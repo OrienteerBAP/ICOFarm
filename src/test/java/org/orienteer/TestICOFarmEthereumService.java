@@ -11,10 +11,8 @@ import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.service.web3.IICOFarmSmartContract;
 import org.web3j.crypto.Credentials;
-import org.web3j.utils.Convert;
 import rx.observers.AssertableSubscriber;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.file.Files;
@@ -52,8 +50,6 @@ public class TestICOFarmEthereumService {
 
         testToken = new Token();
         testToken.setAddress("0xa4613F269117EE521717921Ed4EDaAdcfdfa6FAC");
-        testToken.setGasLimit(new BigDecimal("200000"));
-        testToken.setGasPrice(Convert.toWei(BigDecimal.ONE, Convert.Unit.GWEI));
     }
 
 

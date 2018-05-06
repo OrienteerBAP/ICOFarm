@@ -44,6 +44,8 @@ public interface IEthereumService {
     public IICOFarmSmartContract loadSmartContract(Credentials credentials, Token token);
     public IICOFarmSmartContract loadSmartContract(String from, Token token);
 
+    public IICOFarmSmartContract loadSmartContract(String from, String address);
+
     public boolean isAddressValid(String address);
 
 

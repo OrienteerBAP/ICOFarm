@@ -3,6 +3,7 @@ package org.orienteer.model;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import org.orienteer.util.ICOFarmUtils;
+import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -15,9 +16,8 @@ public class Token extends ODocumentWrapper {
     public static final String OPROPERTY_SYMBOL      = "symbol";
     public static final String OPROPERTY_DESCRIPTION = "description";
     public static final String OPROPERTY_ADDRESS     = "address";
-    public static final String OPROPERTY_ETH_COST    = "ethereumCost";
-    public static final String OPROPERTY_GAS_PRICE   = "gasPrice";
-    public static final String OPROPERTY_GAS_LIMIT   = "gasLimit";
+    public static final String OPROPERTY_ETHER_COST  = "etherCost";
+    public static final String OPROPERTY_OWNER       = "owner";
 
     public Token() {
         super(CLASS_NAME);
@@ -67,30 +67,37 @@ public class Token extends ODocumentWrapper {
         return this;
     }
 
-    public BigDecimal getEthCost() {
-        return document.field(OPROPERTY_ETH_COST);
+    public BigDecimal getEtherCost() {
+        return document.field(OPROPERTY_ETHER_COST);
     }
 
-    public Token setEthCost(BigDecimal cost) {
-        document.field(OPROPERTY_ETH_COST, cost);
+    public BigDecimal getEtherCostAs(Convert.Unit unit) {
+        if (unit == Convert.Unit.ETHER) {
+            return getEtherCost();
+        }
+        BigDecimal wei = Convert.toWei(getEtherCost(), Convert.Unit.ETHER);
+        if (unit == Convert.Unit.WEI) {
+            return wei;
+        }
+        return Convert.fromWei(wei, unit);
+    }
+
+    public Token setEtherCost(BigDecimal cost) {
+        document.field(OPROPERTY_ETHER_COST, cost);
         return this;
     }
 
-    public BigDecimal getGasPrice() {
-        return document.field(OPROPERTY_GAS_PRICE);
+    public Wallet getOwner() {
+        ODocument doc = document.field(OPROPERTY_OWNER);
+        return doc != null ? new Wallet(doc) : null;
     }
 
-    public Token setGasPrice(BigDecimal price) {
-        document.field(OPROPERTY_GAS_PRICE, price);
-        return this;
+    public Token setOwner(Wallet owner) {
+        return setOwner(owner.getDocument());
     }
 
-    public BigDecimal getGasLimit() {
-        return document.field(OPROPERTY_GAS_LIMIT);
-    }
-
-    public Token setGasLimit(BigDecimal gasLimit) {
-        document.field(OPROPERTY_GAS_LIMIT, gasLimit);
+    public Token setOwner(ODocument owner) {
+        document.field(OPROPERTY_OWNER, owner);
         return this;
     }
 

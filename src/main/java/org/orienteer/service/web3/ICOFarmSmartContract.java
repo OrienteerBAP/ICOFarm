@@ -33,6 +33,8 @@ public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContr
     public static final String FUNC_SELL       = "sell";
     public static final String FUNC_TRANSFER   = "transfer";
     public static final String FUNC_BALANCE_OF = "balanceOf";
+    public static final String FUNC_BUY_PRICE  = "buyPrice";
+    public static final String FUNC_SELL_PRICE = "sellPrice";
 
 
     protected ICOFarmSmartContract(String contractAddress, Web3j web3j, Credentials credentials) {
@@ -79,6 +81,18 @@ public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContr
         return executeRemoteCallSingleValueReturn(func, BigInteger.class).observable().toSingle();
     }
 
+    @Override
+    public Single<BigInteger> getBuyPrice() {
+        Function func = createBuyPriceFunction();
+        return executeRemoteCallSingleValueReturn(func, BigInteger.class).observable().toSingle();
+    }
+
+    @Override
+    public Single<BigInteger> getSellPrice() {
+        Function func = createSellPriceFunction();
+        return executeRemoteCallSingleValueReturn(func, BigInteger.class).observable().toSingle();
+    }
+
     private Function createBuyFunction() {
         return new Function(FUNC_BUY, Collections.emptyList(), Collections.emptyList());
     }
@@ -94,6 +108,22 @@ public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContr
         return new Function(
                 FUNC_BALANCE_OF,
                 Collections.singletonList(new org.web3j.abi.datatypes.Address(address)),
+                Collections.singletonList(new TypeReference<Uint256>() {})
+        );
+    }
+
+    private Function createBuyPriceFunction() {
+        return new Function(
+                FUNC_BUY_PRICE,
+                Collections.emptyList(),
+                Collections.singletonList(new TypeReference<Uint256>() {})
+        );
+    }
+
+    private Function createSellPriceFunction() {
+        return new Function(
+                FUNC_SELL_PRICE,
+                Collections.emptyList(),
                 Collections.singletonList(new TypeReference<Uint256>() {})
         );
     }

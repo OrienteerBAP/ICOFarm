@@ -114,7 +114,12 @@ public class EthereumServiceImpl implements IEthereumService {
         if (token.isEthereumCurrency()) {
             throw new IllegalStateException("Can't load contract from Ethereum currency!");
         }
-        return ICOFarmSmartContract.load(token.getAddress(), web3j, new ClientTransactionManager(web3j, from));
+        return loadSmartContract(from, token.getAddress());
+    }
+
+    @Override
+    public IICOFarmSmartContract loadSmartContract(String from, String address) {
+        return ICOFarmSmartContract.load(address, web3j, new ClientTransactionManager(web3j, from));
     }
 
     @Override

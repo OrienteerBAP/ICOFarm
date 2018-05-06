@@ -198,9 +198,8 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         List<String> walletProperties = new ArrayList<>(1);
         walletProperties.add(Wallet.OPROPERTY_OWNER);
 
-        List<String> tokenProperties = new ArrayList<>(2);
-        tokenProperties.add(Token.OPROPERTY_GAS_LIMIT);
-        tokenProperties.add(Token.OPROPERTY_GAS_PRICE);
+        List<String> tokenProperties = new ArrayList<>(1);
+        tokenProperties.add(Token.OPROPERTY_OWNER);
 
         HIDDEN_PROPERTIES.put(ICOFarmUser.CLASS_NAME, userProperties);
         HIDDEN_PROPERTIES.put("ORestricted", restrictedProperties);

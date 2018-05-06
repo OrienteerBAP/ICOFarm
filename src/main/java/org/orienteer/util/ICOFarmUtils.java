@@ -40,11 +40,10 @@ public final class ICOFarmUtils {
 
     public static BigInteger toWei(BigDecimal value, Token token) {
         if (token.isEthereumCurrency()) {
-            Convert.Unit unit = Convert.Unit.fromString(token.getName("en"));
-            return Convert.toWei(value, unit).toBigInteger();
+            return token.getEtherCostAs(Convert.Unit.WEI).toBigInteger();
         }
-        BigDecimal weiCost = Convert.toWei(token.getEthCost(), Convert.Unit.ETHER);
-        return weiCost.multiply(value, MathContext.UNLIMITED).toBigInteger();
+        BigDecimal wei = token.getEtherCostAs(Convert.Unit.WEI);
+        return wei.multiply(value, MathContext.UNLIMITED).toBigInteger();
     }
 
     public static <T> Collector<T, List<List<T>>, List<List<T>>> getCollectorForGroupList(int num) {

@@ -19,7 +19,6 @@ import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.*;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumUpdateService;
-import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -75,14 +74,15 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public ODocument onInstall(OrienteerWebApplication app, ODatabaseDocument db) {
 		OSchemaHelper helper = OSchemaHelper.bind(db);
 
+		helper.oClass(Wallet.CLASS_NAME);
+
 		helper.oClass(Token.CLASS_NAME)
 				.oProperty(Token.OPROPERTY_NAME, OType.EMBEDDEDMAP, 0).assignVisualization("localization").markAsDocumentName()
 				.oProperty(Token.OPROPERTY_DESCRIPTION, OType.STRING, 10)
 				.oProperty(Token.OPROPERTY_SYMBOL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE)
-				.oProperty(Token.OPROPERTY_ETH_COST, OType.DECIMAL, 30).notNull()
-				.oProperty(Token.OPROPERTY_ADDRESS, OType.STRING, 40).notNull()
-				.oProperty(Token.OPROPERTY_GAS_PRICE, OType.DECIMAL, 50).notNull().defaultValue(Convert.toWei(BigDecimal.ONE, Convert.Unit.GWEI).toString())
-				.oProperty(Token.OPROPERTY_GAS_LIMIT, OType.DECIMAL, 60).notNull().defaultValue("200000");
+				.oProperty(Token.OPROPERTY_ADDRESS, OType.STRING, 30).notNull()
+				.oProperty(Token.OPROPERTY_ETHER_COST, OType.DECIMAL, 40).notNull().defaultValue("0").min("0")
+				.oProperty(Token.OPROPERTY_OWNER, OType.LINK, 50).linkedClass(Wallet.CLASS_NAME);
 		
 		helper.oClass(CLASS_NAME, ICOFarmModule.OMODULE_CLASS)
 				.oProperty(EthereumClientConfig.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName().notNull()
@@ -177,27 +177,24 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		if (dbService.getTokenBySymbol(ETH) == null) {
 			createEthereumCurrency().setNames(CommonUtils.toMap(Locale.ENGLISH.toLanguageTag(), "Ether"))
 					.setSymbol(ETH)
-					.setEthCost(BigDecimal.ONE).save();
+					.setEtherCost(BigDecimal.ONE).save();
 		}
 
 		if (dbService.getTokenBySymbol(GWEI) == null) {
 			createEthereumCurrency().setNames(CommonUtils.toMap(Locale.ENGLISH.toLanguageTag(), "Gwei"))
 					.setSymbol(GWEI)
-					.setEthCost(new BigDecimal("0.000000001")).save();
+					.setEtherCost(new BigDecimal("0.000000001")).save();
 		}
 
 		if (dbService.getTokenBySymbol(WEI) == null) {
 			createEthereumCurrency().setNames(CommonUtils.toMap(Locale.ENGLISH.toLanguageTag(), "Wei"))
 					.setSymbol(WEI)
-					.setEthCost(new BigDecimal("0.000000000000000001")).save();
+					.setEtherCost(new BigDecimal("0.000000000000000001")).save();
 		}
 	}
 
 	private Token createEthereumCurrency() {
-		return new Token()
-				.setGasPrice(BigDecimal.ZERO)
-				.setGasLimit(BigDecimal.ZERO)
-				.setAddress(ZERO_ADDRESS);
+		return new Token().setAddress(ZERO_ADDRESS);
 	}
 
 	private void createDefaultMails(OSchemaHelper helper) {
