@@ -4,6 +4,7 @@ import com.google.inject.ImplementedBy;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import org.apache.wicket.util.io.IClusterable;
 import org.orienteer.model.*;
 import org.web3j.protocol.core.methods.response.EthBlock;
@@ -62,5 +63,8 @@ public interface IDBService extends IClusterable {
     public void saveUnconfirmedICOFarmTransactions(List<Transaction> transactions);
 
     public OTransaction saveTransaction(Transaction transaction, EthBlock.Block block);
+
+    public void save(ODocumentWrapper documentWrapper);
+    public void save(ODocument doc);
 
 }

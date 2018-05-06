@@ -12,6 +12,7 @@ import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.schedule.OScheduledEventBuilder;
 import com.orientechnologies.orient.core.schedule.OScheduler;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import org.orienteer.ICOFarmApplication;
 import org.orienteer.model.*;
 import org.orienteer.module.ICOFarmModule;
@@ -255,6 +256,16 @@ public class DBServiceImpl implements IDBService {
 
             return new OTransaction(doc);
         });
+    }
+
+    @Override
+    public void save(ODocumentWrapper documentWrapper) {
+        save(documentWrapper.getDocument());
+    }
+
+    @Override
+    public void save(ODocument doc) {
+        dbClosure.get().execute(db -> db.save(doc));
     }
 
     private ODocument saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {

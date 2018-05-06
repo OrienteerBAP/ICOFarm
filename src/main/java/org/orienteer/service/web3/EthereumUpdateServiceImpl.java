@@ -4,16 +4,20 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
+import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
+import org.web3j.utils.Convert;
+import rx.Completable;
 import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -41,6 +45,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                     subscribeOnPendingTransactions(),
                     subscribeOnUpdateTransactions()
             );
+            updateTokensPrice();
         }
     }
 
@@ -80,4 +85,23 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 (t) -> LOG.error("Can't receive pending transactions!", t));
     }
 
+    private void updateTokensPrice() {
+        createUpdatingTokenPrice()
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+    }
+
+    private Completable createUpdatingTokenPrice() {
+        return Observable.from(dbService.getTokens(false))
+                .filter(token -> token.getOwner() != null)
+                .flatMap(token -> {
+                    Wallet owner = token.getOwner();
+                    IICOFarmSmartContract contract = ethereumService.loadSmartContract(owner.getAddress(), token);
+
+                    return contract.getBuyPrice()
+                            .map(wei -> Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER))
+                            .toObservable()
+                            .doOnNext(ether -> dbService.save(token.setEtherCost(ether)));
+                }).toCompletable();
+    }
 }

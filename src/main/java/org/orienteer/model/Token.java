@@ -1,5 +1,7 @@
 package org.orienteer.model;
 
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import org.orienteer.util.ICOFarmUtils;
@@ -88,8 +90,11 @@ public class Token extends ODocumentWrapper {
     }
 
     public Wallet getOwner() {
-        ODocument doc = document.field(OPROPERTY_OWNER);
-        return doc != null ? new Wallet(doc) : null;
+        OIdentifiable doc = document.field(OPROPERTY_OWNER);
+        if (doc instanceof ORecordId) {
+            doc = new ODocument((ORecordId) doc);
+        }
+        return doc != null ? new Wallet((ODocument) doc) : null;
     }
 
     public Token setOwner(Wallet owner) {
