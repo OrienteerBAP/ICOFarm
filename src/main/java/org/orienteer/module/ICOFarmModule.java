@@ -37,6 +37,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 	public static final String BUY_TOKENS      = "BuyTokens";
 	public static final String TRANSFER_TOKENS = "TransferTokens";
+	public static final String MONEY           = "Money";
 
 	public static final String OPROPERTY_REFERRAL_CREATED = "created";
 	public static final String OPROPERTY_REFERRAL_USER    = "user";
@@ -58,7 +59,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REGISTRATION_MAIL_NAME = "registration";
 	public static final String RESTORE_MAIL_NAME      = "restore";
 
-	public static final int VERSION = 1;
+	public static final int VERSION = 5;
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -120,6 +121,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(REGISTRATION);
 		helper.oClass(BUY_TOKENS);
 		helper.oClass(TRANSFER_TOKENS);
+		helper.oClass(MONEY);
 
 		createRemoveRestoreIdFunction(helper);
 		createDefaultTokens();

@@ -69,7 +69,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     @Override
     public ODocument onInstall(OrienteerWebApplication app, ODatabaseDocument db) {
         OSchemaHelper helper = OSchemaHelper.bind(db);
-        createPerspectives(helper);
+        adjustPerspectives(helper);
         updatePerspectivesPermissions(helper, db);
         adjustDashboard(helper);
         return null;
@@ -87,45 +87,51 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         registerVisualizers(app);
     }
 
-    private void createPerspectives(OSchemaHelper helper) {
-        List<String> tags = createDefaultLanguageTags();
+    private void adjustPerspectives(OSchemaHelper helper) {
+        List<String> languageTags = createDefaultLanguageTags();
 
-        ODocument perspective = getOrCreatePerspective(INVESTOR_PERSPECTIVE_KEY, helper, tags);
+        adjustInvestorPerspective(helper, languageTags);
+        adjustAnonymousPerspective(helper, languageTags);
+        adjustDefaultPerspective(helper, languageTags);
+    }
+
+    private void adjustInvestorPerspective(OSchemaHelper helper, List<String> languageTags) {
+        ODocument perspective = getOrCreatePerspective(INVESTOR_PERSPECTIVE_KEY, helper, languageTags);
         perspective.field("icon", FAIconType.usd.name());
         perspective.field("homeUrl", "/browse/" + Wallet.CLASS_NAME);
         perspective.save();
 
-        ODocument item1 = getOrCreatePerspectiveItem("perspective.menu.item.wallets", perspective, helper, tags);
+        ODocument item1 = getOrCreatePerspectiveItem("perspective.menu.item.wallets", perspective, helper, languageTags);
         item1.field("icon", FAIconType.briefcase.name());
         item1.field("perspective", perspective);
         item1.field("url", "/browse/" + Wallet.CLASS_NAME);
         item1.save();
 
-        ODocument item2 = getOrCreatePerspectiveItem("perspective.menu.item.tokens", perspective, helper, tags);
+        ODocument item2 = getOrCreatePerspectiveItem("perspective.menu.item.tokens", perspective, helper, languageTags);
         item2.field("icon", FAIconType.money.name());
         item2.field("perspective", perspective);
         item2.field("url", "/browse/" + Token.CLASS_NAME);
         item2.save();
 
-        ODocument item3 = getOrCreatePerspectiveItem("perspective.menu.item.buyTokens", perspective, helper, tags);
+        ODocument item3 = getOrCreatePerspectiveItem("perspective.menu.item.buyTokens", perspective, helper, languageTags);
         item3.field("icon", FAIconType.dollar.name());
         item3.field("perspective", perspective);
         item3.field("url", "/browse/" + BUY_TOKENS);
         item3.save();
 
-        ODocument item4 = getOrCreatePerspectiveItem("perspective.menu.item.transferTokens", perspective, helper, tags);
+        ODocument item4 = getOrCreatePerspectiveItem("perspective.menu.item.transferTokens", perspective, helper, languageTags);
         item4.field("icon", FAIconType.exchange.name());
         item4.field("perspective", perspective);
         item4.field("url", "/browse/" + TRANSFER_TOKENS);
         item4.save();
 
-        ODocument item5 = getOrCreatePerspectiveItem("perspective.menu.item.referrals", perspective, helper, tags);
+        ODocument item5 = getOrCreatePerspectiveItem("perspective.menu.item.referrals", perspective, helper, languageTags);
         item5.field("icon", FAIconType.users.name());
         item5.field("perspective", perspective);
         item5.field("url", "/browse/" + REFERRAL);
         item5.save();
 
-        ODocument item6 = getOrCreatePerspectiveItem("perspective.menu.item.transactions", perspective, helper, tags);
+        ODocument item6 = getOrCreatePerspectiveItem("perspective.menu.item.transactions", perspective, helper, languageTags);
         item6.field("icon", FAIconType.align_justify.getCssClass());
         item6.field("perspective", perspective);
         item6.field("url", "/browse/" + OTransaction.CLASS_NAME);
@@ -134,12 +140,15 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         perspective.field("menu", Arrays.asList(item1, item2, item3, item4, item5, item6));
         perspective.save();
 
-        perspective = getOrCreatePerspective(ANONYMOUS_PERSPECTIVE_KEY, helper, tags);
+    }
+
+    private void adjustAnonymousPerspective(OSchemaHelper helper, List<String> languageTags) {
+        ODocument perspective = getOrCreatePerspective(ANONYMOUS_PERSPECTIVE_KEY, helper, languageTags);
         perspective.field("icon", FAIconType.user_secret.name());
         perspective.field("homeUrl", "/browse/Registration");
         perspective.save();
 
-        item1 = getOrCreatePerspectiveItem("perspective.menu.item.registration", perspective, helper, tags);
+        ODocument item1 = getOrCreatePerspectiveItem("perspective.menu.item.registration", perspective, helper, languageTags);
         item1.field("icon", FAIconType.info.name());
         item1.field("perspective", perspective);
         item1.field("url", "/browse/Registration");
@@ -149,6 +158,28 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         perspective.save();
     }
 
+    private void adjustDefaultPerspective(OSchemaHelper helper, List<String> languageTags) {
+        PerspectivesModule perspectivesModule = OrienteerWebApplication.get().getServiceInstance(PerspectivesModule.class);
+        ODocument perspective = perspectivesModule.getPerspectiveByName(helper.getDatabase(), PerspectivesModule.DEFAULT_PERSPECTIVE);
+
+        ODocument item1 = getOrCreatePerspectiveItem("perspective.menu.item.tokens", perspective, helper, languageTags);
+        item1.field("icon", FAIconType.money.name());
+        item1.field("perspective", perspective);
+        item1.field("url", "/browse/" + Token.CLASS_NAME);
+        item1.save();
+
+        ODocument item2 = getOrCreatePerspectiveItem("perspective.menu.item.transactions", perspective, helper, languageTags);
+        item2.field("icon", FAIconType.align_justify.getCssClass());
+        item2.field("perspective", perspective);
+        item2.field("url", "/browse/" + OTransaction.CLASS_NAME);
+        item2.save();
+
+        ODocument item3 = getOrCreatePerspectiveItem("perspective.menu.item.money", perspective, helper, languageTags);
+        item3.field("icon", FAIconType.dollar.name());
+        item3.field("perspective", perspective);
+        item3.field("url", "/browse/" + ICOFarmModule.MONEY);
+        item3.save();
+    }
 
     private void updatePerspectivesPermissions(OSchemaHelper helper, ODatabaseDocument db) {
         OClass restricted = helper.oClass("ORestricted").getOClass();
