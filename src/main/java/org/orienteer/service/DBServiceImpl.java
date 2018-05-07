@@ -259,6 +259,16 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
+    public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents) {
+        dbClosure.get().execute(db -> {
+            for (TransferEvent event : transferEvents) {
+                saveConfirmedTransaction(db, event.getTransaction(), ICOFarmUtils.computeTimestamp(event.getBlock()));
+            }
+            return null;
+        });
+    }
+
+    @Override
     public void save(ODocumentWrapper documentWrapper) {
         save(documentWrapper.getDocument());
     }

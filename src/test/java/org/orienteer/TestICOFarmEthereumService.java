@@ -4,13 +4,19 @@ import com.google.inject.Inject;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.orienteer.core.tasks.OTaskSessionRuntime;
 import org.orienteer.junit.OrienteerTestRunner;
 import org.orienteer.model.Token;
+import org.orienteer.model.TransferEvent;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.service.web3.IICOFarmSmartContract;
+import org.orienteer.tasks.LoadTokenTransactionsTask;
 import org.web3j.crypto.Credentials;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.DefaultBlockParameterNumber;
+import rx.Observable;
 import rx.observers.AssertableSubscriber;
 
 import java.math.BigInteger;
@@ -50,6 +56,7 @@ public class TestICOFarmEthereumService {
 
         testToken = new Token();
         testToken.setAddress("0xa4613F269117EE521717921Ed4EDaAdcfdfa6FAC");
+        testToken.setOwner(wallet);
     }
 
 
@@ -115,5 +122,27 @@ public class TestICOFarmEthereumService {
         test.assertValue(new BigInteger("36854"));
         test.awaitTerminalEventAndUnsubscribeOnTimeout(5, TimeUnit.SECONDS);
         Thread.currentThread().join(5_000);
+    }
+
+    @Test
+    public void testTransferEvents() throws Exception {
+        IICOFarmSmartContract smartContract = ethService.loadSmartContract(wallet.getAddress(), testToken);
+        Observable<TransferEvent> obs = smartContract.transferEventObservable(
+                new DefaultBlockParameterNumber(2139670), DefaultBlockParameterName.LATEST);
+        obs.subscribe(rsp -> {
+            assertNotNull(rsp.getTransaction());
+            assertNotNull(rsp.getBlock());
+            assertNotNull(rsp.getTokens());
+        });
+    }
+
+    @Test
+    public void testSaveTransferEventsTask() throws InterruptedException {
+        LoadTokenTransactionsTask task = LoadTokenTransactionsTask.create(testToken, true);
+        task.setStartBlock(new DefaultBlockParameterNumber(2139670));
+        task.setEndBlock(DefaultBlockParameterName.LATEST);
+        OTaskSessionRuntime session = task.startNewSession();
+        Thread.currentThread().join(90_000);
+//        assertSame(session.getStatus(), ITaskSession.Status.FINISHED);
     }
 }

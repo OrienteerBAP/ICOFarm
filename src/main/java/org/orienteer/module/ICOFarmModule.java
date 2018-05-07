@@ -14,11 +14,13 @@ import org.orienteer.component.visualizer.HashVisualizer;
 import org.orienteer.core.CustomAttribute;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.module.AbstractOrienteerModule;
+import org.orienteer.core.tasks.OTask;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.*;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumUpdateService;
+import org.orienteer.tasks.LoadTokenTransactionsTask;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -59,7 +61,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REGISTRATION_MAIL_NAME = "registration";
 	public static final String RESTORE_MAIL_NAME      = "restore";
 
-	public static final int VERSION = 5;
+	public static final int VERSION = 6;
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -117,6 +119,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(Wallet.OPROPERTY_WALLET_JSON, OType.BINARY, 40)
 				.oProperty(Wallet.OPROPERTY_DISPLAYABLE_TOKEN, OType.LINK, 50).linkedClass(Token.CLASS_NAME).assignVisualization("listbox").notNull()
 				.oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true");
+
+		helper.oClass(LoadTokenTransactionsTask.CLASS_NAME, OTask.TASK_CLASS)
+				.oProperty(LoadTokenTransactionsTask.OPROPERTY_TOKEN, OType.LINK).linkedClass(Token.CLASS_NAME).notNull()
+				.oProperty(LoadTokenTransactionsTask.OPROPERTY_START_BLOCK, OType.STRING).notNull()
+				.oProperty(LoadTokenTransactionsTask.OPROPERTY_END_BLOCK, OType.STRING).notNull();
 
 		helper.oClass(REGISTRATION);
 		helper.oClass(BUY_TOKENS);

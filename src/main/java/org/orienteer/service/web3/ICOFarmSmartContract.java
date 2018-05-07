@@ -1,41 +1,36 @@
 package org.orienteer.service.web3;
 
+import org.orienteer.model.TransferEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.web3j.abi.EventEncoder;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Address;
+import org.web3j.abi.datatypes.Event;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthEstimateGas;
-import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.core.methods.request.EthFilter;
+import org.web3j.protocol.core.methods.response.*;
 import org.web3j.tx.Contract;
 import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.DefaultGasProvider;
+import rx.Observable;
 import rx.Single;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContract {
 
     private static final Logger LOG = LoggerFactory.getLogger(ICOFarmSmartContract.class);
-
-    public static final String FUNC_BUY        = "buy";
-    public static final String FUNC_SELL       = "sell";
-    public static final String FUNC_TRANSFER   = "transfer";
-    public static final String FUNC_BALANCE_OF = "balanceOf";
-    public static final String FUNC_BUY_PRICE  = "buyPrice";
-    public static final String FUNC_SELL_PRICE = "sellPrice";
-
 
     protected ICOFarmSmartContract(String contractAddress, Web3j web3j, Credentials credentials) {
         this(contractAddress, web3j, new RawTransactionManager(web3j, credentials));
@@ -73,6 +68,27 @@ public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContr
     @Override
     public Single<BigInteger> estimateGasForTransfer(String to, BigInteger tokenAmount) {
         return estimateGasCost(createTransferFunction(to, tokenAmount));
+    }
+
+    @Override
+    public Observable<TransferEvent> transferEventObservable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        Event event = createTransferEvent();
+        EthFilter filter = createTransferEventFilter(event, startBlock, endBlock);
+
+        return web3j.ethLogObservable(filter)
+                .flatMap(log -> getTransactionByHash(log.getTransactionHash())
+                    .flatMap(transaction -> getBlockByHash(log.getBlockHash())
+                        .map(block -> {
+                            LOG.info("block number: {}", block.getNumber().toString());
+                            Contract.EventValuesWithLog eventValues = extractEventParametersWithLog(event, log);
+                            return new TransferEvent(
+                                    transaction,
+                                    block,
+                                    (BigInteger) eventValues.getNonIndexedValues().get(0).getValue()
+                            );
+                        })
+                    )
+        );
     }
 
     @Override
@@ -126,6 +142,31 @@ public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContr
                 Collections.emptyList(),
                 Collections.singletonList(new TypeReference<Uint256>() {})
         );
+    }
+
+    private Observable<EthBlock.Block> getBlockByHash(String hash) {
+        return web3j.ethGetBlockByHash(hash, false)
+                .observable()
+                .map(EthBlock::getBlock);
+    }
+
+    private Observable<Transaction> getTransactionByHash(String hash) {
+        return web3j.ethGetTransactionByHash(hash).observable()
+                .map(EthTransaction::getTransaction)
+                .filter(Optional::isPresent)
+                .map(Optional::get);
+    }
+
+    private EthFilter createTransferEventFilter(Event event, DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
+        filter.addSingleTopic(EventEncoder.encode(event));
+        return filter;
+    }
+
+    private Event createTransferEvent() {
+        return new Event(EVENT_TRANSFER,
+                Arrays.asList(new TypeReference<Address>() {}, new TypeReference<Address>() {}),
+                Collections.singletonList(new TypeReference<Uint256>() {}));
     }
 
     private Single<BigInteger> estimateGasCost(Function function) {

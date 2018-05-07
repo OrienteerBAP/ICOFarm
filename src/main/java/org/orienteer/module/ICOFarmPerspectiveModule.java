@@ -43,6 +43,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     public static final String WALLET_BALANCE_WIDGET_ID      = "balance-widget";
     public static final String WALLET_TRANSACTIONS_WIDGET_ID = "wallet-transactions-widget";
     public static final String TOKEN_TRANSACTIONS_WIDGET_ID  = "token-transactions-widget";
+    public static final String OWNER_TRANSCTIONS_WIDGET_ID   = "owner-transactions-widget";
 
     public static final String WALLET_BALANCE_TAB = "Balance";
     public static final String WALLET_TRANSACTIONS_TAB = "Transactions";
@@ -242,6 +243,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     private void initHiddenWidgets() {
         HIDDEN_WIDGETS.put(REFERRAL, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
         HIDDEN_WIDGETS.put(Wallet.CLASS_NAME, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
+        HIDDEN_WIDGETS.put(Token.CLASS_NAME, Collections.singletonList(OWNER_TRANSCTIONS_WIDGET_ID));
     }
 
     private void registerVisualizers(OrienteerWebApplication app) {

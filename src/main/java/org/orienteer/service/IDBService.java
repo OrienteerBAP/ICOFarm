@@ -64,6 +64,8 @@ public interface IDBService extends IClusterable {
 
     public OTransaction saveTransaction(Transaction transaction, EthBlock.Block block);
 
+    public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents);
+
     public void save(ODocumentWrapper documentWrapper);
     public void save(ODocument doc);
 
