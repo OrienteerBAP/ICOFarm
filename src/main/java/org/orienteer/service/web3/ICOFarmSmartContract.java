@@ -104,6 +104,12 @@ public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContr
         return executeRemoteCallSingleValueReturn(func, BigInteger.class).observable().toSingle();
     }
 
+    @Override
+    public Single<BigInteger> getTotalSupply() {
+        Function func = createTotalSupplyFunction();
+        return executeRemoteCallSingleValueReturn(func, BigInteger.class).observable().toSingle();
+    }
+
     private Function createBuyFunction() {
         return new Function(FUNC_BUY, Collections.emptyList(), Collections.emptyList());
     }
@@ -121,6 +127,11 @@ public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContr
                 Collections.singletonList(new org.web3j.abi.datatypes.Address(address)),
                 Collections.singletonList(new TypeReference<Uint256>() {})
         );
+    }
+
+    private Function createTotalSupplyFunction() {
+        return new Function(FUNC_TOTAL_SUPPLY, Collections.emptyList(),
+                Collections.singletonList(new TypeReference<Uint256>() {}));
     }
 
     private Function createBuyPriceFunction() {

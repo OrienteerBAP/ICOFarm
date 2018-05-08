@@ -6,10 +6,15 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import org.apache.wicket.util.io.IClusterable;
+import org.orienteer.core.tasks.OTask;
+import org.orienteer.core.tasks.OTaskSession;
 import org.orienteer.model.*;
+import org.orienteer.tasks.LoadTokenTransactionsTask;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
 
@@ -65,6 +70,17 @@ public interface IDBService extends IClusterable {
     public OTransaction saveTransaction(Transaction transaction, EthBlock.Block block);
 
     public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents);
+
+    public LoadTokenTransactionsTask createLoadTokenTransactionsTask(Token token, DefaultBlockParameter startBlock, DefaultBlockParameter endBlock);
+
+    public LoadTokenTransactionsTask getLoadTokenTransactionsTask(Token token);
+
+    public <T extends OTask> T getTaskByName(String name, Class<T> taskClass);
+
+    public OTaskSession getRunningSessionForTask(OTask task);
+
+    public BigInteger getTokenTransactionsCount(Token token);
+    public BigInteger getSoldTokensCount(Token token);
 
     public void save(ODocumentWrapper documentWrapper);
     public void save(ODocument doc);

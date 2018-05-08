@@ -20,7 +20,8 @@ import ru.ydn.wicket.wicketorientdb.model.OQueryDataProvider;
         domain = "document",
         selector = Token.CLASS_NAME,
         autoEnable = true,
-        oClass = AbstractCalculatedDocumentsWidget.WIDGET_OCLASS_NAME
+        oClass = AbstractCalculatedDocumentsWidget.WIDGET_OCLASS_NAME,
+        order = 10
 )
 public class TokenTransactionsWidget extends CalculatedDocumentsWidget {
 
@@ -30,7 +31,7 @@ public class TokenTransactionsWidget extends CalculatedDocumentsWidget {
 
     @Override
     protected String getSql() {
-        return String.format("select from %s where @this['%s'].toLowerCase() = $doc['%s'].toLowerCase()",
+        return String.format("select from %s where @this['%s'] = $doc['%s']",
                 OTransaction.CLASS_NAME, OTransaction.OPROPERTY_TO, Token.OPROPERTY_ADDRESS);
     }
 

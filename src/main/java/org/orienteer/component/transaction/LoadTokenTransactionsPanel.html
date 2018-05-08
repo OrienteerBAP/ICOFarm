@@ -1,21 +1,18 @@
 <wicket:panel xmlns:wicket="http://www.w3.org/1999/xhtml">
 	<div class="container-fluid">
 		<h2 class="text-center">
-			<strong>
-				<wicket:message key="load.token.transactions.title"></wicket:message>
-				<span wicket:id="loadTitle"></span>
-			</strong>
+			<strong wicket:id="loadTitle"></strong>
 		</h2>
 
 		<form wicket:id="form">
 			<div class="form-group">
 				<label>
-					<wicket:message key="load.token.transactions.hash"></wicket:message>
+					<wicket:message key="load.token.transactions.block.number"></wicket:message>
 				</label>
-				<input wicket:id="hash" type="text" class="form-control"/>
+				<input wicket:id="blockNumber" type="text" class="form-control"/>
 			</div>
 			<div class="form-group text-center">
-				<input wicket:id="submit" class="btn btn-primary" type="submit">
+				<input wicket:id="submit" class="ml-3 btn btn-primary" type="submit">
 			</div>
 		</form>
 

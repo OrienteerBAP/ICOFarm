@@ -3,6 +3,8 @@ package org.orienteer.model;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 
 public class OTransaction extends ODocumentWrapper {
@@ -16,6 +18,7 @@ public class OTransaction extends ODocumentWrapper {
     public static final String OPROPERTY_HASH      = "hash";
     public static final String OPROPERTY_BLOCK     = "block";
     public static final String OPROPERTY_CONFIRMED = "confirmed";
+    public static final String OPROPERTY_TOKENS    = "tokens";
 
 	private static final long serialVersionUID = 1L;
 
@@ -79,6 +82,16 @@ public class OTransaction extends ODocumentWrapper {
 
     public OTransaction setConfirmed(boolean confirmed) {
 	    document.field(OPROPERTY_CONFIRMED, confirmed);
+	    return this;
+    }
+
+    public BigInteger getTokens() {
+	    BigDecimal tokens = document.field(OPROPERTY_TOKENS);
+	    return tokens != null ? tokens.toBigInteger() : BigInteger.ZERO;
+    }
+
+    public OTransaction setTokens(BigInteger tokens) {
+	    document.field(OPROPERTY_TOKENS, tokens);
 	    return this;
     }
 

@@ -35,7 +35,8 @@ public class TokenHook extends ODocumentHookAbstract {
 
     private void onUpdate(ODocument token) {
         ODocument owner = token.field(Token.OPROPERTY_OWNER);
-
+        String address = token.field(Token.OPROPERTY_ADDRESS);
+        token.field(Token.OPROPERTY_ADDRESS, address.toLowerCase());
         if (owner != null) {
             OrienteerWebApplication app = OrienteerWebApplication.lookupApplication();
             IEthereumService ethService = app.getServiceInstance(IEthereumService.class);

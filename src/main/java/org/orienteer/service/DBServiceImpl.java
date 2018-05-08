@@ -14,16 +14,22 @@ import com.orientechnologies.orient.core.schedule.OScheduler;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import org.orienteer.ICOFarmApplication;
+import org.orienteer.core.tasks.OTask;
+import org.orienteer.core.tasks.OTaskSession;
 import org.orienteer.model.*;
 import org.orienteer.module.ICOFarmModule;
 import org.orienteer.module.ICOFarmSecurityModule;
+import org.orienteer.tasks.LoadTokenTransactionsTask;
 import org.orienteer.util.ICOFarmUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -262,10 +268,66 @@ public class DBServiceImpl implements IDBService {
     public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents) {
         dbClosure.get().execute(db -> {
             for (TransferEvent event : transferEvents) {
-                saveConfirmedTransaction(db, event.getTransaction(), ICOFarmUtils.computeTimestamp(event.getBlock()));
+                ODocument doc = saveConfirmedTransaction(db, event.getTransaction(), ICOFarmUtils.computeTimestamp(event.getBlock()));
+                doc.field(OTransaction.OPROPERTY_TOKENS, new BigDecimal(event.getTokens()));
+                doc.save();
             }
             return null;
         });
+    }
+
+    @Override
+    public LoadTokenTransactionsTask createLoadTokenTransactionsTask(Token token, DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        return (LoadTokenTransactionsTask) dbClosure.get().execute(db -> {
+            LoadTokenTransactionsTask task = LoadTokenTransactionsTask.create(token, false);
+            task.setStartBlock(startBlock);
+            task.setEndBlock(endBlock);
+            task.save();
+            return task;
+        });
+    }
+
+    @Override
+    public LoadTokenTransactionsTask getLoadTokenTransactionsTask(Token token) {
+        return getTaskByName(LoadTokenTransactionsTask.NAME_PREFIX + token.getSymbol(), LoadTokenTransactionsTask.class);
+    }
+
+    @Override
+    public <T extends OTask> T getTaskByName(String name, Class<T> taskClass) {
+        String sql = String.format("select from %s where %s = ?", OTask.TASK_CLASS, OTask.Field.NAME.fieldName());
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), name);
+        return getFromDocs(docs, doc -> {
+            try {
+                return taskClass.getConstructor(ODocument.class).newInstance(doc);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public OTaskSession getRunningSessionForTask(OTask task) {
+        String sql = String.format("select from %s where %s = ? and %s = ?", OTaskSession.TASK_SESSION_CLASS,
+                OTaskSession.Field.TASK_LINK.fieldName(), OTaskSession.Field.STATUS);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), task.getDocument(), OTaskSession.Status.RUNNING.name());
+        return getFromDocs(docs, OTaskSession::new);
+    }
+
+    @Override
+    public BigInteger getTokenTransactionsCount(Token token) {
+        String sql = String.format("select count(*) as count from %s where %s = ?", OTransaction.CLASS_NAME, OTransaction.OPROPERTY_TO);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), token.getAddress());
+        Long count = isDocsNotEmpty(docs) ? docs.get(0).field("count") : null;
+        return count != null ? new BigInteger(count.toString()) : BigInteger.ZERO;
+    }
+
+    @Override
+    public BigInteger getSoldTokensCount(Token token) {
+        String sql = String.format("select sum(%s) as sum from %s where %s = ?", OTransaction.OPROPERTY_TOKENS, OTransaction.CLASS_NAME, OTransaction.OPROPERTY_TO);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), token.getAddress());
+        BigDecimal sum = isDocsNotEmpty(docs) ? docs.get(0).field("sum") : null;
+        return sum != null ? sum.toBigInteger() : BigInteger.ZERO;
     }
 
     @Override
@@ -327,9 +389,9 @@ public class DBServiceImpl implements IDBService {
 
     private ODocument createTransactionDocument(Transaction transaction, Collection<ODocument> readers, boolean confirmed) {
         ODocument doc = new ODocument(OTransaction.CLASS_NAME);
-        doc.field(OTransaction.OPROPERTY_FROM, transaction.getFrom());
-	    doc.field(OTransaction.OPROPERTY_TO, transaction.getTo());
-	    doc.field(OTransaction.OPROPERTY_HASH, transaction.getHash());
+        doc.field(OTransaction.OPROPERTY_FROM, transaction.getFrom().toLowerCase());
+	    doc.field(OTransaction.OPROPERTY_TO, transaction.getTo().toLowerCase());
+	    doc.field(OTransaction.OPROPERTY_HASH, transaction.getHash().toLowerCase());
 	    doc.field(OTransaction.OPROPERTY_VALUE, transaction.getValue().toString());
         doc.field(OTransaction.OPROPERTY_CONFIRMED, confirmed);
         doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ, readers);
