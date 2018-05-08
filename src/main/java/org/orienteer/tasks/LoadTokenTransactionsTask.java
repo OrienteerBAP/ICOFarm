@@ -7,6 +7,7 @@ import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.tasks.OTask;
 import org.orienteer.core.tasks.OTaskSessionRuntime;
 import org.orienteer.model.Token;
+import org.orienteer.model.TransferEvent;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.service.web3.IICOFarmSmartContract;
@@ -14,7 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.utils.Numeric;
+import rx.Subscriber;
 import rx.schedulers.Schedulers;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class LoadTokenTransactionsTask extends OTask {
 
@@ -43,6 +48,7 @@ public class LoadTokenTransactionsTask extends OTask {
     public OTaskSessionRuntime startNewSession() {
         OTaskSessionRuntime session = new OTaskSessionRuntime();
         session.setDeleteOnFinish(document.field(Field.AUTODELETE_SESSIONS.fieldName()));
+        session.setOTask(this);
 
         IEthereumService ethService = OrienteerWebApplication.get().getServiceInstance(IEthereumService.class);
         Token token = getToken();
@@ -52,24 +58,37 @@ public class LoadTokenTransactionsTask extends OTask {
     }
 
     private void startLoadingTokenTransactions(IICOFarmSmartContract smartContract, OTaskSessionRuntime session) {
-        IDBService dbService = OrienteerWebApplication.get().getServiceInstance(IDBService.class);
-
         smartContract.transferEventObservable(getStartBlock(), getEndBlock())
                 .subscribeOn(Schedulers.io())
-//                .buffer(5, TimeUnit.SECONDS) // user must see progress of transactions loading
-                .doOnTerminate(session::finish)
-                .doOnCompleted(() -> LOG.info("completed"))
-                .doOnTerminate(() -> LOG.info("terminated"))
-                .subscribe(
-//                        dbService::saveTransactionsFromTransferEvents,
-                        responses -> {
-//                            responses.forEach(rsp -> LOG.info(rsp.toString()));
-                            LOG.info(responses.toString());
-//                            LOG.info("length: {}", responses.size());
-//                            dbService.saveTransactionsFromTransferEvents(responses);
-                        },
-                        err -> LOG.error("Error during loading transactions for {}", getToken(), err)
-                );
+                .buffer(5, TimeUnit.SECONDS) // user must see progress of transactions loading
+                .doOnSubscribe(session::start)
+                .subscribe(createSubscriber(session));
+    }
+
+    private Subscriber<List<TransferEvent>> createSubscriber(OTaskSessionRuntime session) {
+        IDBService dbService = OrienteerWebApplication.get().getServiceInstance(IDBService.class);
+
+        return new Subscriber<List<TransferEvent>>() {
+            @Override
+            public void onCompleted() {
+                if (!isUnsubscribed()) {
+                    unsubscribe();
+                }
+                session.finish();
+            }
+
+            @Override
+            public void onError(Throwable err) {
+                LOG.error("Error during loading transactions for {}", getToken(), err);
+            }
+
+            @Override
+            public void onNext(List<TransferEvent> transferEvents) {
+                if (!transferEvents.isEmpty()) {
+                    dbService.saveTransactionsFromTransferEvents(transferEvents);
+                } else onCompleted();
+            }
+        };
     }
 
     public DefaultBlockParameter getStartBlock() {

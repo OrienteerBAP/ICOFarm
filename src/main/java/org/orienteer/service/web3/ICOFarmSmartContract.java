@@ -1,8 +1,6 @@
 package org.orienteer.service.web3;
 
 import org.orienteer.model.TransferEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.web3j.abi.EventEncoder;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
@@ -29,8 +27,6 @@ import java.math.BigInteger;
 import java.util.*;
 
 public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContract {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ICOFarmSmartContract.class);
 
     protected ICOFarmSmartContract(String contractAddress, Web3j web3j, Credentials credentials) {
         this(contractAddress, web3j, new RawTransactionManager(web3j, credentials));
@@ -79,7 +75,6 @@ public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContr
                 .flatMap(log -> getTransactionByHash(log.getTransactionHash())
                     .flatMap(transaction -> getBlockByHash(log.getBlockHash())
                         .map(block -> {
-                            LOG.info("block number: {}", block.getNumber().toString());
                             Contract.EventValuesWithLog eventValues = extractEventParametersWithLog(event, log);
                             return new TransferEvent(
                                     transaction,

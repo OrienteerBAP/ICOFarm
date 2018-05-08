@@ -2,8 +2,10 @@ package org.orienteer;
 
 import com.google.inject.Inject;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.orienteer.core.tasks.ITaskSession;
 import org.orienteer.core.tasks.OTaskSessionRuntime;
 import org.orienteer.junit.OrienteerTestRunner;
 import org.orienteer.model.Token;
@@ -13,9 +15,12 @@ import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.service.web3.IICOFarmSmartContract;
 import org.orienteer.tasks.LoadTokenTransactionsTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.DefaultBlockParameterNumber;
+import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 import rx.Observable;
 import rx.observers.AssertableSubscriber;
 
@@ -26,11 +31,12 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.*;
 
 @RunWith(OrienteerTestRunner.class)
 public class TestICOFarmEthereumService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TestICOFarmEthereumService.class);
 
     private static Wallet wallet;
     private static String password;
@@ -137,12 +143,21 @@ public class TestICOFarmEthereumService {
     }
 
     @Test
-    public void testSaveTransferEventsTask() throws InterruptedException {
-        LoadTokenTransactionsTask task = LoadTokenTransactionsTask.create(testToken, true);
-        task.setStartBlock(new DefaultBlockParameterNumber(2139670));
-        task.setEndBlock(DefaultBlockParameterName.LATEST);
-        OTaskSessionRuntime session = task.startNewSession();
-        Thread.currentThread().join(90_000);
-//        assertSame(session.getStatus(), ITaskSession.Status.FINISHED);
+    @Ignore
+    public void testSaveTransferEventsTask() {
+        DBClosure.sudoConsumer(db -> {
+            long startBlock = 2139670;
+
+            LoadTokenTransactionsTask task = LoadTokenTransactionsTask.create(dbService.getTokens(false).get(0), false);
+            task.setStartBlock(new DefaultBlockParameterNumber(startBlock));
+            task.setEndBlock(DefaultBlockParameterName.LATEST);
+            task.save();
+            OTaskSessionRuntime session = task.startNewSession();
+            try {
+                Thread.currentThread().join(20_000);
+            } catch (Exception ex) {}
+
+            assertSame(ITaskSession.Status.FINISHED, session.getStatus());
+        });
     }
 }
