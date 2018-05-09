@@ -61,7 +61,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REGISTRATION_MAIL_NAME = "registration";
 	public static final String RESTORE_MAIL_NAME      = "restore";
 
-	public static final int VERSION = 7;
+	public static final int VERSION = 8;
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -83,7 +83,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(Token.OPROPERTY_NAME, OType.EMBEDDEDMAP, 0).assignVisualization("localization").markAsDocumentName()
 				.oProperty(Token.OPROPERTY_DESCRIPTION, OType.STRING, 10)
 				.oProperty(Token.OPROPERTY_SYMBOL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE)
-				.oProperty(Token.OPROPERTY_ADDRESS, OType.STRING, 30).notNull()
+				.oProperty(Token.OPROPERTY_ADDRESS, OType.STRING, 30).notNull().assignVisualization(HashVisualizer.NAME)
 				.oProperty(Token.OPROPERTY_ETHER_COST, OType.DECIMAL, 40).notNull().defaultValue("0").min("0")
 				.oProperty(Token.OPROPERTY_OWNER, OType.LINK, 50).linkedClass(Wallet.CLASS_NAME);
 		

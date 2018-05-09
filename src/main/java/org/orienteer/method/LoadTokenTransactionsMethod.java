@@ -14,19 +14,17 @@ import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
+import org.orienteer.core.method.filters.WidgetTypeFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
 import org.orienteer.model.Token;
+import org.orienteer.module.ICOFarmPerspectiveModule;
 
 @OMethod(titleKey = "method.token.load.transactions",
-//        filters = {
-//            @OFilter(fClass = ODocumentFilter.class, fData = Token.CLASS_NAME),
-//            @OFilter(fClass = WidgetTypeFilter.class, fData = ICOFarmPerspectiveModule.TOKEN_TRANSACTIONS_WIDGET_ID),
-//            @OFilter(fClass = PlaceFilter.class, fData = "DATA_TABLE")
-//        },
-         filters = {
-				@OFilter(fClass = ODocumentFilter.class, fData = Token.CLASS_NAME),
-				@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
-		},
+        filters = {
+            @OFilter(fClass = ODocumentFilter.class, fData = Token.CLASS_NAME),
+            @OFilter(fClass = WidgetTypeFilter.class, fData = ICOFarmPerspectiveModule.TOKEN_TRANSACTIONS_WIDGET_ID),
+            @OFilter(fClass = PlaceFilter.class, fData = "DATA_TABLE")
+        },
         bootstrap = BootstrapType.PRIMARY,
         icon = FAIconType.plus
 )
@@ -35,6 +33,8 @@ public class LoadTokenTransactionsMethod extends AbstractModalOMethod {
     @Override
     @SuppressWarnings("unchecked")
     public Component getModalContent(String componentId, ModalWindow modal, AbstractModalWindowCommand<?> command) {
+        modal.setMinimalWidth(360);
+        modal.setMinimalHeight(240);
         modal.setAutoSize(true);
 
         IModel<ODocument> model = (IModel<ODocument>) getContext().getDisplayObjectModel();
@@ -44,6 +44,7 @@ public class LoadTokenTransactionsMethod extends AbstractModalOMethod {
             @Override
             protected void onTransactionsLoaded(AjaxRequestTarget target, Token token) {
                 modal.close(target);
+                target.add(getContext().getCurrentWidget());
             }
         };
     }

@@ -15,6 +15,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.time.Duration;
+import org.orienteer.component.ModalWindowFeedbackPanel;
 import org.orienteer.core.tasks.OTaskSession;
 import org.orienteer.core.tasks.OTaskSessionRuntime;
 import org.orienteer.model.Token;
@@ -49,6 +50,7 @@ public class LoadTokenTransactionsPanel extends GenericPanel<Token> {
         add(createLabel("loadTitle"));
         add(createLoadingInfoContainer("loadingInfo"));
         add(timerBehavior);
+        add(new ModalWindowFeedbackPanel("feedback"));
         setOutputMarkupPlaceholderTag(true);
     }
 
@@ -97,6 +99,12 @@ public class LoadTokenTransactionsPanel extends GenericPanel<Token> {
                 sessionModel.setObject(session);
                 target.add(LoadTokenTransactionsPanel.this);
                 timerBehavior.restart(target);
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target) {
+                super.onError(target);
+                target.add(LoadTokenTransactionsPanel.this);
             }
 
             @SuppressWarnings("unchecked")

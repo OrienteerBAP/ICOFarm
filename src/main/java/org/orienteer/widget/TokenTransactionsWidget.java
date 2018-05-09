@@ -6,6 +6,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
+import org.orienteer.core.component.table.DataTableCommandsToolbar;
+import org.orienteer.core.component.table.component.GenericTablePanel;
 import org.orienteer.core.component.widget.AbstractCalculatedDocumentsWidget;
 import org.orienteer.core.component.widget.document.CalculatedDocumentsWidget;
 import org.orienteer.core.widget.Widget;
@@ -33,6 +35,15 @@ public class TokenTransactionsWidget extends CalculatedDocumentsWidget {
     protected String getSql() {
         return String.format("select from %s where @this['%s'] = $doc['%s']",
                 OTransaction.CLASS_NAME, OTransaction.OPROPERTY_TO, Token.OPROPERTY_ADDRESS);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void onInitialize() {
+        super.onInitialize();
+        GenericTablePanel<ODocument> tablePanel = (GenericTablePanel<ODocument>) get("tablePanel");
+        DataTableCommandsToolbar<ODocument> commandsToolbar = tablePanel.getDataTable().getCommandsToolbar();
+        commandsToolbar.setDefaultModel(getModel());
     }
 
     @Override

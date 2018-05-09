@@ -1,5 +1,6 @@
 package org.orienteer.service;
 
+import com.google.common.base.Strings;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
@@ -326,8 +327,8 @@ public class DBServiceImpl implements IDBService {
     public BigInteger getSoldTokensCount(Token token) {
         String sql = String.format("select sum(%s) as sum from %s where %s = ?", OTransaction.OPROPERTY_TOKENS, OTransaction.CLASS_NAME, OTransaction.OPROPERTY_TO);
         List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), token.getAddress());
-        BigDecimal sum = isDocsNotEmpty(docs) ? docs.get(0).field("sum") : null;
-        return sum != null ? sum.toBigInteger() : BigInteger.ZERO;
+        String sum = isDocsNotEmpty(docs) ? docs.get(0).field("sum").toString() : null;
+        return !Strings.isNullOrEmpty(sum) ? new BigInteger(sum) : BigInteger.ZERO;
     }
 
     @Override
