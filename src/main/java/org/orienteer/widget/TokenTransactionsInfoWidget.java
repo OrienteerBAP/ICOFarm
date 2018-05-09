@@ -12,16 +12,18 @@ import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.AbstractWidget;
 import org.orienteer.core.widget.Widget;
 import org.orienteer.model.Token;
-import org.orienteer.module.ICOFarmPerspectiveModule;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.service.web3.IICOFarmSmartContract;
 
 import java.math.BigInteger;
 
+import static org.orienteer.module.ICOFarmPerspectiveModule.TOKEN_TRANSACTIONS_INFO_WIDGET_ID;
+import static org.orienteer.module.ICOFarmPerspectiveModule.TOKEN_TRANSACTIONS_TAB;
+
 @Widget(
-        id = "token-transactions-info",
-        tab = ICOFarmPerspectiveModule.TOKEN_TRANSACTIONS_TAB,
+        id = TOKEN_TRANSACTIONS_INFO_WIDGET_ID,
+        tab = TOKEN_TRANSACTIONS_TAB,
         domain = "document",
         selector = Token.CLASS_NAME,
         autoEnable = true,
