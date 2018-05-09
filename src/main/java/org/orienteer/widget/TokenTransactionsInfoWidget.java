@@ -44,12 +44,20 @@ public class TokenTransactionsInfoWidget extends AbstractWidget<ODocument> {
         super.onInitialize();
         Token token = new Token(getModelObject());
         IModel<Token> model = Model.of(token);
-        IICOFarmSmartContract smartContract = ethService.loadSmartContract(token.getOwner().getAddress(), token);
         add(new Label("tokenName", getTokenName(model)));
-        add(createTransactionsCountLabel("transactionsCount", model));
-        add(createAllTokensCountLabe("allTokensCount", smartContract));
-        add(createTokensSoldLabel("tokensSoldCount", model));
-        add(createTokensRemainsLanel("tokensRemainsCount", model, smartContract));
+        if (!token.isEthereumCurrency()) {
+            IICOFarmSmartContract smartContract = ethService.loadSmartContract(token.getOwner().getAddress(), token);
+            add(createTransactionsCountLabel("transactionsCount", model));
+            add(createAllTokensCountLabe("allTokensCount", smartContract));
+            add(createTokensSoldLabel("tokensSoldCount", model));
+            add(createTokensRemainsLanel("tokensRemainsCount", model, smartContract));
+        } else {
+            add(new Label("transactionsCount"));
+            add(new Label("allTokensCount"));
+            add(new Label("tokensSoldCount"));
+            add(new Label("tokensRemainsCount"));
+            setVisible(false);
+        }
     }
 
     private Label createTransactionsCountLabel(String id, IModel<Token> token) {

@@ -1,12 +1,15 @@
 package org.orienteer.widget;
 
 import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
-import org.orienteer.core.component.table.DataTableCommandsToolbar;
+import org.orienteer.core.component.table.OPropertyValueColumn;
+import org.orienteer.core.component.table.OrienteerDataTable;
 import org.orienteer.core.component.table.component.GenericTablePanel;
 import org.orienteer.core.component.widget.AbstractCalculatedDocumentsWidget;
 import org.orienteer.core.component.widget.document.CalculatedDocumentsWidget;
@@ -15,6 +18,8 @@ import org.orienteer.model.OTransaction;
 import org.orienteer.model.Token;
 import org.orienteer.module.ICOFarmPerspectiveModule;
 import ru.ydn.wicket.wicketorientdb.model.OQueryDataProvider;
+
+import java.util.List;
 
 @Widget(
         id = ICOFarmPerspectiveModule.TOKEN_TRANSACTIONS_WIDGET_ID,
@@ -42,8 +47,19 @@ public class TokenTransactionsWidget extends CalculatedDocumentsWidget {
     protected void onInitialize() {
         super.onInitialize();
         GenericTablePanel<ODocument> tablePanel = (GenericTablePanel<ODocument>) get("tablePanel");
-        DataTableCommandsToolbar<ODocument> commandsToolbar = tablePanel.getDataTable().getCommandsToolbar();
-        commandsToolbar.setDefaultModel(getModel());
+        OrienteerDataTable<ODocument, String> dataTable = tablePanel.getDataTable();
+        adjustTableColumns((List<IColumn<ODocument, String>>) dataTable.getColumns());
+        dataTable.getCommandsToolbar().setDefaultModel(getModel());
+    }
+
+    private void adjustTableColumns(List<IColumn<ODocument, String>> columns) {
+        columns.removeIf(col -> {
+            if (col instanceof OPropertyValueColumn) {
+                IModel<OProperty> criteryModel = ((OPropertyValueColumn) col).getCriteryModel();
+                return criteryModel.getObject().getName().equals(OTransaction.OPROPERTY_TO);
+            }
+            return false;
+        });
     }
 
     @Override
