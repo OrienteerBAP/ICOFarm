@@ -9,7 +9,7 @@ import org.apache.wicket.model.IModel;
 import org.orienteer.component.HashStringLabel;
 import org.orienteer.core.component.property.DisplayMode;
 import org.orienteer.core.component.visualizer.AbstractSimpleVisualizer;
-import org.orienteer.core.web.ODocumentPage;
+import org.orienteer.core.component.widget.document.ODocumentPropertiesWidget;
 
 public class HashVisualizer extends AbstractSimpleVisualizer {
 
@@ -32,7 +32,7 @@ public class HashVisualizer extends AbstractSimpleVisualizer {
                 return new HashStringLabel(id, (IModel<String>) valueModel) {
                     @Override
                     protected String prepareHashForDisplay(String hash) {
-                        if (getPage() instanceof ODocumentPage) {
+                        if (findParent(ODocumentPropertiesWidget.class) != null) {
                             return hash;
                         }
                         return super.prepareHashForDisplay(hash);
