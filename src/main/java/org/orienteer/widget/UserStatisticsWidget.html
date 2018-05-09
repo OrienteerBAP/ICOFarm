@@ -1,0 +1,46 @@
+<wicket:extend xmlns:wicket="http://www.w3.org/1999/xhtml">
+	<div class="container-fluid">
+		<div class="col-md-8 mx-auto">
+			<h1 class="text-center">
+				<strong><wicket:message key="user.statistics.widget.title"></wicket:message></strong>
+			</h1>
+			<div class="card border-primary">
+				<div class="card-body text-center row">
+
+					<div class="col-md-6 border-right border-primary p-3">
+						<div class="d-flex justify-content-center">
+							<div class="mr-2">
+								<div>
+									<strong wicket:id="usersCount"></strong>
+								</div>
+								<div>
+									<strong>
+										<wicket:message key="user.statistics.widget.users"></wicket:message>
+									</strong>
+								</div>
+							</div>
+							<i class="fa fa-user fa-3x"></i>
+						</div>
+					</div>
+
+					<div class="col-md-6 border-left border-primary p-3">
+						<div class="d-flex justify-content-center">
+							<div class="mr-2">
+								<div>
+									<strong wicket:id="investorsCount"></strong>
+								</div>
+								<div>
+									<strong>
+										<wicket:message key="user.statistics.widget.investors"></wicket:message>
+									</strong>
+								</div>
+							</div>
+							<i class="fa fa-money fa-3x"></i>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</wicket:extend>
