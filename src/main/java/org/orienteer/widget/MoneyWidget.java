@@ -1,6 +1,7 @@
 package org.orienteer.widget;
 
 import com.google.inject.Inject;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -28,12 +29,12 @@ import java.util.List;
         selector = ICOFarmModule.MONEY,
         autoEnable = true
 )
-public class MoneyWidget extends AbstractWidget<ODocument> {
+public class MoneyWidget extends AbstractWidget<OClass> {
 
     @Inject
     private IDBService dbService;
 
-    public MoneyWidget(String id, IModel<ODocument> model, IModel<ODocument> widgetDocumentModel) {
+    public MoneyWidget(String id, IModel<OClass> model, IModel<ODocument> widgetDocumentModel) {
         super(id, model, widgetDocumentModel);
     }
 
