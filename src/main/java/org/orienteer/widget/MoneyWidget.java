@@ -23,7 +23,7 @@ import org.orienteer.util.ComponentUtils;
 import java.util.List;
 
 @Widget(
-        id = ICOFarmPerspectiveModule.OWNER_MONEY_WIDGET_ID,
+        id = ICOFarmPerspectiveModule.MONEY_WIDGET_ID,
         domain = "browse",
         selector = ICOFarmModule.MONEY,
         autoEnable = true

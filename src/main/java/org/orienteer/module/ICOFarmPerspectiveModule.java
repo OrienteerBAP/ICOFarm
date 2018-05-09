@@ -43,12 +43,15 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     public static final String WALLET_BALANCE_WIDGET_ID      = "balance-widget";
     public static final String WALLET_TRANSACTIONS_WIDGET_ID = "wallet-transactions-widget";
     public static final String TOKEN_TRANSACTIONS_WIDGET_ID  = "token-transactions-widget";
-    public static final String OWNER_MONEY_WIDGET_ID         = "token-money-widget";
+    public static final String TOKEN_MONEY_WIDGET_ID         = "token-money-widget";
+    public static final String MONEY_WIDGET_ID               = "money-widget";
 
     public static final String WALLET_BALANCE_TAB = "Balance";
     public static final String WALLET_TRANSACTIONS_TAB = "Transactions";
 
     public static final String TOKEN_TRANSACTIONS_TAB = "Transactions";
+    public static final String TOKEN_MONEY_TAB        = "Money";
+
     /**
      * Contains hidden properties for investors.
      * key - class name
@@ -205,7 +208,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         createWidgetIfNotExists(WALLETS_WIDGET_ID, Wallet.CLASS_NAME, helper);
         createWidgetIfNotExists(LIST_DOCUMENTS_WIDGET_ID, Wallet.CLASS_NAME, helper);
 
-        createWidgetIfNotExists(OWNER_MONEY_WIDGET_ID, ICOFarmModule.MONEY, helper);
+        createWidgetIfNotExists(MONEY_WIDGET_ID, ICOFarmModule.MONEY, helper);
     }
 
     private void initHiddenProperties() {
@@ -245,6 +248,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     private void initHiddenWidgets() {
         HIDDEN_WIDGETS.put(REFERRAL, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
         HIDDEN_WIDGETS.put(Wallet.CLASS_NAME, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
+        HIDDEN_WIDGETS.put(Token.CLASS_NAME, Collections.singletonList(TOKEN_MONEY_WIDGET_ID));
     }
 
     private void registerVisualizers(OrienteerWebApplication app) {
