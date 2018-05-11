@@ -26,6 +26,7 @@ import org.web3j.utils.Convert;
 import rx.Single;
 import rx.schedulers.Schedulers;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -169,7 +170,9 @@ public class BuyTokenPanel extends AbstractTokenPanel {
     private Single<TransactionReceipt> buyTokens(Credentials credentials) {
         Token token = getTokenModel().getObject();
         Convert.Unit unit = Convert.Unit.fromString(getCurrency().getName("en"));
-        BigInteger weiValue = Convert.toWei(getCurrencyValue(), unit).toBigInteger();
+        String currencyValue = getCurrencyValue();
+        BigDecimal value = new BigDecimal(currencyValue);
+        BigInteger weiValue = Convert.toWei(value, unit).toBigInteger();
 
         return service.loadSmartContract(credentials, token).buy(weiValue);
     }
