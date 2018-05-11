@@ -76,9 +76,8 @@ public class DBServiceImpl implements IDBService {
 
     @Override
     public OTransaction getTransactionByHash(String hash) {
-        List<ODocument> docs = query(null, new OSQLSynchQuery<>(String.format("select from %s where %s = ?", OTransaction.CLASS_NAME,
-                OTransaction.OPROPERTY_HASH), 1), hash);
-        return getFromDocs(docs, OTransaction::new);
+        ODocument doc = getTransactionByHash(null, hash);
+        return doc != null ? new OTransaction(doc) : null;
     }
 
     @Override
@@ -269,7 +268,8 @@ public class DBServiceImpl implements IDBService {
     public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents) {
         dbClosure.get().execute(db -> {
             for (TransferEvent event : transferEvents) {
-                ODocument doc = saveConfirmedTransaction(db, event.getTransaction(), ICOFarmUtils.computeTimestamp(event.getBlock()));
+                LOG.info("save transfer tokens event: {} {}", event.toString(), Thread.currentThread().getName());
+                ODocument doc = updateOrCreateConfirmedTransaction(db, event.getTransaction(), event.getBlock());
                 doc.field(OTransaction.OPROPERTY_TOKENS, new BigDecimal(event.getTokens()));
                 doc.save();
             }
@@ -332,6 +332,13 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
+    public boolean isTokenAddress(String address) {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), address);
+        return isDocsNotEmpty(docs);
+    }
+
+    @Override
     public void save(ODocumentWrapper documentWrapper) {
         save(documentWrapper.getDocument());
     }
@@ -360,15 +367,15 @@ public class DBServiceImpl implements IDBService {
         return doc;
     }
 
-    private void updateOrCreateConfirmedTransaction(ODatabaseDocument db, Transaction transaction, EthBlock.Block block) {
-        String sql = String.format("select from %s where %s = ?", OTransaction.CLASS_NAME, OTransaction.OPROPERTY_HASH);
-        List<ODocument> docs = db.query(new OSQLSynchQuery<>(sql), transaction.getHash());
+    private ODocument updateOrCreateConfirmedTransaction(ODatabaseDocument db, Transaction transaction, EthBlock.Block block) {
         Date date = ICOFarmUtils.computeTimestamp(block);
-        if (isDocsNotEmpty(docs)) {
-            docs.forEach(doc -> updateConfirmedTransaction(doc, date, transaction).save());
+        ODocument result = getTransactionByHash(db, transaction.getHash());
+        if (result != null) {
+            updateConfirmedTransaction(result, date, transaction).save();
         } else {
-            saveConfirmedTransaction(db, transaction, date);
+            result = saveConfirmedTransaction(db, transaction, date);
         }
+        return result;
     }
 
     private ODocument saveConfirmedTransaction(ODatabaseDocument db, Transaction transaction, Date date) {
@@ -386,6 +393,12 @@ public class DBServiceImpl implements IDBService {
                 + Wallet.OPROPERTY_ADDRESS + " = ? OR "
                 + Wallet.OPROPERTY_ADDRESS + " = ?", 1), transaction.getFrom(), transaction.getTo());
         return isDocsNotEmpty(docs);
+    }
+
+    private ODocument getTransactionByHash(ODatabaseDocument db, String hash) {
+        String sql = String.format("select from %s where %s = ?", OTransaction.CLASS_NAME, OTransaction.OPROPERTY_HASH);
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), hash);
+        return isDocsNotEmpty(docs) ? docs.get(0) : null;
     }
 
     private ODocument createTransactionDocument(Transaction transaction, Collection<ODocument> readers, boolean confirmed) {

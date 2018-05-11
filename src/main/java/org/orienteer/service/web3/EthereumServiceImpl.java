@@ -110,6 +110,11 @@ public class EthereumServiceImpl implements IEthereumService {
     }
 
     @Override
+    public IICOFarmSmartContract loadSmartContract(org.orienteer.model.Wallet wallet, Token token) {
+        return loadSmartContract(wallet.getAddress(), token);
+    }
+
+    @Override
     public IICOFarmSmartContract loadSmartContract(String from, Token token) {
         if (token.isEthereumCurrency()) {
             throw new IllegalStateException("Can't load contract from Ethereum currency!");

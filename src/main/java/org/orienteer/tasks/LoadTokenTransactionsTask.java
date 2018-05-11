@@ -60,7 +60,7 @@ public class LoadTokenTransactionsTask extends OTask {
     private void startLoadingTokenTransactions(IICOFarmSmartContract smartContract, OTaskSessionRuntime session) {
         smartContract.transferEventObservable(getStartBlock(), getEndBlock())
                 .subscribeOn(Schedulers.io())
-                .buffer(5, TimeUnit.SECONDS) // user must see progress of transactions loading
+                .buffer(5, TimeUnit.SECONDS, 100) // user must see progress of transactions loading
                 .doOnSubscribe(session::start)
                 .subscribe(createSubscriber(session));
     }

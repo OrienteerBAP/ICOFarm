@@ -53,7 +53,10 @@ public class BuyTokensTransactionValidator implements IValidator<String> {
                             error(validatable, "validator.transaction.buy.gas.not.enough.money");
                         }
                     },
-                    t -> error(validatable, "validator.transaction.error")
+                    t -> {
+                        t.printStackTrace();
+                        error(validatable, "validator.transaction.error");
+                    }
             );
         } else if (compared == 0) {
             error(validatable, "validator.transaction.buy.gas.not.enough.money");

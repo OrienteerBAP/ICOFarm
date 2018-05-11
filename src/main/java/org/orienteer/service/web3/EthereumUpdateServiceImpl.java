@@ -4,10 +4,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
+import org.orienteer.model.Token;
+import org.orienteer.model.TransferEvent;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.utils.Convert;
@@ -28,7 +31,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     private static final Logger LOG = LoggerFactory.getLogger(EthereumUpdateServiceImpl.class);
 
     @Inject
-    private IEthereumService ethereumService;
+    private IEthereumService ethService;
 
     @Inject
     private IDBService dbService;
@@ -39,11 +42,12 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     public void init(ODocument config) {
         if (compositeSubscription == null || !compositeSubscription.hasSubscriptions()) {
             if (compositeSubscription == null) compositeSubscription = new CompositeSubscription();
-            ethereumService.init(config);
+            ethService.init(config);
 
             compositeSubscription.addAll(
                     subscribeOnPendingTransactions(),
-                    subscribeOnUpdateTransactions()
+                    subscribeOnUpdateTransactions(),
+                    subscribeOnTransferTokenEvents()
             );
             updateTokensPrice();
         }
@@ -52,37 +56,54 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     @Override
     public void destroy() {
         compositeSubscription.clear();
-        ethereumService.destroy();
+        ethService.destroy();
     }
 
     private Subscription subscribeOnUpdateTransactions() {
-        EthereumClientConfig config = ethereumService.getConfig();
-        Observable<List<Transaction>> obs = ethereumService.getTransactionsObservable()
-        	.buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
-        	.subscribeOn(Schedulers.io());
+        EthereumClientConfig config = ethService.getConfig();
+        Observable<List<Transaction>> obs = ethService.getTransactionsObservable()
+                .distinct()
+                .filter(t -> !dbService.isTokenAddress(t.getTo()))
+                .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
+                .subscribeOn(Schedulers.io());
 
         Function<Transaction, EthBlock.Block> blockFunction = transaction -> {
             EthBlock result = null;
             try {
-                result = ethereumService.requestBlock(transaction.getBlockNumberRaw());
+                result = ethService.requestBlock(transaction.getBlockNumberRaw());
             } catch (Exception ex) {
                 LOG.error("Can't get transaction block: {}", transaction, ex);
             }
             return result != null ? result.getBlock() : null;
         };
 
-        return obs.distinct().subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction),
+        return obs.subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction),
                 (t) -> LOG.error("Can't receive new transactions!", t));
     }
 
     private Subscription subscribeOnPendingTransactions() {
-        EthereumClientConfig config = ethereumService.getConfig();
-        Observable<List<Transaction>> obs = ethereumService.getPendingTransactionsObservable()
+        EthereumClientConfig config = ethService.getConfig();
+        Observable<List<Transaction>> obs = ethService.getPendingTransactionsObservable()
+                .distinct()
                 .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
                 .subscribeOn(Schedulers.io());
 
-        return obs.distinct().subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions),
+        return obs.subscribe(transactions -> dbService.saveUnconfirmedICOFarmTransactions(transactions),
                 (t) -> LOG.error("Can't receive pending transactions!", t));
+    }
+
+    private Subscription subscribeOnTransferTokenEvents() {
+        EthereumClientConfig config = ethService.getConfig();
+        List<Token> tokens = dbService.getTokens(false);
+
+        Observable<List<TransferEvent>> obs = Observable.from(tokens)
+                .map(t -> ethService.loadSmartContract(t.getOwner(), t))
+                .flatMap(t -> t.transferEventObservable(DefaultBlockParameterName.LATEST, DefaultBlockParameterName.LATEST))
+                .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
+                .subscribeOn(Schedulers.io());
+
+        return obs.subscribe(events -> dbService.saveTransactionsFromTransferEvents(events),
+                t -> LOG.error("Can't receive token events!", t));
     }
 
     private void updateTokensPrice() {
@@ -96,7 +117,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 .filter(token -> token.getOwner() != null)
                 .flatMap(token -> {
                     Wallet owner = token.getOwner();
-                    IICOFarmSmartContract contract = ethereumService.loadSmartContract(owner.getAddress(), token);
+                    IICOFarmSmartContract contract = ethService.loadSmartContract(owner.getAddress(), token);
 
                     return contract.getBuyPrice()
                             .map(wei -> Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER))

@@ -4,6 +4,7 @@ import com.google.inject.ImplementedBy;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.model.EthereumClientConfig;
 import org.orienteer.model.Token;
+import org.orienteer.model.Wallet;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
@@ -42,6 +43,7 @@ public interface IEthereumService {
     public Observable<Transaction> getPendingTransactionsObservable();
 
     public IICOFarmSmartContract loadSmartContract(Credentials credentials, Token token);
+    public IICOFarmSmartContract loadSmartContract(Wallet wallet, Token token);
     public IICOFarmSmartContract loadSmartContract(String from, Token token);
 
     public IICOFarmSmartContract loadSmartContract(String from, String address);
