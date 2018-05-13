@@ -1,5 +1,6 @@
 package org.orienteer.service.web3;
 
+import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -49,7 +50,6 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
             compositeSubscription.addAll(
                     subscribeOnPendingTransactions(),
                     subscribeOnUpdateTransactions(),
-                    subscribeOnUpdatingBalances(),
                     subscribeOnTransferTokenEvents()
             );
             updateTokensPrice();
@@ -65,12 +65,6 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
 
     private Subscription subscribeOnUpdateTransactions() {
         EthereumClientConfig config = ethService.getConfig();
-        Observable<List<Transaction>> obs = ethService.getTransactionsObservable()
-                .distinct()
-                .filter(t -> !dbService.isTokenAddress(t.getTo()))
-                .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
-                .subscribeOn(Schedulers.io());
-
         Function<Transaction, EthBlock.Block> blockFunction = transaction -> {
             EthBlock result = null;
             try {
@@ -81,8 +75,21 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
             return result != null ? result.getBlock() : null;
         };
 
-        return obs.subscribe(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction),
-                (t) -> LOG.error("Can't receive new transactions!", t));
+        Observable<List<ODocument>> obs = ethService.getTransactionsObservable()
+                .filter(t -> !dbService.isTokenAddress(t.getTo()))
+                .distinct()
+                .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
+                .doOnNext(transactions-> dbService.confirmICOFarmTransactions(transactions, blockFunction))
+                .map(this::getWalletsForUpdateFromTransactions)
+                .flatMap(walletsMap ->  Observable.from(walletsMap.keySet())
+                        .flatMap(wallet -> updateWalletBalances(wallet, walletsMap.get(wallet)))
+                ).subscribeOn(Schedulers.io());
+
+        return obs.map(docs -> docs.toArray(new ODocument[0]))
+                .subscribe(
+                        dbService::save,
+                        (t) -> LOG.error("Can't receive new transactions!", t)
+                );
     }
 
     private Subscription subscribeOnPendingTransactions() {
@@ -96,39 +103,26 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 (t) -> LOG.error("Can't receive pending transactions!", t));
     }
 
-    private Subscription subscribeOnUpdatingBalances() {
-        EthereumClientConfig config = ethService.getConfig();
-        List<Token> tokens = dbService.getTokens(false);
-
-        Observable<List<ODocument>> obs = Observable.from(tokens).flatMap(token -> ethService.loadSmartContract(token.getOwner(), token)
-                .transferEventObservable(DefaultBlockParameterName.LATEST, DefaultBlockParameterName.LATEST)
-                .distinct()
-                .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
-                .map(this::getWalletsForUpdate)
-                .flatMap(walletsMap -> Observable.from(walletsMap.keySet())
-                        .flatMap(wallet -> updateWalletBalances(wallet, walletsMap.get(wallet)))
-                ).subscribeOn(Schedulers.io())
-        );
-
-        return obs.map(docs -> docs.toArray(new ODocument[0]))
-                .subscribe(
-                        dbService::save,
-                        (t) -> LOG.error("Can't update balances for wallets!", t)
-                );
-    }
 
     private Subscription subscribeOnTransferTokenEvents() {
         EthereumClientConfig config = ethService.getConfig();
         List<Token> tokens = dbService.getTokens(false);
 
-        Observable<List<TransferEvent>> obs = Observable.from(tokens)
+        Observable<List<ODocument>> obs = Observable.from(tokens)
                 .map(t -> ethService.loadSmartContract(t.getOwner(), t))
                 .flatMap(t -> t.transferEventObservable(DefaultBlockParameterName.LATEST, DefaultBlockParameterName.LATEST))
                 .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
-                .subscribeOn(Schedulers.io());
+                .doOnNext(events -> dbService.saveTransactionsFromTransferEvents(events))
+                .map(this::getWalletsForUpdate)
+                .flatMap(walletsMap -> Observable.from(walletsMap.keySet())
+                        .flatMap(wallet -> updateWalletBalances(wallet, walletsMap.get(wallet)))
+                ).subscribeOn(Schedulers.io());
 
-        return obs.subscribe(events -> dbService.saveTransactionsFromTransferEvents(events),
-                t -> LOG.error("Can't receive token events!", t));
+        return obs.map(docs -> docs.toArray(new ODocument[0]))
+                .subscribe(
+                        dbService::save,
+                        t -> LOG.error("Can't receive token events!", t)
+                );
     }
 
     private void updateTokensPrice() {
@@ -178,8 +172,8 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
     private Map<Wallet, List<Token>> getWalletsForUpdate(List<TransferEvent> events) {
         Map<Wallet, List<Token>> walletsMap = new HashedMap<>();
         for (TransferEvent event : events) {
-            List<Wallet> wallets = getWalletsFromTransactions(event);
-            List<Token> tokens = getTokensFromTransactions(event);
+            List<Wallet> wallets = getWalletsFromTransactions(event.getTransaction().getFrom(), event.getTo());
+            List<Token> tokens = getTokensFromTransactions(event.getTransaction().getTo());
             for (Wallet wallet : wallets) {
                 walletsMap.put(wallet, tokens);
             }
@@ -187,18 +181,32 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
         return walletsMap;
     }
 
-    private List<Wallet> getWalletsFromTransactions(TransferEvent event) {
+    private Map<Wallet, List<Token>> getWalletsForUpdateFromTransactions(List<Transaction> transactions) {
+        Map<Wallet, List<Token>> walletsMap = new HashedMap<>();
+        for (Transaction transaction : transactions) {
+            List<Wallet> wallets = getWalletsFromTransactions(transaction.getFrom(), transaction.getTo());
+            List<Token> tokens = getTokensFromTransactions(null);
+            for (Wallet wallet : wallets) {
+                walletsMap.put(wallet, tokens);
+            }
+        }
+        return walletsMap;
+    }
+
+    private List<Wallet> getWalletsFromTransactions(String from, String to) {
         Set<Wallet> wallets = new HashSet<>();
-        wallets.addAll(dbService.getWalletsByAddress(event.getTo()));
-        wallets.addAll(dbService.getWalletsByAddress(event.getTransaction().getFrom()));
+        wallets.addAll(dbService.getWalletsByAddress(from));
+        wallets.addAll(dbService.getWalletsByAddress(to));
         return new ArrayList<>(wallets);
     }
 
-    private List<Token> getTokensFromTransactions(TransferEvent event) {
+    private List<Token> getTokensFromTransactions(String address) {
         List<Token> tokens = dbService.getCurrencyTokens();
-        Token token = dbService.getTokenByAddress(event.getTransaction().getTo());
-        if (token != null && !token.isEthereumCurrency()) {
-            tokens.add(token);
+        if (!Strings.isNullOrEmpty(address)) {
+            Token token = dbService.getTokenByAddress(address);
+            if (token != null && !token.isEthereumCurrency()) {
+                tokens.add(token);
+            }
         }
         return tokens;
     }
