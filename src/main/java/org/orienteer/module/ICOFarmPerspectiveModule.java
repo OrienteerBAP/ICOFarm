@@ -259,7 +259,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         HIDDEN_WIDGETS.put(REFERRAL, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
         HIDDEN_WIDGETS.put(Wallet.CLASS_NAME, Collections.singletonList(LIST_DOCUMENTS_WIDGET_ID));
         HIDDEN_WIDGETS.put(Token.CLASS_NAME, Arrays.asList(TOKEN_MONEY_WIDGET_ID, TOKEN_TRANSACTIONS_INFO_WIDGET_ID));
-        HIDDEN_WIDGETS.put(ICOFarmUser.CLASS_NAME, Arrays.asList(USER_STATISTICS_WIDGET_ID));
+        HIDDEN_WIDGETS.put(ICOFarmUser.CLASS_NAME, Arrays.asList(USER_STATISTICS_WIDGET_ID, USER_INVESTORS_WIDGET_ID, USERS_WIDGET_ID));
     }
 
     private void registerVisualizers(OrienteerWebApplication app) {
