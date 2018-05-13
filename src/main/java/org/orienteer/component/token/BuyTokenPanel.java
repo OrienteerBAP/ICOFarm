@@ -7,6 +7,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.RequiredTextField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -62,14 +63,14 @@ public class BuyTokenPanel extends AbstractTokenPanel {
     }
 
     private TextField<String> createCurrencyField(String id, IModel<Token> currencyModel) {
-	    TextField<String> field = new TextField<>(id, Model.of());
+	    TextField<String> field = new RequiredTextField<>(id, Model.of());
         field.setOutputMarkupId(true);
         field.add(new BuyTokensTransactionValidator(getWalletModel(), currencyModel, getTokenModel()));
         return field;
     }
 
     private TextField<String> createTokenField(String id) {
-        return new TextField<String>(id, Model.of()) {
+        return new RequiredTextField<String>(id, Model.of()) {
             @Override
             protected void onInitialize() {
                 super.onInitialize();
@@ -103,6 +104,12 @@ public class BuyTokenPanel extends AbstractTokenPanel {
                     target.add(tokensField);
                 }
             }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, RuntimeException e) {
+                super.onError(target, e);
+                target.add(BuyTokenPanel.this);
+            }
         };
     }
 
@@ -119,6 +126,12 @@ public class BuyTokenPanel extends AbstractTokenPanel {
                     currencyField.setModelObject(newCurrency);
                     target.add(currencyField);
                 }
+            }
+
+            @Override
+            protected void onError(AjaxRequestTarget target, RuntimeException e) {
+                super.onError(target, e);
+                target.add(BuyTokenPanel.this);
             }
         };
     }
@@ -149,6 +162,12 @@ public class BuyTokenPanel extends AbstractTokenPanel {
 	    choice.add(new AjaxFormComponentUpdatingBehavior("change") {
             @Override
             protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {}
+
+            @Override
+            protected void onError(AjaxRequestTarget target, RuntimeException e) {
+                super.onError(target, e);
+                target.add(BuyTokenPanel.this);
+            }
         });
 	    return choice;
     }

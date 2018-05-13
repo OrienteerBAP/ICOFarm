@@ -13,10 +13,14 @@ import org.orienteer.component.ModalWindowFeedbackPanel;
 import org.orienteer.model.OTransaction;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 
 public class AddOTransactionPanel extends Panel {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AddOTransactionPanel.class);
 
     @Inject
     private IDBService dbService;
@@ -53,7 +57,7 @@ public class AddOTransactionPanel extends Panel {
                         OTransaction oTransaction = dbService.saveTransaction(transaction, ethBlock.getBlock());
                         onAddTransaction(oTransaction, target);
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        LOG.error("Can't add transaction!", ex);
                         error(new ResourceModel("transaction.add.error").getObject());
                     }
                 } else error(new ResourceModel("transaction.add.already.exists").getObject());
