@@ -85,7 +85,7 @@ public class LoadTokenTransactionsTask extends OTask {
             @Override
             public void onNext(List<TransferEvent> transferEvents) {
                 if (!transferEvents.isEmpty()) {
-                    dbService.saveTransactionsFromTransferEvents(transferEvents);
+                    dbService.saveTransactionsFromTransferEvents(transferEvents, false);
                 } else onCompleted();
             }
         };

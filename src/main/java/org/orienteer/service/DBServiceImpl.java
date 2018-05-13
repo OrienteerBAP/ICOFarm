@@ -277,14 +277,16 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
-    public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents) {
+    public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents, boolean overrideTo) {
         dbClosure.get().execute(db -> {
             for (TransferEvent event : transferEvents) {
                 LOG.info("save transfer tokens event: {} {}", event.toString(), Thread.currentThread().getName());
                 ODocument doc = updateOrCreateConfirmedTransaction(db, event.getTransaction(), event.getBlock());
                 doc.field(OTransaction.OPROPERTY_TOKENS, new BigDecimal(event.getTokens()));
-                doc.field(OTransaction.OPROPERTY_TO, event.getTo());
                 doc.field(OTransaction.OPROPERTY_CURRENCY, getTokenByAddress(db, event.getTransaction().getTo()));
+                if (overrideTo) {
+                    doc.field(OTransaction.OPROPERTY_TO, event.getTo());
+                }
                 doc.save();
             }
             return null;

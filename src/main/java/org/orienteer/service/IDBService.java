@@ -72,7 +72,7 @@ public interface IDBService extends IClusterable {
 
     public OTransaction saveTransaction(Transaction transaction, EthBlock.Block block);
 
-    public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents);
+    public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents, boolean overrideTo);
 
     public LoadTokenTransactionsTask createLoadTokenTransactionsTask(Token token, DefaultBlockParameter startBlock, DefaultBlockParameter endBlock);
 

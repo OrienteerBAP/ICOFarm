@@ -112,7 +112,7 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 .map(t -> ethService.loadSmartContract(t.getOwner(), t))
                 .flatMap(t -> t.transferEventObservable(DefaultBlockParameterName.LATEST, DefaultBlockParameterName.LATEST))
                 .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
-                .doOnNext(events -> dbService.saveTransactionsFromTransferEvents(events))
+                .doOnNext(events -> dbService.saveTransactionsFromTransferEvents(events, true))
                 .map(this::getWalletsForUpdate)
                 .flatMap(walletsMap -> Observable.from(walletsMap.keySet())
                         .flatMap(wallet -> updateWalletBalances(wallet, walletsMap.get(wallet)))
