@@ -12,10 +12,14 @@ import org.orienteer.core.component.FAIcon;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.widget.AbstractWidget;
 import org.orienteer.core.widget.Widget;
+import org.orienteer.model.Token;
 import org.orienteer.service.IDBService;
+import org.orienteer.service.web3.IEthereumService;
+
+import static org.orienteer.module.ICOFarmPerspectiveModule.USER_STATISTICS_WIDGET_ID;
 
 @Widget(
-        id = OUser.CLASS_NAME,
+        id = USER_STATISTICS_WIDGET_ID,
         domain = "browse",
         selector = OUser.CLASS_NAME,
         autoEnable = true
@@ -25,6 +29,11 @@ public class UserStatisticsWidget extends AbstractWidget<OClass> {
     @Inject
     private IDBService dbService;
 
+    @Inject
+    private IEthereumService ethService;
+
+    private Token token;
+
     public UserStatisticsWidget(String id, IModel<OClass> model, IModel<ODocument> widgetDocumentModel) {
         super(id, model, widgetDocumentModel);
     }
@@ -32,23 +41,26 @@ public class UserStatisticsWidget extends AbstractWidget<OClass> {
     @Override
     protected void onInitialize() {
         super.onInitialize();
+        token = ethService.getConfig().getMainToken();
         add(createUsersCountLabel("usersCount"));
         add(createInvestorsCountLabel("investorsCount"));
     }
 
     private Label createUsersCountLabel(String id) {
-        return new Label(id, Model.of(16)) {
+        return new Label(id, Model.of()) {
             @Override
             protected void onConfigure() {
+                setDefaultModelObject(dbService.getUsersCount());
                 super.onConfigure();
             }
         };
     }
 
     private Label createInvestorsCountLabel(String id) {
-        return new Label(id, Model.of(9)) {
+        return new Label(id, Model.of()) {
             @Override
             protected void onConfigure() {
+                setDefaultModelObject(dbService.getInvestorsCountFor(token));
                 super.onConfigure();
             }
         };
