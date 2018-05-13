@@ -48,11 +48,10 @@ public class TokenTransactionsInfoWidget extends AbstractWidget<ODocument> {
         IModel<Token> model = Model.of(token);
         add(new Label("tokenName", getTokenName(model)));
         if (!token.isEthereumCurrency()) {
-            IICOFarmSmartContract smartContract = ethService.loadSmartContract(token.getOwner().getAddress(), token);
             add(createTransactionsCountLabel("transactionsCount", model));
-            add(createAllTokensCountLabe("allTokensCount", smartContract));
+            add(createAllTokensCountLabel("allTokensCount", model));
             add(createTokensSoldLabel("tokensSoldCount", model));
-            add(createTokensRemainsLanel("tokensRemainsCount", model, smartContract));
+            add(createTokensRemainsLabel("tokensRemainsCount", model));
         } else {
             add(new Label("transactionsCount"));
             add(new Label("allTokensCount"));
@@ -72,11 +71,11 @@ public class TokenTransactionsInfoWidget extends AbstractWidget<ODocument> {
         };
     }
 
-    private Label createAllTokensCountLabe(String id, IICOFarmSmartContract smartContract) {
+    private Label createAllTokensCountLabel(String id, IModel<Token> model) {
         return new Label(id) {
             @Override
             protected void onConfigure() {
-                setDefaultModelObject(smartContract.getTotalSupply().toBlocking().value());
+                setDefaultModelObject(loadSmartContract(model).getTotalSupply().toBlocking().value());
                 super.onConfigure();
             }
         };
@@ -92,16 +91,21 @@ public class TokenTransactionsInfoWidget extends AbstractWidget<ODocument> {
         };
     }
 
-    private Label createTokensRemainsLanel(String id, IModel<Token> token, IICOFarmSmartContract smartContract) {
+    private Label createTokensRemainsLabel(String id, IModel<Token> model) {
         return new Label(id) {
             @Override
             protected void onConfigure() {
-                BigInteger totalSupply = smartContract.getTotalSupply().toBlocking().value();
-                BigInteger soldTokensCount = dbService.getSoldTokensCount(token.getObject());
+                BigInteger totalSupply = loadSmartContract(model).getTotalSupply().toBlocking().value();
+                BigInteger soldTokensCount = dbService.getSoldTokensCount(model.getObject());
                 setDefaultModelObject(totalSupply.subtract(soldTokensCount));
                 super.onConfigure();
             }
         };
+    }
+
+    private IICOFarmSmartContract loadSmartContract(IModel<Token> model) {
+        Token token = model.getObject();
+        return ethService.loadSmartContract(token.getOwner(), token);
     }
 
     private IModel<String> getTokenName(IModel<Token> model) {
