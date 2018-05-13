@@ -114,9 +114,8 @@ public class DBServiceImpl implements IDBService {
 
     @Override
     public Token getTokenBySymbol(String symbol) {
-        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_SYMBOL);
-        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), symbol);
-        return getFromDocs(docs, Token::new);
+        ODocument doc = getTokenBySymbol(null, symbol);
+        return doc != null ? new Token(doc) : null;
     }
 
     @Override
@@ -447,13 +446,19 @@ public class DBServiceImpl implements IDBService {
         doc.field(OTransaction.OPROPERTY_CONFIRMED, true);
         doc.field(OTransaction.OPROPERTY_BLOCK, transaction.getBlockNumber().toString());
         doc.field(OTransaction.OPROPERTY_TIMESTAMP, date);
-        doc.field(OTransaction.OPROPERTY_CURRENCY, getTokenByAddress(db, transaction.getTo()));
+        doc.field(OTransaction.OPROPERTY_CURRENCY, getTokenBySymbol(db, ICOFarmModule.WEI));
         return doc;
     }
 
     private ODocument getTokenByAddress(ODatabaseDocument db, String address) {
         String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
         List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), address);
+        return isDocsNotEmpty(docs) ? docs.get(0) : null;
+    }
+
+    private ODocument getTokenBySymbol(ODatabaseDocument db, String symbol) {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_SYMBOL);
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), symbol);
         return isDocsNotEmpty(docs) ? docs.get(0) : null;
     }
 
