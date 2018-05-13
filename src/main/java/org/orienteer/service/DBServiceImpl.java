@@ -346,6 +346,23 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
+    public BigInteger getInvestorsCountFor(Token token) {
+        String sql = String.format("select count(*) as count from %s where %s contains (%s['%s'] > 0)",
+                ICOFarmUser.CLASS_NAME, ICOFarmUser.OPROPERTY_WALLETS, Wallet.OPROPERTY_BALANCES, token.getSymbol());
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1));
+        Long count = isDocsNotEmpty(docs) ? docs.get(0).field("count") : null;
+        return count != null ? new BigInteger(count.toString()) : BigInteger.ZERO;
+    }
+
+    @Override
+    public BigInteger getUsersCount() {
+        String sql = String.format("select count(*) as count from %s", ICOFarmUser.CLASS_NAME);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1));
+        Long count = isDocsNotEmpty(docs) ? docs.get(0).field("count") : null;
+        return count != null ? new BigInteger(count.toString()) : BigInteger.ZERO;
+    }
+
+    @Override
     public boolean isTokenAddress(String address) {
         String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
         List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), address);

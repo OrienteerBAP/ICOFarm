@@ -61,7 +61,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public static final String REGISTRATION_MAIL_NAME = "registration";
 	public static final String RESTORE_MAIL_NAME      = "restore";
 
-	public static final int VERSION = 1;
+	public static final int VERSION = 2;
 
 	@Inject
 	private IEthereumUpdateService updateService;
@@ -93,7 +93,8 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(EthereumClientConfig.OPROPERTY_PORT, OType.INTEGER, 20).notNull()
 				.oProperty(EthereumClientConfig.OPROPERTY_TIMEOUT, OType.INTEGER, 40).notNull().defaultValue("15")
 				.oProperty(EthereumClientConfig.OPROPERTY_TRANSACTIONS_BUFFER_DELAY, OType.INTEGER, 50).notNull().defaultValue("5")
-				.oProperty(EthereumClientConfig.OPROPERTY_TRANSACTIONS_BUFFER_NUM, OType.INTEGER, 60).notNull().defaultValue("100");
+				.oProperty(EthereumClientConfig.OPROPERTY_TRANSACTIONS_BUFFER_NUM, OType.INTEGER, 60).notNull().defaultValue("100")
+				.oProperty(EthereumClientConfig.OPROPERTY_MAIN_TOKEN, OType.LINK, 70).linkedClass(Token.CLASS_NAME).updateCustomAttribute(CustomAttribute.DISPLAYABLE, true);
 
 
 		helper.oClass(OTransaction.CLASS_NAME)
@@ -116,7 +117,7 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
 		helper.oClass(Wallet.CLASS_NAME)
 				.oProperty(Wallet.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName()
-				.oProperty(Wallet.OPROPERTY_OWNER, OType.LINK, 10).linkedClass(ICOFarmUser.CLASS_NAME)
+				.oProperty(Wallet.OPROPERTY_OWNER, OType.LINK, 10)
 				.oProperty(Wallet.OPROPERTY_ADDRESS, OType.STRING, 30).assignVisualization(HashVisualizer.NAME)
 				.oProperty(Wallet.OPROPERTY_WALLET_JSON, OType.BINARY, 40).updateCustomAttribute(CustomAttribute.DISPLAYABLE, false)
 				.oProperty(Wallet.OPROPERTY_BALANCES, OType.EMBEDDEDMAP, 50).linkedType(OType.DECIMAL).updateCustomAttribute(CustomAttribute.UI_READONLY, true).notNull()
@@ -124,11 +125,15 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 				.oProperty(Wallet.OPROPERTY_DISPLAYABLE_TOKEN, OType.LINK, 60).linkedClass(Token.CLASS_NAME).assignVisualization("listbox").notNull()
 				.oProperty(Wallet.OPROPERTY_CREATED, OType.DATETIME).updateCustomAttribute(CustomAttribute.HIDDEN, "true");
 
+		helper.oClass(ICOFarmUser.CLASS_NAME)
+				.oProperty(ICOFarmUser.OPROPERTY_WALLETS, OType.LINKSET);//.updateCustomAttribute(CustomAttribute.UI_READONLY, true);
+
 		helper.oClass(LoadTokenTransactionsTask.CLASS_NAME, OTask.TASK_CLASS)
 				.oProperty(LoadTokenTransactionsTask.OPROPERTY_TOKEN, OType.LINK).linkedClass(Token.CLASS_NAME).notNull()
 				.oProperty(LoadTokenTransactionsTask.OPROPERTY_START_BLOCK, OType.STRING).notNull()
 				.oProperty(LoadTokenTransactionsTask.OPROPERTY_END_BLOCK, OType.STRING).notNull();
 
+		helper.setupRelationship(ICOFarmUser.CLASS_NAME, ICOFarmUser.OPROPERTY_WALLETS, Wallet.CLASS_NAME, Wallet.OPROPERTY_OWNER);
 
 		helper.oClass(REGISTRATION);
 		helper.oClass(BUY_TOKENS);

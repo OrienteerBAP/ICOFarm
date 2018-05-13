@@ -1,5 +1,7 @@
 package org.orienteer.model;
 
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 
@@ -11,6 +13,7 @@ public class EthereumClientConfig extends ODocumentWrapper {
     public static final String OPROPERTY_TIMEOUT                   = "timeout";
     public static final String OPROPERTY_TRANSACTIONS_BUFFER_DELAY = "transactionsBufferDelay";
     public static final String OPROPERTY_TRANSACTIONS_BUFFER_NUM   = "transactionsBufferNum";
+    public static final String OPROPERTY_MAIN_TOKEN                = "mainToken";
 
     public EthereumClientConfig(ODocument doc) {
         super(doc);
@@ -38,6 +41,14 @@ public class EthereumClientConfig extends ODocumentWrapper {
     
     public int getTransactionsBufferSize(){
     	return document.field(OPROPERTY_TRANSACTIONS_BUFFER_NUM);
+    }
+
+    public Token getMainToken() {
+        OIdentifiable doc = document.field(OPROPERTY_MAIN_TOKEN);
+        if (doc instanceof ORecordId) {
+            doc = new ODocument((ORecordId) doc);
+        }
+        return doc != null ? new Token((ODocument) doc) : null;
     }
 
     @Override

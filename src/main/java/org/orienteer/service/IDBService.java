@@ -85,6 +85,9 @@ public interface IDBService extends IClusterable {
     public BigInteger getTokenTransactionsCount(Token token);
     public BigInteger getSoldTokensCount(Token token);
 
+    public BigInteger getInvestorsCountFor(Token token);
+    public BigInteger getUsersCount();
+
     public boolean isTokenAddress(String address);
 
     public void save(ODocumentWrapper...documentWrapper);

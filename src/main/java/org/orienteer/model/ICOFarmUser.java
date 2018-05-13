@@ -1,6 +1,7 @@
 package org.orienteer.model;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
@@ -18,7 +19,7 @@ public class ICOFarmUser extends OUser {
     public static final String OPROPERTY_ID                 = "id";
     public static final String OPROPERTY_RESTORE_ID         = "restoreId";
     public static final String ORPOPERTY_RESTORE_ID_CREATED = "restoreIdCreated";
-    public static final String OPROPERTY_ETH_WALLET         = "ethereumWallet";
+    public static final String OPROPERTY_WALLETS            = "wallets";
 
     public ICOFarmUser() {
         super(ICOFarmUser.CLASS_NAME);
@@ -102,8 +103,18 @@ public class ICOFarmUser extends OUser {
         return document.field(ORPOPERTY_RESTORE_ID_CREATED);
     }
 
-    public Wallet getMainETHWallet() {
-    	ODocument wallet = document.field(OPROPERTY_ETH_WALLET);
-        return wallet != null ? new Wallet(wallet) : null;
+    public List<Wallet> getWallets() {
+    	List<OIdentifiable> docs = document.field(OPROPERTY_WALLETS);
+    	List<Wallet> wallets = null;
+    	if (docs != null && !docs.isEmpty()) {
+            wallets = new ArrayList<>(docs.size());
+            for (OIdentifiable doc : docs) {
+                if (doc instanceof ORecordId) {
+                    doc = new ODocument((ORecordId) doc);
+                }
+                wallets.add(new Wallet((ODocument) doc));
+            }
+        }
+        return wallets != null ? wallets : Collections.emptyList();
     }
 }

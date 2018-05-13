@@ -219,6 +219,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         userProperties.add(ICOFarmUser.OPROPERTY_ID);
         userProperties.add(ICOFarmUser.OPROPERTY_RESTORE_ID);
         userProperties.add(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED);
+        userProperties.add(ICOFarmUser.OPROPERTY_WALLETS);
         userProperties.add("name");
         userProperties.add("online");
         userProperties.add("status");
