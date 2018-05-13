@@ -80,12 +80,12 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 		helper.oClass(Wallet.CLASS_NAME);
 
 		helper.oClass(Token.CLASS_NAME)
-				.oProperty(Token.OPROPERTY_NAME, OType.EMBEDDEDMAP, 0).assignVisualization("localization").markAsDocumentName()
+				.oProperty(Token.OPROPERTY_NAME, OType.EMBEDDEDMAP, 0).assignVisualization("localization").markAsDocumentName().updateCustomAttribute(CustomAttribute.DISPLAYABLE, true)
 				.oProperty(Token.OPROPERTY_DESCRIPTION, OType.STRING, 10)
-				.oProperty(Token.OPROPERTY_SYMBOL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE)
-				.oProperty(Token.OPROPERTY_ADDRESS, OType.STRING, 30).notNull().assignVisualization(HashVisualizer.NAME)
-				.oProperty(Token.OPROPERTY_ETHER_COST, OType.DECIMAL, 40).notNull().defaultValue("0").min("0")
-				.oProperty(Token.OPROPERTY_OWNER, OType.LINK, 50).linkedClass(Wallet.CLASS_NAME);
+				.oProperty(Token.OPROPERTY_SYMBOL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE).updateCustomAttribute(CustomAttribute.DISPLAYABLE, true)
+				.oProperty(Token.OPROPERTY_ADDRESS, OType.STRING, 30).notNull().assignVisualization(HashVisualizer.NAME).updateCustomAttribute(CustomAttribute.DISPLAYABLE, true)
+				.oProperty(Token.OPROPERTY_ETHER_COST, OType.DECIMAL, 40).notNull().defaultValue("0").min("0").updateCustomAttribute(CustomAttribute.DISPLAYABLE, true)
+				.oProperty(Token.OPROPERTY_OWNER, OType.LINK, 50).linkedClass(Wallet.CLASS_NAME).updateCustomAttribute(CustomAttribute.DISPLAYABLE, false);
 		
 		helper.oClass(CLASS_NAME, ICOFarmModule.OMODULE_CLASS)
 				.oProperty(EthereumClientConfig.OPROPERTY_NAME, OType.STRING, 0).markAsDocumentName().notNull()
