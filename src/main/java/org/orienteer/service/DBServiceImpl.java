@@ -121,9 +121,8 @@ public class DBServiceImpl implements IDBService {
 
     @Override
     public Token getTokenByAddress(String address) {
-        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
-        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), address);
-        return getFromDocs(docs, Token::new);
+        ODocument doc = getTokenByAddress(null, address);
+        return doc != null ? new Token(doc) : null;
     }
 
     @Override
@@ -285,6 +284,8 @@ public class DBServiceImpl implements IDBService {
                 LOG.info("save transfer tokens event: {} {}", event.toString(), Thread.currentThread().getName());
                 ODocument doc = updateOrCreateConfirmedTransaction(db, event.getTransaction(), event.getBlock());
                 doc.field(OTransaction.OPROPERTY_TOKENS, new BigDecimal(event.getTokens()));
+                doc.field(OTransaction.OPROPERTY_TO, event.getTo());
+                doc.field(OTransaction.OPROPERTY_CURRENCY, getTokenByAddress(db, event.getTransaction().getTo()));
                 doc.save();
             }
             return null;
@@ -394,7 +395,7 @@ public class DBServiceImpl implements IDBService {
         Date date = ICOFarmUtils.computeTimestamp(block);
         ODocument result = getTransactionByHash(db, transaction.getHash());
         if (result != null) {
-            updateConfirmedTransaction(result, date, transaction).save();
+            updateConfirmedTransaction(db, result, date, transaction).save();
         } else {
             result = saveConfirmedTransaction(db, transaction, date);
         }
@@ -403,7 +404,7 @@ public class DBServiceImpl implements IDBService {
 
     private ODocument saveConfirmedTransaction(ODatabaseDocument db, Transaction transaction, Date date) {
         ODocument doc = saveUnconfirmedTransaction(db, transaction);
-        updateConfirmedTransaction(doc, date, transaction).save();
+        updateConfirmedTransaction(db, doc, date, transaction).save();
         return doc;
     }
 
@@ -442,11 +443,18 @@ public class DBServiceImpl implements IDBService {
         return isDocsNotEmpty(docs) ? docs.get(0) : null;
     }
 
-    private ODocument updateConfirmedTransaction(ODocument doc, Date date, Transaction transaction) {
+    private ODocument updateConfirmedTransaction(ODatabaseDocument db, ODocument doc, Date date, Transaction transaction) {
         doc.field(OTransaction.OPROPERTY_CONFIRMED, true);
         doc.field(OTransaction.OPROPERTY_BLOCK, transaction.getBlockNumber().toString());
         doc.field(OTransaction.OPROPERTY_TIMESTAMP, date);
+        doc.field(OTransaction.OPROPERTY_CURRENCY, getTokenByAddress(db, transaction.getTo()));
         return doc;
+    }
+
+    private ODocument getTokenByAddress(ODatabaseDocument db, String address) {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), address);
+        return isDocsNotEmpty(docs) ? docs.get(0) : null;
     }
 
     private boolean isDocsNotEmpty(List<ODocument> docs) {

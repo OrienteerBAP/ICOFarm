@@ -98,13 +98,17 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
 
     private Subscription subscribeOnUpdatingBalances() {
         EthereumClientConfig config = ethService.getConfig();
-        Observable<List<ODocument>> obs = ethService.getTransactionsObservable()
+        List<Token> tokens = dbService.getTokens(false);
+
+        Observable<List<ODocument>> obs = Observable.from(tokens).flatMap(token -> ethService.loadSmartContract(token.getOwner(), token)
+                .transferEventObservable(DefaultBlockParameterName.LATEST, DefaultBlockParameterName.LATEST)
                 .distinct()
                 .buffer(config.getTransactionsBufferDelay(), TimeUnit.SECONDS, config.getTransactionsBufferSize())
-                .map(this::getWalletsFroUpdate)
+                .map(this::getWalletsForUpdate)
                 .flatMap(walletsMap -> Observable.from(walletsMap.keySet())
                         .flatMap(wallet -> updateWalletBalances(wallet, walletsMap.get(wallet)))
-                ).subscribeOn(Schedulers.io());
+                ).subscribeOn(Schedulers.io())
+        );
 
         return obs.map(docs -> docs.toArray(new ODocument[0]))
                 .subscribe(
@@ -171,33 +175,31 @@ public class EthereumUpdateServiceImpl implements IEthereumUpdateService {
                 ).last();
     }
 
-    private List<Wallet> getWalletsFromTransactions(Transaction transaction) {
+    private Map<Wallet, List<Token>> getWalletsForUpdate(List<TransferEvent> events) {
+        Map<Wallet, List<Token>> walletsMap = new HashedMap<>();
+        for (TransferEvent event : events) {
+            List<Wallet> wallets = getWalletsFromTransactions(event);
+            List<Token> tokens = getTokensFromTransactions(event);
+            for (Wallet wallet : wallets) {
+                walletsMap.put(wallet, tokens);
+            }
+        }
+        return walletsMap;
+    }
+
+    private List<Wallet> getWalletsFromTransactions(TransferEvent event) {
         Set<Wallet> wallets = new HashSet<>();
-        wallets.addAll(dbService.getWalletsByAddress(transaction.getTo()));
-        wallets.addAll(dbService.getWalletsByAddress(transaction.getFrom()));
+        wallets.addAll(dbService.getWalletsByAddress(event.getTo()));
+        wallets.addAll(dbService.getWalletsByAddress(event.getTransaction().getFrom()));
         return new ArrayList<>(wallets);
     }
 
-    private List<Token> getTokensFromTransactions(Transaction transaction) {
+    private List<Token> getTokensFromTransactions(TransferEvent event) {
         List<Token> tokens = dbService.getCurrencyTokens();
-        Token token = dbService.getTokenByAddress(transaction.getTo());
+        Token token = dbService.getTokenByAddress(event.getTransaction().getTo());
         if (token != null && !token.isEthereumCurrency()) {
             tokens.add(token);
         }
         return tokens;
-    }
-
-    private Map<Wallet, List<Token>> getWalletsFroUpdate(List<Transaction> transactions) {
-        Map<Wallet, List<Token>> walletsMap = new HashedMap<>();
-        for (Transaction transaction : transactions) {
-            List<Wallet> wallets = getWalletsFromTransactions(transaction);
-            List<Token> tokens = getTokensFromTransactions(transaction);
-
-            if (!wallets.isEmpty()) {
-                walletsMap.put(wallets.get(0), tokens);
-                if (wallets.size() == 2) walletsMap.put(wallets.get(1), tokens);
-            }
-        }
-        return walletsMap;
     }
 }

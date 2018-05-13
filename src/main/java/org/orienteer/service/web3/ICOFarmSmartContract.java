@@ -83,7 +83,8 @@ public class ICOFarmSmartContract extends Contract implements IICOFarmSmartContr
                             return new TransferEvent(
                                     transaction,
                                     block,
-                                    (BigInteger) eventValues.getNonIndexedValues().get(0).getValue()
+                                    (BigInteger) eventValues.getNonIndexedValues().get(0).getValue(),
+                                    (String) eventValues.getIndexedValues().get(1).getValue()
                             );
                         })
                     )

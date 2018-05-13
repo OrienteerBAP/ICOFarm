@@ -10,12 +10,13 @@ public class TransferEvent {
     private final Transaction transaction;
     private final EthBlock.Block block;
     private final BigInteger tokens;
+    private final String to;
 
-
-    public TransferEvent(Transaction transaction, EthBlock.Block block, BigInteger tokens) {
+    public TransferEvent(Transaction transaction, EthBlock.Block block, BigInteger tokens, String to) {
         this.transaction = transaction;
         this.block = block;
         this.tokens = tokens;
+        this.to = to;
     }
 
     public Transaction getTransaction() {
@@ -30,6 +31,10 @@ public class TransferEvent {
         return tokens;
     }
 
+    public String getTo() {
+        return to;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -37,21 +42,23 @@ public class TransferEvent {
         TransferEvent that = (TransferEvent) o;
         return Objects.equals(transaction, that.transaction) &&
                 Objects.equals(block, that.block) &&
-                Objects.equals(tokens, that.tokens);
+                Objects.equals(tokens, that.tokens) &&
+                Objects.equals(to, that.to);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(transaction, block, tokens);
+        return Objects.hash(transaction, block, tokens, to);
     }
 
     @Override
     public String toString() {
         return "TransferEvent{" +
                 "transaction=" + transaction.getHash() +
-                ", block=" + block.getNumber().toString() +
+                ", block=" + block +
                 ", tokens=" + tokens +
+                ", to='" + to + '\'' +
                 '}';
     }
 }
