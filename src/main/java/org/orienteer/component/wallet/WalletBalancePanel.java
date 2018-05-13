@@ -16,7 +16,6 @@ import org.apache.wicket.request.resource.CssResourceReference;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 import org.orienteer.service.IDBService;
-import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.util.ComponentUtils;
 
 import java.util.List;
@@ -28,8 +27,6 @@ public class WalletBalancePanel extends GenericPanel<Wallet> {
     @Inject
     private IDBService dbService;
 
-    @Inject
-    private IEthereumService ethService;
 
     public WalletBalancePanel(String id, IModel<Wallet> model) {
         super(id, model);
@@ -63,12 +60,7 @@ public class WalletBalancePanel extends GenericPanel<Wallet> {
                 super.onConfigure();
                 Wallet wallet = WalletBalancePanel.this.getModelObject();
                 Token token = wallet.getDisplayableToken();
-                String balance = getDisplayableBalance(wallet, token);
-                setDefaultModelObject(balance);
-            }
-
-            private String getDisplayableBalance(Wallet wallet, Token token) {
-                return ethService.requestBalance(wallet.getAddress(), token).toBlocking().value().toString();
+                setDefaultModelObject(wallet.getBalance(token.getSymbol()));
             }
         };
     }

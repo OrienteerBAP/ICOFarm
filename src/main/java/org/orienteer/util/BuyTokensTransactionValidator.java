@@ -9,6 +9,7 @@ import org.apache.wicket.validation.ValidationError;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.service.web3.IEthereumService;
 import rx.Single;
 
@@ -42,7 +43,7 @@ public class BuyTokensTransactionValidator implements IValidator<String> {
     private void validate(BigDecimal value, IValidatable<String> validatable) {
         IEthereumService ethService = OrienteerWebApplication.lookupApplication().getServiceInstance(IEthereumService.class);
         BigInteger wei = toWei(value, currencyModel.getObject());
-        BigInteger walletWei = getWeiFromWallet(ethService);
+        BigInteger walletWei = walletModel.getObject().getBalance(ICOFarmModule.WEI).toBigInteger();
         BigInteger delta = walletWei.subtract(wei);
         int compared = delta.compareTo(BigInteger.ZERO);
         if (compared > 0) {
@@ -71,11 +72,6 @@ public class BuyTokensTransactionValidator implements IValidator<String> {
             } catch (NumberFormatException ex) {}
         }
         return result;
-    }
-
-    private BigInteger getWeiFromWallet(IEthereumService ethService) {
-        return ethService.requestBalance(walletModel.getObject().getAddress())
-                .toBlocking().value();
     }
 
     private Single<BigInteger> getGasInWeiForBuy(IEthereumService ethService, BigInteger weiAmount) {

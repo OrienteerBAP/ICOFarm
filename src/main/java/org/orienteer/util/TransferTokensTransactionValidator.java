@@ -9,6 +9,7 @@ import org.apache.wicket.validation.ValidationError;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.service.web3.IEthereumService;
 import org.web3j.tx.Transfer;
 import org.web3j.utils.Convert;
@@ -40,7 +41,7 @@ public class TransferTokensTransactionValidator implements IValidator<String> {
 
     private void validate(BigDecimal value, Token token, IValidatable<String> validatable) {
         IEthereumService ethService = OrienteerWebApplication.lookupApplication().getServiceInstance(IEthereumService.class);
-        BigDecimal walletTokens = getTokensFromWallet(ethService);
+        BigDecimal walletTokens = walletModel.getObject().getBalance(token.getSymbol());
         BigDecimal delta = walletTokens.subtract(value);
         if (delta.compareTo(BigDecimal.ZERO) >= 0) {
             boolean valid = token.isEthereumCurrency() ? isCurrencyTransferValid(delta, ethService) : isTokenTransferValid(walletTokens, ethService);
@@ -59,7 +60,7 @@ public class TransferTokensTransactionValidator implements IValidator<String> {
     }
 
     private boolean isTokenTransferValid(BigDecimal walletTokens, IEthereumService ethService) {
-        BigInteger walletWei = getWeiFromWallet(ethService);
+        BigInteger walletWei = walletModel.getObject().getBalance(ICOFarmModule.WEI).toBigInteger();
         BigInteger gas = getGasForTransfer(ethService, walletTokens.toBigInteger());
         BigInteger gasInWei = getGasPrice(ethService).multiply(gas);
 
@@ -74,15 +75,6 @@ public class TransferTokensTransactionValidator implements IValidator<String> {
             } catch (NumberFormatException ex) {}
         }
         return result;
-    }
-
-    private BigDecimal getTokensFromWallet(IEthereumService ethService) {
-        return ethService.requestBalance(walletModel.getObject().getAddress(), tokenModel.getObject())
-                .toBlocking().value();
-    }
-
-    private BigInteger getWeiFromWallet(IEthereumService ethService) {
-        return ethService.requestBalance(walletModel.getObject().getAddress()).toBlocking().value();
     }
 
     private BigInteger getGasForTransfer(IEthereumService ethService, BigInteger weiAmount) {

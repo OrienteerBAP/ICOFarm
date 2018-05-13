@@ -3,10 +3,13 @@ package org.orienteer.model;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
+import org.apache.commons.collections4.map.HashedMap;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Wallet extends ODocumentWrapper {
@@ -21,6 +24,7 @@ public class Wallet extends ODocumentWrapper {
 	public static final String OPROPERTY_TRANSACTIONS      = "transactions";
 	public static final String OPROPERTY_WALLET_JSON       = "walletJSON";
 	public static final String OPROPERTY_DISPLAYABLE_TOKEN = "displayableToken";
+	public static final String OPROPERTY_BALANCES = "balances";
 
 	public Wallet(ODocument wallet) {
 		super(wallet);
@@ -103,5 +107,30 @@ public class Wallet extends ODocumentWrapper {
 	public String getWalletJSONName(){
 		return getDocument().field(OPROPERTY_WALLET_JSON + ".json");
 	}
+
+	public Map<String, BigDecimal> getBalances() {
+		return document.field(OPROPERTY_BALANCES);
+	}
+
+	public BigDecimal getBalance(String symbol) {
+		Map<String, BigDecimal> balances = getBalances();
+		return balances != null ? balances.get(symbol) : BigDecimal.ZERO;
+	}
+
+	public Wallet setBalance(String symbol, BigDecimal wei) {
+		Map<String, BigDecimal> balances = getBalances();
+		if (balances == null) {
+			balances = new HashedMap<>();
+		}
+		balances.put(symbol, wei);
+		setBalances(balances);
+		return this;
+	}
+
+	public Wallet setBalances(Map<String, BigDecimal> balances) {
+		document.field(OPROPERTY_BALANCES, balances);
+		return this;
+	}
+
 
 }

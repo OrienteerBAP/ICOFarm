@@ -49,8 +49,8 @@ public class TransferEvent {
     @Override
     public String toString() {
         return "TransferEvent{" +
-                "transaction=" + transaction +
-                ", block=" + block +
+                "transaction=" + transaction.getHash() +
+                ", block=" + block.getNumber().toString() +
                 ", tokens=" + tokens +
                 '}';
     }

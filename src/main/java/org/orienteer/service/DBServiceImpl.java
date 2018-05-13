@@ -120,6 +120,13 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
+    public Token getTokenByAddress(String address) {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), address);
+        return getFromDocs(docs, Token::new);
+    }
+
+    @Override
     public ICOFarmUser createInvestorUser(String email, String password, String firstName, String lastName, boolean active) {
         return (ICOFarmUser) dbClosure.get().execute(db -> {
             ORole role = getRoleByName(db, ICOFarmSecurityModule.INVESTOR_ROLE);
@@ -226,6 +233,13 @@ public class DBServiceImpl implements IDBService {
     public Wallet getWalletByTransactionFromOrTo(ODocument owner, String from, String to) {
         ODocument doc = getWalletByTransactionFromOrTo(null, owner, from, to);
         return doc != null ? new Wallet(doc) : null;
+    }
+
+    @Override
+    public List<Wallet> getWalletsByAddress(String address) {
+        String sql = String.format("select from %s where %s = ?", Wallet.CLASS_NAME, Wallet.OPROPERTY_ADDRESS);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql), address);
+        return isDocsNotEmpty(docs) ? docs.stream().map(Wallet::new).collect(Collectors.toList()) : Collections.emptyList();
     }
 
     @Override
@@ -339,13 +353,22 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
-    public void save(ODocumentWrapper documentWrapper) {
-        save(documentWrapper.getDocument());
+    public void save(ODocumentWrapper...wrappers) {
+        ODocument[] docs = new ODocument[wrappers.length];
+        for (int i = 0; i < wrappers.length; i++) {
+            docs[i] = wrappers[i].getDocument();
+        }
+        save(docs);
     }
 
     @Override
-    public void save(ODocument doc) {
-        dbClosure.get().execute(db -> db.save(doc));
+    public void save(ODocument...docs) {
+        dbClosure.get().execute(db -> {
+            for (ODocument doc : docs) {
+                db.save(doc);
+            }
+            return null;
+        });
     }
 
     private ODocument saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
@@ -418,7 +441,6 @@ public class DBServiceImpl implements IDBService {
         List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), from, to, owner);
         return isDocsNotEmpty(docs) ? docs.get(0) : null;
     }
-
 
     private ODocument updateConfirmedTransaction(ODocument doc, Date date, Transaction transaction) {
         doc.field(OTransaction.OPROPERTY_CONFIRMED, true);

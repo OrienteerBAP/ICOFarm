@@ -6,13 +6,20 @@ import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.OrienteerWebSession;
+import org.orienteer.core.util.CommonUtils;
+import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
+import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
+import rx.Observable;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class WalletHook extends ODocumentHookAbstract {
 
@@ -39,6 +46,7 @@ public class WalletHook extends ODocumentHookAbstract {
             doc.field(Wallet.OPROPERTY_NAME, (String) doc.field(Wallet.OPROPERTY_ADDRESS));
         }
 
+        doc.field(Wallet.OPROPERTY_BALANCES, getBalances(doc, service));
         doc.field(Wallet.OPROPERTY_CREATED, new Date());
 
         return super.onRecordBeforeCreate(doc);
@@ -62,6 +70,22 @@ public class WalletHook extends ODocumentHookAbstract {
         } catch (Exception e) {
             LOG.error("Can't create new wallet: {}", doc, e);
         }
+    }
+
+
+    private Map<String, BigDecimal> getBalances(ODocument doc, IEthereumService ethService) {
+        IDBService dbService = OrienteerWebApplication.lookupApplication().getServiceInstance(IDBService.class);
+        List<Token> tokens = dbService.getTokens(true);
+        String address = doc.field(Wallet.OPROPERTY_ADDRESS);
+
+        return Observable.from(tokens)
+                .flatMap(token -> ethService.requestBalance(address, token)
+                        .map(balance -> CommonUtils.<String, BigDecimal>toMap(token.getSymbol(), balance))
+                        .toObservable())
+                .reduce((b1, b2) -> {
+                    b1.putAll(b2);
+                    return b1;
+                }).toSingle().toBlocking().value();
     }
 
     private void checkIfAddressValid(ODocument doc, IEthereumService service) {
