@@ -16,6 +16,7 @@ import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
+import org.orienteer.method.filter.ODocumentExistsFilter;
 import org.orienteer.model.Wallet;
 
 @OMethod(
@@ -26,6 +27,7 @@ import org.orienteer.model.Wallet;
 		filters = {
 			@OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME),
 			@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
+			@OFilter(fClass = ODocumentExistsFilter.class, fData = "true")
 		}
 )
 public class TransferToken extends AbstractModalOMethod {

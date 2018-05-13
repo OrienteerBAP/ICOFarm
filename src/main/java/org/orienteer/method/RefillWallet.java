@@ -12,12 +12,17 @@ import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
+import org.orienteer.method.filter.ODocumentExistsFilter;
 import org.orienteer.model.Wallet;
 
 @OMethod(order = 0, icon = FAIconType.credit_card,
         bootstrap = BootstrapType.INFO,
         titleKey = "method.token.refill",
-        filters = { @OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME) })
+        filters = {
+            @OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME),
+            @OFilter(fClass = ODocumentExistsFilter.class, fData = "true")
+        }
+)
 public class RefillWallet extends AbstractModalOMethod {
 
     @Override

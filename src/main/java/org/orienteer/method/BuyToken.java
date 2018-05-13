@@ -8,6 +8,7 @@ import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
+import org.orienteer.method.filter.ODocumentExistsFilter;
 import org.orienteer.model.Token;
 import org.orienteer.model.Wallet;
 
@@ -18,6 +19,7 @@ import org.orienteer.model.Wallet;
 		filters = {
 				@OFilter(fClass = ODocumentFilter.class, fData = Token.CLASS_NAME),
 				@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
+				@OFilter(fClass = ODocumentExistsFilter.class, fData = "true")
 		}
 )
 public class BuyToken extends AbstractBuyTokenMethod {

@@ -16,6 +16,7 @@ import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
 import org.orienteer.core.method.filters.WidgetTypeFilter;
 import org.orienteer.core.method.methods.AbstractModalOMethod;
+import org.orienteer.method.filter.ODocumentExistsFilter;
 import org.orienteer.model.Token;
 import org.orienteer.module.ICOFarmPerspectiveModule;
 
@@ -23,7 +24,8 @@ import org.orienteer.module.ICOFarmPerspectiveModule;
         filters = {
             @OFilter(fClass = ODocumentFilter.class, fData = Token.CLASS_NAME),
             @OFilter(fClass = WidgetTypeFilter.class, fData = ICOFarmPerspectiveModule.TOKEN_TRANSACTIONS_WIDGET_ID),
-            @OFilter(fClass = PlaceFilter.class, fData = "DATA_TABLE")
+            @OFilter(fClass = PlaceFilter.class, fData = "DATA_TABLE"),
+            @OFilter(fClass = ODocumentExistsFilter.class, fData = "true")
         },
         bootstrap = BootstrapType.PRIMARY,
         icon = FAIconType.plus
