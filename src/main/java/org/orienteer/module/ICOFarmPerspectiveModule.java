@@ -48,6 +48,7 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
     public static final String MONEY_WIDGET_ID                   = "money-widget";
     public static final String USER_STATISTICS_WIDGET_ID         = "user-statistics-widget";
     public static final String USER_INVESTORS_WIDGET_ID          = "investors-widget";
+    public static final String USERS_WIDGET_ID                   = "users-widget";
 
     public static final String WALLET_BALANCE_TAB = "Balance";
     public static final String WALLET_TRANSACTIONS_TAB = "Transactions";
@@ -212,6 +213,10 @@ public class ICOFarmPerspectiveModule extends AbstractOrienteerModule {
         createWidgetIfNotExists(LIST_DOCUMENTS_WIDGET_ID, Wallet.CLASS_NAME, helper);
 
         createWidgetIfNotExists(MONEY_WIDGET_ID, ICOFarmModule.MONEY, helper);
+
+        createWidgetIfNotExists(USER_STATISTICS_WIDGET_ID, ICOFarmUser.CLASS_NAME, helper);
+        createWidgetIfNotExists(USER_INVESTORS_WIDGET_ID, ICOFarmUser.CLASS_NAME, helper);
+        createWidgetIfNotExists(USERS_WIDGET_ID, ICOFarmUser.CLASS_NAME, helper);
     }
 
     private void initHiddenProperties() {
