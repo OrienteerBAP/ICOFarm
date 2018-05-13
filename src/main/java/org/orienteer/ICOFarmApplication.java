@@ -8,6 +8,7 @@ import org.orienteer.core.OrienteerWebApplication;
 import org.orienteer.core.service.IFilterPredicateFactory;
 import org.orienteer.hook.OWidgetHook;
 import org.orienteer.hook.TokenHook;
+import org.orienteer.hook.UserHook;
 import org.orienteer.hook.WalletHook;
 import org.orienteer.module.ICOFarmModule;
 import org.orienteer.module.ICOFarmPerspectiveModule;
@@ -43,6 +44,7 @@ public class ICOFarmApplication extends OrienteerWebApplication {
 		hooks.add(OWidgetHook.class);
 		hooks.add(WalletHook.class);
 		hooks.add(TokenHook.class);
+		hooks.add(UserHook.class);
 	}
 
 	@Override
