@@ -27,7 +27,7 @@ public class BuyTokenFromWallet extends BuyToken{
 
 	@Override
 	protected EthereumWallet getWallet() throws Exception{
-		IModel<?> walletModel = getEnvData().getDisplayObjectModel();
+		IModel<?> walletModel = getContext().getDisplayObjectModel();
 		ODocument walletDoc = (ODocument) walletModel.getObject();
 		if (walletDoc==null) throw new Exception("Please link buy button to 'EthereumWallet' OClass");
 		return new EthereumWallet(walletDoc);

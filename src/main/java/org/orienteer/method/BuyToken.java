@@ -108,7 +108,7 @@ public class BuyToken extends AbstractModalOMethod {
 	}
 	
 	protected TokenCurrency getTokenCurrency() throws Exception{
-		IModel<?> currencyModel = getEnvData().getDisplayObjectModel();
+		IModel<?> currencyModel = getContext().getDisplayObjectModel();
 		ODocument currencyDoc = (ODocument) currencyModel.getObject();
 		if (currencyDoc==null) throw new Exception("Please link buy button to 'currency' OClass");
 		return new TokenCurrency(currencyDoc);		
