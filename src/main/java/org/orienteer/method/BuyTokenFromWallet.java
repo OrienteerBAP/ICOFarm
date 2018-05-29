@@ -1,43 +1,40 @@
 package org.orienteer.method;
 
+import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.apache.wicket.model.IModel;
+import org.orienteer.core.component.BootstrapType;
 import org.orienteer.core.component.FAIconType;
 import org.orienteer.core.method.OFilter;
 import org.orienteer.core.method.OMethod;
 import org.orienteer.core.method.filters.ODocumentFilter;
 import org.orienteer.core.method.filters.PlaceFilter;
-import org.orienteer.model.EthereumClientConfig;
-import org.orienteer.model.EthereumWallet;
-import org.orienteer.model.TokenCurrency;
-import org.orienteer.service.IEthereumService;
-
-import com.google.inject.Inject;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import org.orienteer.method.filter.ODocumentExistsFilter;
+import org.orienteer.model.Token;
+import org.orienteer.model.Wallet;
 
 @OMethod(
-		icon=FAIconType.dollar,
-		filters={
-			@OFilter(fClass = ODocumentFilter.class, fData = "EthereumWallet"),
+		order = 1,
+		icon = FAIconType.money,
+		titleKey = "method.token.buy.fromWallet",
+		bootstrap = BootstrapType.SUCCESS,
+		filters = {
+			@OFilter(fClass = ODocumentFilter.class, fData = Wallet.CLASS_NAME),
 			@OFilter(fClass = PlaceFilter.class, fData = "STRUCTURE_TABLE"),
+			@OFilter(fClass = ODocumentExistsFilter.class, fData = "true")
 		}
 )
-
-public class BuyTokenFromWallet extends BuyToken{
-	private static final long serialVersionUID = 1L;
+public class BuyTokenFromWallet extends AbstractBuyTokenMethod {
 
 	@Override
-	protected EthereumWallet getWallet() throws Exception{
-		IModel<?> walletModel = getContext().getDisplayObjectModel();
-		ODocument walletDoc = (ODocument) walletModel.getObject();
-		if (walletDoc==null) throw new Exception("Please link buy button to 'EthereumWallet' OClass");
-		return new EthereumWallet(walletDoc);
-		
+	@SuppressWarnings("unchecked")
+	protected Wallet getWallet() {
+		IModel<ODocument> docModel = (IModel<ODocument>) getContext().getDisplayObjectModel();
+		return new Wallet(docModel.getObject());
 	}
-	
+
 	@Override
-	protected TokenCurrency getTokenCurrency() throws Exception{
-		TokenCurrency tokenCurrency = getConfig().getMainTokenCurrency(); 
-		if (tokenCurrency.getDocument()==null) throw new Exception("Please set main token currency in ICOFarm module settings!");
-		return tokenCurrency;		
+	protected Token getToken() {
+		return null;
 	}
+
 }

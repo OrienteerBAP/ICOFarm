@@ -1,0 +1,29 @@
+<wicket:panel xmlns:wicket="http://www.w3.org/1999/xhtml">
+	<form class="registration" wicket:id="form">
+		<h2 class="text-center"><strong wicket:id="title"></strong></h2>
+		<h4 class="text-center" wicket:id="content"></h4>
+		<div class="form-group">
+			<input class="form-control" type="text" placeholder="First Name" wicket:id="firstName"/>
+		</div>
+		<div class="form-group">
+			<input class="form-control" type="text" placeholder="Last Name" wicket:id="lastName"/>
+		</div>
+		<div class="form-group">
+			<input class="form-control" type="text" placeholder="E-mail" wicket:id="email"/>
+		</div>
+		<div class="form-group">
+			<input class="form-control" type="password" placeholder="Password" wicket:id="password"/>
+		</div>
+		<div class="form-group">
+			<input class="form-control" type="password" placeholder="Re enter password" wicket:id="repeatPassword"/>
+		</div>
+		<div class="mx-auto">
+			<button type="submit" class="mr-1 btn btn-primary" wicket:id="submit">
+				<wicket:message key="widget.registration.register"></wicket:message>
+			</button>
+			<a class="ml-1 btn btn-success" href="/login">
+				<wicket:message key="widget.registration.login"></wicket:message>
+			</a>
+		</div>
+	</form>
+</wicket:panel>

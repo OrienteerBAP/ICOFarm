@@ -1,5 +1,6 @@
 package org.orienteer.service;
 
+import com.google.common.base.Strings;
 import com.google.inject.Singleton;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
@@ -12,16 +13,24 @@ import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.schedule.OScheduledEventBuilder;
 import com.orientechnologies.orient.core.schedule.OScheduler;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import org.orienteer.ICOFarmApplication;
+import org.orienteer.core.tasks.OTask;
+import org.orienteer.core.tasks.OTaskSession;
 import org.orienteer.model.*;
+import org.orienteer.module.ICOFarmModule;
 import org.orienteer.module.ICOFarmSecurityModule;
+import org.orienteer.tasks.LoadTokenTransactionsTask;
 import org.orienteer.util.ICOFarmUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.Transaction;
 import ru.ydn.wicket.wicketorientdb.utils.DBClosure;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -66,10 +75,53 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
+    public OTransaction getTransactionByHash(String hash) {
+        ODocument doc = getTransactionByHash(null, hash);
+        return doc != null ? new OTransaction(doc) : null;
+    }
+
+    @Override
     public List<Wallet> getWallets() {
         List<ODocument> docs = query(null, new OSQLSynchQuery<>("select from " + Wallet.CLASS_NAME));
-        return docs == null || docs.isEmpty() ? Collections.emptyList() : docs.stream().map(Wallet::new)
-                .collect(Collectors.toList());
+        return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(Wallet::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Wallet> getUserWallets(ODocument userDoc) {
+        String sql = String.format("select from %s where %s = ? order by %s", Wallet.CLASS_NAME, Wallet.OPROPERTY_OWNER,
+                Wallet.OPROPERTY_CREATED);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql), userDoc);
+        return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(Wallet::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Wallet> getUserWallets(ICOFarmUser user) {
+        return getUserWallets(user.getDocument());
+    }
+
+    @Override
+    public List<Token> getTokens(boolean allTokens) {
+        String sql = allTokens ? "select from " + Token.CLASS_NAME : String.format("select from %s where %s != ?",
+                Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
+        return getTokens(null, sql, allTokens ? null : ICOFarmModule.ZERO_ADDRESS);
+    }
+
+    @Override
+    public List<Token> getCurrencyTokens() {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
+        return getTokens(null, sql, ICOFarmModule.ZERO_ADDRESS);
+    }
+
+    @Override
+    public Token getTokenBySymbol(String symbol) {
+        ODocument doc = getTokenBySymbol(null, symbol);
+        return doc != null ? new Token(doc) : null;
+    }
+
+    @Override
+    public Token getTokenByAddress(String address) {
+        ODocument doc = getTokenByAddress(null, address);
+        return doc != null ? new Token(doc) : null;
     }
 
     @Override
@@ -97,7 +149,7 @@ public class DBServiceImpl implements IDBService {
             doc.field(OPROPERTY_REFERRAL_CREATED, new Date());
             doc.field(OPROPERTY_REFERRAL_USER, user.getDocument());
             doc.field(OPROPERTY_REFERRAL_BY, by.getDocument());
-            doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ, by.getDocument());
+            doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ, Collections.singletonList(by.getDocument()));
             return null;
         });
     }
@@ -110,7 +162,7 @@ public class DBServiceImpl implements IDBService {
     @Override
     public ICOFarmUser updateUserStatus(ICOFarmUser user, boolean active) {
         return (ICOFarmUser) dbClosure.get().execute((db) -> {
-            user.setAccountStatus(active ? OSecurityUser.STATUSES.ACTIVE : OSecurityUser.STATUSES.SUSPENDED);
+            user.setActive(active);
             user.save();
             return user;
         });
@@ -139,7 +191,7 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
-    public void cleareRestoreStatusForUser(ICOFarmUser user) {
+    public void clearRestoreStatusForUser(ICOFarmUser user) {
         dbClosure.get().execute(db -> {
             user.setRestoreId(null);
             user.setRestoreIdCreated(null);
@@ -150,14 +202,42 @@ public class DBServiceImpl implements IDBService {
     }
 
     @Override
-    public EmbeddedWallet createEmbeddedWalletForUser(ICOFarmUser user) {
-        return (EmbeddedWallet) dbClosure.get().execute(db -> {
-            EmbeddedWallet wallet = new EmbeddedWallet();
+    public Wallet createWalletForUser(ICOFarmUser user) {
+        return createWalletForUser(user, null, null, null);
+    }
+
+    @Override
+    public Wallet createWalletForUser(ICOFarmUser user, String name, String address, byte[] json) {
+        return (Wallet) dbClosure.get().execute(db -> {
+            Wallet wallet = new Wallet();
+            wallet.setName(name);
             wallet.setOwner(user.getDocument());
-            wallet.getDocument().field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, user.getDocument());
+            wallet.setWalletJSON(json);
+            wallet.setAddress(address);
+            wallet.setCreated(new Date());
+            wallet.setDisplayableToken(getTokenBySymbol(ICOFarmModule.ETH).getDocument());
+            wallet.getDocument().field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singletonList(user.getDocument()));
             wallet.save();
             return wallet;
         });
+    }
+
+    @Override
+    public Wallet getWalletByTransactionFromOrTo(ICOFarmUser owner, String from, String to) {
+        return getWalletByTransactionFromOrTo(owner.getDocument(), from, to);
+    }
+
+    @Override
+    public Wallet getWalletByTransactionFromOrTo(ODocument owner, String from, String to) {
+        ODocument doc = getWalletByTransactionFromOrTo(null, owner, from, to);
+        return doc != null ? new Wallet(doc) : null;
+    }
+
+    @Override
+    public List<Wallet> getWalletsByAddress(String address) {
+        String sql = String.format("select from %s where %s = ?", Wallet.CLASS_NAME, Wallet.OPROPERTY_ADDRESS);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql), address);
+        return isDocsNotEmpty(docs) ? docs.stream().map(Wallet::new).collect(Collectors.toList()) : Collections.emptyList();
     }
 
     @Override
@@ -166,7 +246,7 @@ public class DBServiceImpl implements IDBService {
             filterICOFarmTransactions(db, transactions)
                     .forEach(t -> {
                         LOG.info("save confirmed transaction: {} {}", t.getHash(), Thread.currentThread().getName()); //TODO: remove in next stable version
-                        saveConfirmedTransaction(db, t, blockFunction.apply(t));
+                        updateOrCreateConfirmedTransaction(db, t, blockFunction.apply(t));
                     });
             return null;
         });
@@ -184,31 +264,166 @@ public class DBServiceImpl implements IDBService {
         });
     }
 
+    @Override
+    public OTransaction saveTransaction(Transaction transaction, EthBlock.Block block) {
+        return (OTransaction) dbClosure.get().execute(db -> {
+            ODocument doc;
+            if (block != null) {
+                doc = saveConfirmedTransaction(db, transaction, ICOFarmUtils.computeTimestamp(block));
+            } else doc = saveUnconfirmedTransaction(db, transaction);
+
+            return new OTransaction(doc);
+        });
+    }
+
+    @Override
+    public void saveTransactionsFromTransferEvents(List<TransferEvent> transferEvents, boolean overrideTo) {
+        dbClosure.get().execute(db -> {
+            for (TransferEvent event : transferEvents) {
+                LOG.info("save transfer tokens event: {} {}", event.toString(), Thread.currentThread().getName());
+                ODocument doc = updateOrCreateConfirmedTransaction(db, event.getTransaction(), event.getBlock());
+                doc.field(OTransaction.OPROPERTY_TOKENS, new BigDecimal(event.getTokens()));
+                doc.field(OTransaction.OPROPERTY_CURRENCY, getTokenByAddress(db, event.getTransaction().getTo()));
+                if (overrideTo) {
+                    doc.field(OTransaction.OPROPERTY_TO, event.getTo());
+                }
+                doc.save();
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public LoadTokenTransactionsTask createLoadTokenTransactionsTask(Token token, DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+        return (LoadTokenTransactionsTask) dbClosure.get().execute(db -> {
+            LoadTokenTransactionsTask task = LoadTokenTransactionsTask.create(token, false);
+            task.setStartBlock(startBlock);
+            task.setEndBlock(endBlock);
+            task.save();
+            return task;
+        });
+    }
+
+    @Override
+    public LoadTokenTransactionsTask getLoadTokenTransactionsTask(Token token) {
+        return getTaskByName(LoadTokenTransactionsTask.NAME_PREFIX + token.getSymbol(), LoadTokenTransactionsTask.class);
+    }
+
+    @Override
+    public <T extends OTask> T getTaskByName(String name, Class<T> taskClass) {
+        String sql = String.format("select from %s where %s = ?", OTask.TASK_CLASS, OTask.Field.NAME.fieldName());
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), name);
+        return getFromDocs(docs, doc -> {
+            try {
+                return taskClass.getConstructor(ODocument.class).newInstance(doc);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public OTaskSession getRunningSessionForTask(OTask task) {
+        String sql = String.format("select from %s where %s = ? and %s = ?", OTaskSession.TASK_SESSION_CLASS,
+                OTaskSession.Field.TASK_LINK.fieldName(), OTaskSession.Field.STATUS);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), task.getDocument(), OTaskSession.Status.RUNNING.name());
+        return getFromDocs(docs, OTaskSession::new);
+    }
+
+    @Override
+    public BigInteger getTokenTransactionsCount(Token token) {
+        String sql = String.format("select count(*) as count from %s where %s = ?", OTransaction.CLASS_NAME, OTransaction.OPROPERTY_TO);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), token.getAddress());
+        Long count = isDocsNotEmpty(docs) ? docs.get(0).field("count") : null;
+        return count != null ? new BigInteger(count.toString()) : BigInteger.ZERO;
+    }
+
+    @Override
+    public BigInteger getSoldTokensCount(Token token) {
+        String sql = String.format("select sum(%s) as sum from %s where %s = ?", OTransaction.OPROPERTY_TOKENS, OTransaction.CLASS_NAME, OTransaction.OPROPERTY_TO);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), token.getAddress());
+        String sum = isDocsNotEmpty(docs) ? docs.get(0).field("sum").toString() : null;
+        return !Strings.isNullOrEmpty(sum) ? new BigInteger(sum) : BigInteger.ZERO;
+    }
+
+    @Override
+    public BigInteger getInvestorsCountFor(Token token) {
+        String sql = String.format("select count(*) as count from %s where %s contains (%s['%s'] > 0)",
+                ICOFarmUser.CLASS_NAME, ICOFarmUser.OPROPERTY_WALLETS, Wallet.OPROPERTY_BALANCES, token.getSymbol());
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1));
+        Long count = isDocsNotEmpty(docs) ? docs.get(0).field("count") : null;
+        return count != null ? new BigInteger(count.toString()) : BigInteger.ZERO;
+    }
+
+    @Override
+    public BigInteger getUsersCount() {
+        String sql = String.format("select count(*) as count from %s", ICOFarmUser.CLASS_NAME);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1));
+        Long count = isDocsNotEmpty(docs) ? docs.get(0).field("count") : null;
+        return count != null ? new BigInteger(count.toString()) : BigInteger.ZERO;
+    }
+
+    @Override
+    public boolean isTokenAddress(String address) {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
+        List<ODocument> docs = query(null, new OSQLSynchQuery<>(sql, 1), address);
+        return isDocsNotEmpty(docs);
+    }
+
+    @Override
+    public void save(ODocumentWrapper...wrappers) {
+        ODocument[] docs = new ODocument[wrappers.length];
+        for (int i = 0; i < wrappers.length; i++) {
+            docs[i] = wrappers[i].getDocument();
+        }
+        save(docs);
+    }
+
+    @Override
+    public void save(ODocument...docs) {
+        dbClosure.get().execute(db -> {
+            for (ODocument doc : docs) {
+                db.save(doc);
+            }
+            return null;
+        });
+    }
+
     private ODocument saveUnconfirmedTransaction(ODatabaseDocument database, Transaction transaction) {
         ODocument from = getUserByWalletAddress(database, transaction.getFrom());
-        ODocument to = from == null ? getUserByWalletAddress(database, transaction.getTo()) : null;
-        ODocument result = createTransactionDocument(transaction, from != null ? from : to, false);
+        ODocument to = getUserByWalletAddress(database, transaction.getTo());
+        Set<ODocument> readers = new HashSet<>();
+        if (from != null) readers.add(from);
+        if (to != null) readers.add(to);
 
+        ODocument doc = createTransactionDocument(transaction, readers, false);
         if (database == null) {
             dbClosure.get().execute(db -> {
-                result.save();
+                doc.save();
                 return null;
             });
-        } else result.save();
+        } else {
+            doc.save();
+        }
+        return doc;
+    }
 
+    private ODocument updateOrCreateConfirmedTransaction(ODatabaseDocument db, Transaction transaction, EthBlock.Block block) {
+        Date date = ICOFarmUtils.computeTimestamp(block);
+        ODocument result = getTransactionByHash(db, transaction.getHash());
+        if (result != null) {
+            updateConfirmedTransaction(db, result, date, transaction).save();
+        } else {
+            result = saveConfirmedTransaction(db, transaction, date);
+        }
         return result;
     }
 
-    private void saveConfirmedTransaction(ODatabaseDocument db, Transaction transaction, EthBlock.Block block) {
-        String sql = String.format("select from %s where %s = ?", OTransaction.CLASS_NAME, OTransaction.OPROPERTY_HASH);
-        List<ODocument> docs = db.query(new OSQLSynchQuery<>(sql), transaction.getHash());
-        Date date = ICOFarmUtils.computeTimestamp(block);
-        if (isDocsNotEmpty(docs)) {
-            docs.forEach(doc -> updateConfirmedTransaction(doc, date, block).save());
-        } else {
-            ODocument doc = saveUnconfirmedTransaction(db, transaction);
-            updateConfirmedTransaction(doc, date, block).save();
-        }
+    private ODocument saveConfirmedTransaction(ODatabaseDocument db, Transaction transaction, Date date) {
+        ODocument doc = saveUnconfirmedTransaction(db, transaction);
+        updateConfirmedTransaction(db, doc, date, transaction).save();
+        return doc;
     }
 
     private Stream<Transaction> filterICOFarmTransactions(ODatabaseDocument db, List<Transaction> transactions) {
@@ -222,22 +437,48 @@ public class DBServiceImpl implements IDBService {
         return isDocsNotEmpty(docs);
     }
 
-    private ODocument createTransactionDocument(Transaction transaction, ODocument owner, boolean confirmed) {
+    private ODocument getTransactionByHash(ODatabaseDocument db, String hash) {
+        String sql = String.format("select from %s where %s = ?", OTransaction.CLASS_NAME, OTransaction.OPROPERTY_HASH);
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), hash);
+        return isDocsNotEmpty(docs) ? docs.get(0) : null;
+    }
+
+    private ODocument createTransactionDocument(Transaction transaction, Collection<ODocument> readers, boolean confirmed) {
         ODocument doc = new ODocument(OTransaction.CLASS_NAME);
-        doc.field(OTransaction.OPROPERTY_FROM, transaction.getFrom());
-	    doc.field(OTransaction.OPROPERTY_TO, transaction.getTo());
-	    doc.field(OTransaction.OPROPERTY_HASH, transaction.getHash());
+        doc.field(OTransaction.OPROPERTY_FROM, transaction.getFrom().toLowerCase());
+	    doc.field(OTransaction.OPROPERTY_TO, transaction.getTo().toLowerCase());
+	    doc.field(OTransaction.OPROPERTY_HASH, transaction.getHash().toLowerCase());
 	    doc.field(OTransaction.OPROPERTY_VALUE, transaction.getValue().toString());
         doc.field(OTransaction.OPROPERTY_CONFIRMED, confirmed);
-	    doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singleton(owner));
+        doc.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ, readers);
         return doc;
     }
 
-    private ODocument updateConfirmedTransaction(ODocument doc, Date date, EthBlock.Block block) {
+    private ODocument getWalletByTransactionFromOrTo(ODatabaseDocument db, ODocument owner, String from, String to) {
+        String sql = String.format("select from %s where %s = ? or %s = ? and %s = ?",
+                Wallet.CLASS_NAME, Wallet.OPROPERTY_ADDRESS, Wallet.OPROPERTY_ADDRESS, Wallet.OPROPERTY_OWNER);
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), from, to, owner);
+        return isDocsNotEmpty(docs) ? docs.get(0) : null;
+    }
+
+    private ODocument updateConfirmedTransaction(ODatabaseDocument db, ODocument doc, Date date, Transaction transaction) {
         doc.field(OTransaction.OPROPERTY_CONFIRMED, true);
-        doc.field(OTransaction.OPROPERTY_BLOCK, block.getNumber().toString());
+        doc.field(OTransaction.OPROPERTY_BLOCK, transaction.getBlockNumber().toString());
         doc.field(OTransaction.OPROPERTY_TIMESTAMP, date);
+        doc.field(OTransaction.OPROPERTY_CURRENCY, getTokenBySymbol(db, ICOFarmModule.WEI));
         return doc;
+    }
+
+    private ODocument getTokenByAddress(ODatabaseDocument db, String address) {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_ADDRESS);
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), address);
+        return isDocsNotEmpty(docs) ? docs.get(0) : null;
+    }
+
+    private ODocument getTokenBySymbol(ODatabaseDocument db, String symbol) {
+        String sql = String.format("select from %s where %s = ?", Token.CLASS_NAME, Token.OPROPERTY_SYMBOL);
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql, 1), symbol);
+        return isDocsNotEmpty(docs) ? docs.get(0) : null;
     }
 
     private boolean isDocsNotEmpty(List<ODocument> docs) {
@@ -277,12 +518,17 @@ public class DBServiceImpl implements IDBService {
         return getFromDocs(docs, OFunction::new);
     }
 
+    private List<Token> getTokens(ODatabaseDocument db, String sql, Object...args) {
+        List<ODocument> docs = query(db, new OSQLSynchQuery<>(sql), args);
+        return !isDocsNotEmpty(docs) ? Collections.emptyList() : docs.stream().map(Token::new).collect(Collectors.toList());
+    }
+
     private <T> T getFromDocs(List<ODocument> docs, Function<ODocument, T> f) {
         return isDocsNotEmpty(docs) ? f.apply(docs.get(0)) : null;
     }
 
     private OScheduledEvent createRestorePasswordSchedulerEvent(ODatabaseDocument db, ICOFarmUser user, String name) {
-        OProperty property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.RESTORE_ID);
+        OProperty property = user.getDocument().getSchemaClass().getProperty(ICOFarmUser.OPROPERTY_RESTORE_ID);
         OFunction f = getFunctionByName(db, FUN_REMOVE_RESTORE_ID_BY_EMAIL);
         long timeout = Long.parseLong(ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.getValue(property));
         Map<Object, Object> args = new HashMap<>(2);

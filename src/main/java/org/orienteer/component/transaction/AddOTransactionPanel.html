@@ -1,0 +1,22 @@
+<wicket:panel xmlns:wicket="http://www.w3.org/1999/xhtml">
+	<div class="container-fluid p-3">
+		<h3>
+			<wicket:message key="transaction.add.title"></wicket:message>
+		</h3>
+		<div wicket:id="feedback"></div>
+		<form wicket:id="form">
+			<div class="form-group">
+				<label>
+					<wicket:message key="transaction.add.label"></wicket:message>
+				</label>
+				<input type="text" wicket:id="transactionHash" class="form-control"/>
+			</div>
+			<div class="text-center">
+				<button wicket:id="submit" class="btn btn-primary">
+					<i class="fa fa-plus"></i>
+					<wicket:message key="transaction.add.submit"></wicket:message>
+				</button>
+			</div>
+		</form>
+	</div>
+</wicket:panel>

@@ -20,6 +20,7 @@ import org.orienteer.core.util.OSchemaHelper;
 import org.orienteer.model.*;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 import static com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
@@ -56,12 +57,12 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         updateDefaultOrientDbUsers(helper.getDatabase());
 
         OClass user = helper.oClass(ICOFarmUser.CLASS_NAME)
-                .oProperty(ICOFarmUser.FIRST_NAME, OType.STRING, 0)
-                .oProperty(ICOFarmUser.LAST_NAME, OType.STRING, 10)
-                .oProperty(ICOFarmUser.EMAIL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE).markAsDocumentName()
-                .oProperty(ICOFarmUser.ID, OType.STRING).oIndex(OClass.INDEX_TYPE.UNIQUE).notNull()
-                .oProperty(ICOFarmUser.RESTORE_ID, OType.STRING).switchDisplayable(false)
-                .oProperty(ICOFarmUser.RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false).getOClass();
+                .oProperty(ICOFarmUser.OPROPERTY_FIRST_NAME, OType.STRING, 0)
+                .oProperty(ICOFarmUser.OPROPERTY_LAST_NAME, OType.STRING, 10)
+                .oProperty(ICOFarmUser.OPROPERTY_EMAIL, OType.STRING, 20).notNull().oIndex(OClass.INDEX_TYPE.UNIQUE)
+                .oProperty(ICOFarmUser.OPROPERTY_ID, OType.STRING).oIndex(OClass.INDEX_TYPE.UNIQUE).notNull()
+                .oProperty(ICOFarmUser.OPROPERTY_RESTORE_ID, OType.STRING).switchDisplayable(false)
+                .oProperty(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED, OType.DATETIME).switchDisplayable(false).getOClass();
 
         updateUserCustomAttributes(user);
 
@@ -76,15 +77,27 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
     }
 
     private void updateUserDocument(ODocument doc) {
-        doc.field(ICOFarmUser.EMAIL, UUID.randomUUID().toString() + "@gmail.com");
-        doc.field(ICOFarmUser.ID, UUID.randomUUID().toString());
+        doc.field(ICOFarmUser.OPROPERTY_EMAIL, UUID.randomUUID().toString() + "@gmail.com");
+        doc.field(ICOFarmUser.OPROPERTY_ID, UUID.randomUUID().toString());
+        doc.field(ORESTRICTED_ALLOW_READ, Collections.singleton(doc));
         doc.save();
     }
 
     private void updateUserCustomAttributes(OClass user) {
-        ICOFarmApplication.REMOVE_CRON_RULE.setValue(user.getProperty(ICOFarmUser.RESTORE_ID), "0 0/1 * * * ?");
-        ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(user.getProperty(ICOFarmUser.RESTORE_ID_CREATED), "86400000");
+        ICOFarmApplication.REMOVE_CRON_RULE.setValue(user.getProperty(ICOFarmUser.OPROPERTY_RESTORE_ID), "0 0/1 * * * ?");
+        ICOFarmApplication.REMOVE_SCHEDULE_START_TIMEOUT.setValue(user.getProperty(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED), "86400000");
         CustomAttribute.ORDER.setValue(user.getProperty("locale"), "40");
+
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty(ICOFarmUser.OPROPERTY_FIRST_NAME), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty(ICOFarmUser.OPROPERTY_LAST_NAME), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty(ICOFarmUser.OPROPERTY_RESTORE_ID), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty(ICOFarmUser.ORPOPERTY_RESTORE_ID_CREATED), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("roles"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("password"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("perspective"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("perspectiveItem"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("lastSessionId"), false);
+        CustomAttribute.DISPLAYABLE.setValue(user.getProperty("locale"), false);
     }
 
     private void updateInvestorPermissions(ODatabaseDocument db) {
@@ -93,18 +106,18 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         ORole investor = security.getRole(INVESTOR_ROLE) != null ? security.getRole(INVESTOR_ROLE) :
                 security.createRole(INVESTOR_ROLE, OSecurityRole.ALLOW_MODES.DENY_ALL_BUT).setParentRole(security.getRole("reader"));
 
-        investor.grant(ResourceGeneric.CLASS, OTransaction.CLASS_NAME, 15);
+        investor.grant(ResourceGeneric.CLASS, OTransaction.CLASS_NAME, 2);
 
         investor.grant(ResourceGeneric.CLASS, Wallet.CLASS_NAME, 15);
-        investor.grant(ResourceGeneric.CLASS, ExternalWallet.CLASS_NAME, 15);
-        investor.grant(ResourceGeneric.CLASS, EmbeddedWallet.CLASS_NAME, 15);
-        investor.grant(ResourceGeneric.CLASS, CryptocurrencyWallet.CLASS_NAME, 7);
-        investor.grant(ResourceGeneric.CLASS, EthereumWallet.CLASS_NAME, 7);
 
-        investor.grant(ResourceGeneric.CLASS, Currency.CLASS_NAME, 2);
+        investor.grant(ResourceGeneric.CLASS, Token.CLASS_NAME, 2);
+
         investor.grant(ResourceGeneric.CLASS, ICOFarmModule.REFERRAL, 2);
         investor.grant(ResourceGeneric.CLASS, OUser.CLASS_NAME, 6);
         investor.grant(ResourceGeneric.CLASS, ICOFarmModule.REGISTRATION, 0);
+
+        investor.grant(ResourceGeneric.CLASS, ICOFarmModule.BUY_TOKENS, 2);
+        investor.grant(ResourceGeneric.CLASS, ICOFarmModule.TRANSFER_TOKENS, 2);
 
         investor.grant(ResourceGeneric.CLUSTER, "*", 15);
 
@@ -120,7 +133,6 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         reader.grant(ResourceGeneric.CLASS, OWidgetsModule.OCLASS_DASHBOARD, 2);
         reader.grant(ResourceGeneric.CLASS, PerspectivesModule.OCLASS_ITEM, 2);
         reader.grant(ResourceGeneric.CLASS, PerspectivesModule.OCLASS_PERSPECTIVE, 2);
-
         reader.save();
     }
 
@@ -128,9 +140,10 @@ public class ICOFarmSecurityModule extends AbstractOrienteerModule {
         OSchema schema = db.getMetadata().getSchema();
         OClass restricted = schema.getClass("ORestricted");
 
-        setRestricted(restricted, schema.getClass(OTransaction.CLASS_NAME));
         setRestricted(restricted, schema.getClass(ICOFarmModule.REFERRAL));
         setRestricted(restricted, schema.getClass(Wallet.CLASS_NAME));
+        setRestricted(restricted, schema.getClass(OUser.CLASS_NAME));
+        setRestricted(restricted, schema.getClass(OTransaction.CLASS_NAME));
     }
 
     private void setRestricted(OClass restricted, OClass oClass) {

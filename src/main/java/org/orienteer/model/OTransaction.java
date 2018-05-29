@@ -1,8 +1,12 @@
 package org.orienteer.model;
 
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 
 public class OTransaction extends ODocumentWrapper {
@@ -16,6 +20,8 @@ public class OTransaction extends ODocumentWrapper {
     public static final String OPROPERTY_HASH      = "hash";
     public static final String OPROPERTY_BLOCK     = "block";
     public static final String OPROPERTY_CONFIRMED = "confirmed";
+    public static final String OPROPERTY_TOKENS    = "tokens";
+    public static final String OPROPERTY_CURRENCY  = "currency";
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,15 +32,6 @@ public class OTransaction extends ODocumentWrapper {
     public OTransaction(ODocument iDocument) {
         super(iDocument);
     }
-
-//    public OTransaction(Transaction transaction, ODocument owner) {
-//	    this();
-//	    setFrom(transaction.getFrom());
-//	    setTo(transaction.getTo());
-//	    setHash(transaction.getHash());
-//	    setValue(transaction.getValue().toString());
-//	    document.field(ICOFarmSecurityModule.ORESTRICTED_ALLOW, Collections.singleton(owner));
-//    }
 
     public OTransaction setTimestamp(Date timestamp) {
 	    document.field(OPROPERTY_TIMESTAMP, timestamp);
@@ -88,6 +85,34 @@ public class OTransaction extends ODocumentWrapper {
 
     public OTransaction setConfirmed(boolean confirmed) {
 	    document.field(OPROPERTY_CONFIRMED, confirmed);
+	    return this;
+    }
+
+    public BigInteger getTokens() {
+	    BigDecimal tokens = document.field(OPROPERTY_TOKENS);
+	    return tokens != null ? tokens.toBigInteger() : BigInteger.ZERO;
+    }
+
+    public OTransaction setTokens(BigInteger tokens) {
+	    document.field(OPROPERTY_TOKENS, tokens);
+	    return this;
+    }
+
+    public Token getCurrency() {
+        OIdentifiable doc = document.field(OPROPERTY_CURRENCY);
+        if (doc instanceof ORecordId) {
+            doc = new ODocument((ORecordId) doc);
+        }
+	    return doc != null ? new Token((ODocument) doc) : null;
+    }
+
+    public OTransaction setCurrency(Token token) {
+	    document.field(OPROPERTY_CURRENCY, token);
+	    return this;
+    }
+
+    public OTransaction setCurrency(ODocument doc) {
+	    document.field(OPROPERTY_CURRENCY, doc);
 	    return this;
     }
 

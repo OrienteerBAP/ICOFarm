@@ -72,7 +72,6 @@ public class ICOFarmRegistrationResource extends AbstractResource {
             private void activateUser(String id) {
                 ICOFarmUser user = getUserById(id);
                 dbService.updateUserStatus(user, true);
-                dbService.createEmbeddedWalletForUser(user);
             }
 
             private void redirectToLoginPage() {
@@ -103,7 +102,7 @@ public class ICOFarmRegistrationResource extends AbstractResource {
     }
 
     private ICOFarmUser getUserById(String id) {
-        return dbService.getUserBy(ICOFarmUser.ID, id);
+        return dbService.getUserBy(ICOFarmUser.OPROPERTY_ID, id);
     }
 
     public static void mount(OrienteerWebApplication app) {

@@ -6,36 +6,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.orienteer.junit.OrienteerTestRunner;
 import org.orienteer.junit.OrienteerTester;
-import org.orienteer.service.ERC20Interface;
-import org.orienteer.service.TestStorage;
-import org.web3j.crypto.CipherException;
+import org.orienteer.service.web3.ERC20Interface;
 import org.web3j.crypto.Credentials;
-import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthSyncing;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.protocol.ipc.UnixIpcService;
-import org.web3j.protocol.ipc.WindowsIpcService;
-import org.web3j.tx.Transfer;
 import org.web3j.utils.Convert;
 
-import static org.junit.Assert.assertTrue;
-import static org.web3j.crypto.Hash.sha256;
-
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.util.concurrent.ExecutionException;
+
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(OrienteerTestRunner.class)

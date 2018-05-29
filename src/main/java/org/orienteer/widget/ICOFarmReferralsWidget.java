@@ -78,8 +78,8 @@ public class ICOFarmReferralsWidget extends AbstractICOFarmWidget<OClass> {
             @Override
             public void populateItem(Item<ICellPopulator<ODocument>> item, String componentId, IModel<ODocument> docModel) {
                 ODocument user = DBClosure.sudo((db) -> docModel.getObject().field(OPROPERTY_REFERRAL_USER));
-                String firstName = user.field(ICOFarmUser.FIRST_NAME);
-                String lastName = user.field(ICOFarmUser.LAST_NAME);
+                String firstName = user.field(ICOFarmUser.OPROPERTY_FIRST_NAME);
+                String lastName = user.field(ICOFarmUser.OPROPERTY_LAST_NAME);
                 item.add(new Label(componentId, firstName + " " + lastName));
             }
         });

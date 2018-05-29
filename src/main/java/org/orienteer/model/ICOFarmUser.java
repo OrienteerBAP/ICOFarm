@@ -1,20 +1,25 @@
 package org.orienteer.model;
 
+import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
-import java.util.Date;
+import java.util.*;
+
+import static org.orienteer.module.ICOFarmSecurityModule.ORESTRICTED_ALLOW_READ;
+import static org.orienteer.module.ICOFarmSecurityModule.ORESTRICTED_ALLOW_UPDATE;
 
 public class ICOFarmUser extends OUser {
 	private static final long serialVersionUID = 1L;
 
-	public static final String FIRST_NAME         = "firstName";
-    public static final String LAST_NAME          = "lastName";
-    public static final String EMAIL              = "email";
-    public static final String ID                 = "id";
-    public static final String RESTORE_ID         = "restoreId";
-    public static final String RESTORE_ID_CREATED = "restoreIdCreated";
-    public static final String ETH_WALLET = "ethereumWallet";
+	public static final String OPROPERTY_FIRST_NAME         = "firstName";
+    public static final String OPROPERTY_LAST_NAME          = "lastName";
+    public static final String OPROPERTY_EMAIL              = "email";
+    public static final String OPROPERTY_ID                 = "id";
+    public static final String OPROPERTY_RESTORE_ID         = "restoreId";
+    public static final String ORPOPERTY_RESTORE_ID_CREATED = "restoreIdCreated";
+    public static final String OPROPERTY_WALLETS            = "wallets";
 
     public ICOFarmUser() {
         super(ICOFarmUser.CLASS_NAME);
@@ -25,61 +30,91 @@ public class ICOFarmUser extends OUser {
     }
 
     public ICOFarmUser setFirstName(String firstName) {
-        document.field(FIRST_NAME, firstName);
+        document.field(OPROPERTY_FIRST_NAME, firstName);
         return this;
     }
 
     public String getFirstName() {
-        return document.field(FIRST_NAME);
+        return document.field(OPROPERTY_FIRST_NAME);
     }
 
     public ICOFarmUser setLastName(String lastName) {
-        document.field(LAST_NAME, lastName);
+        document.field(OPROPERTY_LAST_NAME, lastName);
         return this;
     }
 
     public String getLastName() {
-        return document.field(LAST_NAME);
+        return document.field(OPROPERTY_LAST_NAME);
     }
 
     public ICOFarmUser setEmail(String email) {
-        document.field(EMAIL, email);
+        document.field(OPROPERTY_EMAIL, email);
         return this;
     }
 
     public String getEmail() {
-        return document.field(EMAIL);
+        return document.field(OPROPERTY_EMAIL);
     }
 
     public ICOFarmUser setId(String id) {
-        document.field(ID, id);
+        document.field(OPROPERTY_ID, id);
         return this;
     }
 
     public String getId() {
-        return document.field(ID);
+        return document.field(OPROPERTY_ID);
     }
 
     public ICOFarmUser setRestoreId(String restoreId) {
-        document.field(RESTORE_ID, restoreId);
+        document.field(OPROPERTY_RESTORE_ID, restoreId);
         return this;
     }
 
     public String getRestoreId() {
-        return document.field(RESTORE_ID);
+        return document.field(OPROPERTY_RESTORE_ID);
     }
 
     public ICOFarmUser setRestoreIdCreated(Date date) {
-        document.field(RESTORE_ID_CREATED, date);
+        document.field(ORPOPERTY_RESTORE_ID_CREATED, date);
         return this;
     }
 
-    public Date getRestoreIdCreated() {
-        return document.field(RESTORE_ID_CREATED);
+    public ICOFarmUser setActive(boolean active) {
+        setAccountStatus(active ? STATUSES.ACTIVE : STATUSES.SUSPENDED);
+        Set<OIdentifiable> readers = document.field(ORESTRICTED_ALLOW_READ);
+        Set<OIdentifiable> updaters = document.field(ORESTRICTED_ALLOW_UPDATE);
+        if (readers == null) readers = new HashSet<>();
+        if (updaters == null) updaters = new HashSet<>();
+
+        readers.add(document);
+        updaters.add(document);
+
+        document.field(ORESTRICTED_ALLOW_READ, readers);
+        document.field(ORESTRICTED_ALLOW_UPDATE, updaters);
+
+        return this;
     }
 
-    public EthereumWallet getMainETHWallet() {
-    	ODocument wallet = document.field(ETH_WALLET);
-        return wallet!=null?new EthereumWallet(wallet):null;
+    public boolean isActive() {
+        return getAccountStatus() == STATUSES.ACTIVE;
+    }
+
+    public Date getRestoreIdCreated() {
+        return document.field(ORPOPERTY_RESTORE_ID_CREATED);
+    }
+
+    public List<Wallet> getWallets() {
+    	List<OIdentifiable> docs = document.field(OPROPERTY_WALLETS);
+    	List<Wallet> wallets = null;
+    	if (docs != null && !docs.isEmpty()) {
+            wallets = new ArrayList<>(docs.size());
+            for (OIdentifiable doc : docs) {
+                if (doc instanceof ORecordId) {
+                    doc = new ODocument((ORecordId) doc);
+                }
+                wallets.add(new Wallet((ODocument) doc));
+            }
+        }
+        return wallets != null ? wallets : Collections.emptyList();
     }
 }
