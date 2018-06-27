@@ -193,9 +193,9 @@ public class DBServiceImpl implements IDBService {
     @Override
     public void clearRestoreStatusForUser(ICOFarmUser user) {
         dbClosure.get().execute(db -> {
+            db.getMetadata().getScheduler().removeEvent(EVENT_RESTORE_PASSWORD_PREFIX + user.getRestoreId());
             user.setRestoreId(null);
             user.setRestoreIdCreated(null);
-            db.getMetadata().getScheduler().removeEvent(EVENT_RESTORE_PASSWORD_PREFIX + user.getRestoreId());
             user.save();
             return null;
         });
