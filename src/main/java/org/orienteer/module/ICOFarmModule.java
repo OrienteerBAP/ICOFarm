@@ -7,6 +7,8 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.schedule.OScheduledEvent;
+import com.orientechnologies.orient.core.schedule.OScheduler;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.apache.wicket.model.ResourceModel;
@@ -23,6 +25,7 @@ import org.orienteer.service.web3.IEthereumUpdateService;
 import org.orienteer.tasks.LoadTokenTransactionsTask;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -282,6 +285,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 	public void onInitialize(OrienteerWebApplication app, ODatabaseDocument db, ODocument moduleDoc) {
 		super.onInitialize(app, db, moduleDoc);
 		updateService.init(moduleDoc);
+		OScheduler scheduler = db.getMetadata().getScheduler();
+		Collection<OScheduledEvent> events = scheduler.getEvents().values(); // TODO: remove after fix issue https://github.com/orientechnologies/orientdb/issues/8368
+		for (OScheduledEvent event : events) {
+			scheduler.updateEvent(event);
+		}
 	}
 
 	@Override
