@@ -17,6 +17,7 @@ import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import org.orienteer.ICOFarmApplication;
 import org.orienteer.core.tasks.OTask;
 import org.orienteer.core.tasks.OTaskSession;
+import org.orienteer.mail.model.OMail;
 import org.orienteer.model.*;
 import org.orienteer.module.ICOFarmModule;
 import org.orienteer.module.ICOFarmSecurityModule;
@@ -65,7 +66,7 @@ public class DBServiceImpl implements IDBService {
     @Override
     public OMail getMailByName(String name) {
         List<ODocument> docs = query(null, new OSQLSynchQuery<>(String.format("select from %s where %s = ?",
-                OMail.CLASS_NAME, OMail.NAME), 1), name);
+                OMail.CLASS_NAME, OMail.OPROPERTY_NAME), 1), name);
         return getFromDocs(docs, OMail::new);
     }
 

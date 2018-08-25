@@ -17,12 +17,12 @@ import java.util.stream.Collector;
 
 public final class ICOFarmUtils {
 
-    public static Map<Object, Object> getUserMacros(ICOFarmUser user) {
+    public static Map<String, Object> getUserMacros(ICOFarmUser user) {
         return getUserMacros(user.getDocument());
     }
 
-    public static Map<Object, Object> getUserMacros(ODocument doc) {
-        Map<Object, Object> map = new HashMap<>(1);
+    public static Map<String, Object> getUserMacros(ODocument doc) {
+        Map<String, Object> map = new HashMap<>(1);
         map.put("firstName", doc.field(ICOFarmUser.OPROPERTY_FIRST_NAME));
         map.put("lastName", doc.field(ICOFarmUser.OPROPERTY_LAST_NAME));
         map.put("email", doc.field(ICOFarmUser.OPROPERTY_EMAIL));

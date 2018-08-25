@@ -1,8 +1,11 @@
 package org.orienteer.service;
 
 import com.google.inject.Inject;
+
+import org.orienteer.mail.model.OMail;
+import org.orienteer.mail.model.OPreparedMail;
+import org.orienteer.mail.service.IOMailService;
 import org.orienteer.model.ICOFarmUser;
-import org.orienteer.model.OMail;
 import org.orienteer.resource.ICOFarmRestorePasswordResource;
 import org.orienteer.util.ICOFarmUtils;
 
@@ -31,10 +34,9 @@ public class RestorePasswordServiceImpl implements IRestorePasswordService {
 
     private void sendRestoreLink(ICOFarmUser user) {
         OMail mail = dbService.getMailByName("restore");
-        Map<Object, Object> macros = ICOFarmUtils.getUserMacros(user);
+        Map<String, Object> macros = ICOFarmUtils.getUserMacros(user);
         macros.put("link", ICOFarmRestorePasswordResource.getLinkForUser(user));
-        mail.setMacros(macros);
-        mailService.sendMailAsync(user.getEmail(), mail);
+        mailService.sendMailAsync(new OPreparedMail(mail, macros).addRecipient(user.getEmail()));
     }
 
 }

@@ -19,6 +19,8 @@ import org.orienteer.core.module.AbstractOrienteerModule;
 import org.orienteer.core.tasks.OTask;
 import org.orienteer.core.util.CommonUtils;
 import org.orienteer.core.util.OSchemaHelper;
+import org.orienteer.mail.model.OMail;
+import org.orienteer.mail.model.OMailSettings;
 import org.orienteer.model.*;
 import org.orienteer.service.IDBService;
 import org.orienteer.service.web3.IEthereumUpdateService;
@@ -250,11 +252,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
     private ODocument createDefaultMailConfig() {
 	    ODocument doc = new ODocument(OMailSettings.CLASS_NAME);
-	    doc.field(OMailSettings.EMAIL, "icofarm.default@gmail.com");
-	    doc.field(OMailSettings.PASSWORD, "default");
-	    doc.field(OMailSettings.SMTP_HOST, "smtp.gmail.com");
-	    doc.field(OMailSettings.SMTP_PORT, 587);
-	    doc.field(OMailSettings.TLS_SSL, true);
+	    doc.field(OMailSettings.OPROPERTY_EMAIL, "icofarm.default@gmail.com");
+	    doc.field(OMailSettings.OPROPERTY_PASSWORD, "default");
+	    doc.field(OMailSettings.OPROPERTY_SMTP_HOST, "smtp.gmail.com");
+	    doc.field(OMailSettings.OPROPERTY_SMTP_PORT, 587);
+	    doc.field(OMailSettings.OPROPERTY_TLS_SSL, true);
 	    doc.save();
 
 	    return doc;
@@ -262,11 +264,11 @@ public class ICOFarmModule extends AbstractOrienteerModule {
 
     private void createMail(String name, String subject, String from, String text, ODocument settings) {
 	    ODocument doc = new ODocument(OMail.CLASS_NAME);
-	    doc.field(OMail.NAME, name);
-        doc.field(OMail.SUBJECT, subject);
-	    doc.field(OMail.FROM, from);
-	    doc.field(OMail.TEXT, text);
-        doc.field(OMail.SETTINGS, settings);
+	    doc.field(OMail.OPROPERTY_NAME, name);
+        doc.field(OMail.OPROPERTY_SUBJECT, subject);
+	    doc.field(OMail.OPROPERTY_FROM, from);
+	    doc.field(OMail.OPROPERTY_TEXT, text);
+        doc.field(OMail.OPROPERTY_SETTINGS, settings);
 	    doc.save();
     }
 

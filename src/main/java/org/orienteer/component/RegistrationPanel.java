@@ -15,12 +15,13 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.orienteer.core.OrienteerWebSession;
+import org.orienteer.mail.model.OMail;
+import org.orienteer.mail.model.OPreparedMail;
+import org.orienteer.mail.service.IOMailService;
 import org.orienteer.model.ICOFarmUser;
-import org.orienteer.model.OMail;
 import org.orienteer.module.ICOFarmModule;
 import org.orienteer.resource.ICOFarmRegistrationResource;
 import org.orienteer.service.IDBService;
-import org.orienteer.service.IOMailService;
 import org.orienteer.service.web3.IEthereumService;
 import org.orienteer.util.EmailExistsValidator;
 import org.orienteer.util.ICOFarmUtils;
@@ -102,12 +103,11 @@ public class RegistrationPanel extends Panel {
             }
 
             private void sendActivationEmail(ICOFarmUser user) {
-                Map<Object, Object> macros = ICOFarmUtils.getUserMacros(user);
+                Map<String, Object> macros = ICOFarmUtils.getUserMacros(user);
                 String email = user.getEmail();
                 OMail oMail = dbService.getMailByName(ICOFarmModule.REGISTRATION_MAIL_NAME);
                 macros.put("link", ICOFarmRegistrationResource.genRegistrationLink(user));
-                oMail.setMacros(macros);
-                mailService.sendMailAsync(email, oMail);
+                mailService.sendMailAsync(new OPreparedMail(oMail, macros).addRecipient(email));
             }
 
             private void createWalletForUser(ICOFarmUser user, String password) {

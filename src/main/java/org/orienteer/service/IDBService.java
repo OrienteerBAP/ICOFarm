@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import org.apache.wicket.util.io.IClusterable;
 import org.orienteer.core.tasks.OTask;
 import org.orienteer.core.tasks.OTaskSession;
+import org.orienteer.mail.model.OMail;
 import org.orienteer.model.*;
 import org.orienteer.tasks.LoadTokenTransactionsTask;
 import org.web3j.protocol.core.DefaultBlockParameter;

@@ -9,8 +9,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.orienteer.core.OrienteerWebSession;
 import org.orienteer.junit.OrienteerTestRunner;
+import org.orienteer.mail.model.OMail;
 import org.orienteer.model.ICOFarmUser;
-import org.orienteer.model.OMail;
 import org.orienteer.service.IDBService;
 
 import java.util.List;
