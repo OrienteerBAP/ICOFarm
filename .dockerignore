@@ -18,3 +18,7 @@ ICOFarm/
 **/.idea/
 **/*.iml
 **/*.log
+**/*.tar.gz
+.classpath
+.project
+.settings/

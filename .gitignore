@@ -7,4 +7,8 @@ libs/
 plugins/
 .idea/
 *.iml
+*.tar.gz
 /Orienteer
+.classpath
+.project
+.settings/
